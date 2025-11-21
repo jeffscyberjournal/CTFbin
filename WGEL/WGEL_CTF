@@ -49,7 +49,7 @@ root@ip-10-201-64-140:~#
 - Exploit-db did have one option, an unverified method to enumerate, however a username jessie is determined in the index.html from a comment later on.
 Seachsploit also shows two exploits both enumeration related.
 
-```markdown
+
 ![WGEL Searchsploit OpenSSH Screenshot](WGEL_SEARCHSPLOIT_OPENSSH.png)
 
 
