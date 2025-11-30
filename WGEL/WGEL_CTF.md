@@ -40,10 +40,9 @@ root@ip-10-201-64-140:~#
 ```
 ##This tells use: 
 - SSH with openssh7.2p2
-
-OpenSSH 7.2p2 — Known Vulnerabilities
-    OpenSSH 7.2p2, released in 2016, has several documented weaknesses:
-       - CVE-2016-0777 & CVE-2016-0778: Vulnerabilities in the roaming feature could allow information leakage and remote code execution. These were severe enough to prompt emergency patches.
+- OpenSSH 7.2p2 — Known Vulnerabilities
+    - OpenSSH 7.2p2, released in 2016, has several documented weaknesses:
+    - CVE-2016-0777 & CVE-2016-0778: Vulnerabilities in the roaming feature could allow information leakage and remote code execution. These were severe enough to prompt emergency patches.
 ![OpenSSH 7.2p2](WGEL_OPENSHH_EXPLOIT_DB.png)
 - CVE-2016-10009: A flaw in privilege separation could allow local privilege escalation.
 - CVE-2016-1908: A race condition in sshd could lead to denial of service.
