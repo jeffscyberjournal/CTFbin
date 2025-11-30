@@ -37,25 +37,34 @@ HOP RTT     ADDRESS
 OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 10.15 seconds
 root@ip-10-201-64-140:~# 
-
+```
 ##This tells use: 
 - SSH with openssh7.2p2
 
 OpenSSH 7.2p2 — Known Vulnerabilities
-     OpenSSH 7.2p2, released in 2016, has several documented weaknesses:
-- CVE-2016-0777 & CVE-2016-0778: Vulnerabilities in the roaming feature could allow information leakage and remote code execution. These were severe enough to prompt emergency patches.
-WGEL/WGEL_OPENSHH_EXPLOIT_DB.png
+    OpenSSH 7.2p2, released in 2016, has several documented weaknesses:
+       - CVE-2016-0777 & CVE-2016-0778: Vulnerabilities in the roaming feature could allow information leakage and remote code execution. These were severe enough to prompt emergency patches.
+![OpenSSH 7.2p2](WGEL_OPENSHH_EXPLOIT_DB.png)
 - CVE-2016-10009: A flaw in privilege separation could allow local privilege escalation.
 - CVE-2016-1908: A race condition in sshd could lead to denial of service.
 ### Recommendation: Disable the roaming feature (if not already patched) and upgrade to a newer OpenSSH version (e.g., 9.x) to mitigate these risks.
-![OpenSSH 7.2p2](WGEL/WGEL_OPENSHH_EXPLOIT_DB.png)
+
 - Exploit-db did have one option, an unverified method to enumerate, however a username jessie is determined in the index.html from a comment later on.
 Seachsploit also shows two exploits both enumeration related.
 
 
 ![WGEL Searchsploit OpenSSH Screenshot](WGEL_SEARCHSPLOIT_OPENSSH.png)
 
+- HTTP Apache httpd 2.4.18
+  Apache HTTP Server 2.4.18 — Known Vulnerabilities
+     Apache 2.4.18 has been affected by several CVEs over the years. Key issues include:
+	• CVE-2018-17189: HTTP/2 slow request handling could tie up server threads, similar to a Slowloris attack.
+	• CVE-2019-0196: HTTP/2 request handling could access freed memory, leading to potential crashes or data leaks.
+	• CVE-2024-40725 & CVE-2024-40898: Affect versions up to 2.4.61, including 2.4.18. These allow HTTP request smuggling and SSL client authentication bypass, potentially leading to unauthorized access.
+	• Multiple DoS and memory corruption issues have been reported between 2016 and 2025, with varying severity.
+     Recommendation: Upgrade to Apache 2.4.58 or later, which includes fixes for recent HTTP/2 vulnerabilities.
 
 
-
-to be continued....
+Before we consider vulnerabilities let's check the webserver has content:
+The website appear to be normal default apache website:
+![Apache2 default screen](WGEL_SEARCHSPLOIT_OPENSSH.png)
