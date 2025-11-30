@@ -239,4 +239,4 @@ Then use sudo /bin/bash to upgrade to. This runs a shell as a command in sudo co
 	- (ALL : ALL) → You can run commands as any user and as any group.
 The final ALL → You can run any command.
 
-![WGEL_USE_PRIVATE_SSH_KEY_FROM_SITEMAP_FOLDER.png](WGEL_Upgrade_root.png))
+![WGEL_USE_PRIVATE_SSH_KEY_FROM_SITEMAP_FOLDER.png](WGEL_Upgrade_root.png)
