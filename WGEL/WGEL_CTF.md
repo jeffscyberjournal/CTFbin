@@ -72,4 +72,47 @@ The website appear to be normal default apache website:
 The only thing unusual is the comment inside:
 Jessie might be worth using later.
 
+![Potential User name found in html code](WGEL_Default_apache_page_jessie_comment.png)
+
+Let's run dirbuster to gain idea of what directory structure and files are directly accessible from IP address only/.
+
+- gobuster dir -u http://TARGET-IP -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -t 50 -x php,txt,html -e -k
+```text
+root@ip-ATTACKBOXIP:/usr/share/wordlists/SecLists/Discovery/Web-Content# gobuster dir -u http://TARGET-IP -w /usr/share/wordlists/SecLists/Discovery/Web-Content/raft-medium-directories.txt -t 50 -x php,txt,html -e -k
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.201.98.216
+[+] Method:                  GET
+[+] Threads:                 50
+[+] Wordlist:                /usr/share/wordlists/SecLists/Discovery/Web-Content/raft-medium-directories.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Extensions:              php,txt,html
+[+] Expanded:                true
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+http://10.201.98.216/sitemap              (Status: 301) [Size: 316] [--> http://10.201.98.216/sitemap/]
+http://10.201.98.216/index.html           (Status: 200) [Size: 11374]
+http://10.201.98.216/server-status        (Status: 403) [Size: 278]
+http://10.201.98.216/.html                (Status: 403) [Size: 278]
+Progress: 84649 / 120004 (70.54%)[ERROR] parse "http://10.201.98.216/besalu\t.txt": net/url: invalid control character in URL
+[ERROR] parse "http://10.201.98.216/besalu\t.html": net/url: invalid control character in URL
+[ERROR] parse "http://10.201.98.216/besalu\t.php": net/url: invalid control character in URL
+Progress: 90837 / 120004 (75.69%)[ERROR] parse "http://10.201.98.216/error\x1f_log": net/url: invalid control character in URL
+[ERROR] parse "http://10.201.98.216/error\x1f_log.php": net/url: invalid control character in URL
+[ERROR] parse "http://10.201.98.216/error\x1f_log.txt": net/url: invalid control character in URL
+[ERROR] parse "http://10.201.98.216/error\x1f_log.html": net/url: invalid control character in URL
+Progress: 120000 / 120004 (100.00%)
+===============================================================
+Finished
+===============================================================
+```
+
+index.html looks of interest here. But accessing the website by IP takes us there by default.
+Sitemap however looked like worth a try:
+
 
