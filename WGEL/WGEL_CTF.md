@@ -44,10 +44,11 @@ root@ip-10-201-64-140:~#
 OpenSSH 7.2p2 — Known Vulnerabilities
      OpenSSH 7.2p2, released in 2016, has several documented weaknesses:
 - CVE-2016-0777 & CVE-2016-0778: Vulnerabilities in the roaming feature could allow information leakage and remote code execution. These were severe enough to prompt emergency patches.
+WGEL/WGEL_OPENSHH_EXPLOIT_DB.png
 - CVE-2016-10009: A flaw in privilege separation could allow local privilege escalation.
 - CVE-2016-1908: A race condition in sshd could lead to denial of service.
 ### Recommendation: Disable the roaming feature (if not already patched) and upgrade to a newer OpenSSH version (e.g., 9.x) to mitigate these risks.
-
+![OpenSSH 7.2p2](WGEL/WGEL_OPENSHH_EXPLOIT_DB.png)
 - Exploit-db did have one option, an unverified method to enumerate, however a username jessie is determined in the index.html from a comment later on.
 Seachsploit also shows two exploits both enumeration related.
 
