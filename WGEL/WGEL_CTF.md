@@ -67,4 +67,9 @@ Seachsploit also shows two exploits both enumeration related.
 
 Before we consider vulnerabilities let's check the webserver has content:
 The website appear to be normal default apache website:
-![Apache2 default screen](WGEL_SEARCHSPLOIT_OPENSSH.png)
+![Apache2 default screen](WGEL_Default_apache_page.png)
+
+The only thing unusual is the comment inside:
+Jessie might be worth using later.
+
+
