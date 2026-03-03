@@ -221,7 +221,9 @@ rwx-rws-rwx
 
 Finding SUID Binaries
 
-We already know that there is SUID capable files on the system, thanks to our LinEnum scan. However, if we want to do this manually we can use the command: "find / -perm -u=s -type f 2>/dev/null" to search the file system for SUID/GUID files. Let's break down this command.
+We already know that there is SUID capable files on the system, thanks to our LinEnum scan. However, if we want to do this manually we can use the command: 
+'''find / -perm -u=s -type f 2>/dev/null''' 
+to search the file system for SUID/GUID files. Let's break down this command.
 find - Initiates the "find" command
 / - Searches the whole file system
 -perm - searches for files with specific permissions
