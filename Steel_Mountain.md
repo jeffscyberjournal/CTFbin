@@ -54,7 +54,7 @@ Answer: 2014-6287
 
 There is a few options but that’s the answer here:
 
-Rejetto HTTP File Server (HFS) version 2.3 is a popular, lightweight web-based file sharing application designed for Windows. While known for its ease of use (drag-and-drop), version 2.3 and its sub-versions (2.3a-2.3m) are critically vulnerable to Remote Code Execution (RCE) and are actively targeted by threat actors.Key Security Vulnerabilities
+Rejetto HTTP File Server (HFS) version 2.3 is a popular, lightweight web-based file sharing application designed for Windows. While known for its ease of use (drag-and-drop), version 2.3 and its sub-versions (2.3a-2.3m) are critically vulnerable to Remote Code Execution (RCE) and are actively targeted by threat actors. Key Security Vulnerabilities
 
 	- CVE-2024-23692 (Critical - RCE): A Server-Side Template Injection (SSTI) vulnerability affecting HFS up to and including version 2.3m. Unauthenticated attackers can send crafted HTTP requests to execute arbitrary commands. This vulnerability is currently being exploited in the wild.
 	- CVE-2014-6287 (Critical - RCE): A vulnerability in parserLib.pas in versions before 2.3c, allowing remote code execution via a null byte in a search action.
