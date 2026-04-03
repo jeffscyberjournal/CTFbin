@@ -13,11 +13,11 @@ Its half of the image from a scene from the TV series Mr Robot. Hence Steel Moun
 
 # Task 2 Initial Access
 ## Q1: scan machine what other ports does web server run on:
+```
 nmap --top-ports 1000 -sV <TargetIP>
 Starting Nmap 7.80 ( https://nmap.org ) at 2026-03-29 15:35 BST
-mass_dns: warning: Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers
-mass_dns: warning: Unable to determine any DNS servers. Reverse DNS is disabled. Try using --system-dns or specify valid servers with --dns-servers
-Nmap scan report for <TargetIP>
+mass_dns: warning: 
+...
 Host is up (0.00033s latency).
 Not shown: 989 closed ports
 PORT      STATE SERVICE            VERSION
@@ -33,11 +33,8 @@ PORT      STATE SERVICE            VERSION
 49155/tcp open  msrpc              Microsoft Windows RPC
 49156/tcp open  msrpc              Microsoft Windows RPC
 Service Info: OSs: Windows, Windows Server 2008 R2 - 2012; CPE: cpe:/o:microsoft:windows
-
-Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-Nmap done: 1 IP address (1 host up) scanned in 61.54 seconds
-root@ip-10-65-96-229:~# 
-
+... 
+```
 Answer: 8080 there is a HTTP file service HTTPFileServer httpd 2.3 running.
 
 ## Q2: What file server is running using google search shows many referencing rejetto, google exploit db shows:
