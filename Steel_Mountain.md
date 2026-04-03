@@ -1,9 +1,10 @@
 # Task one - Recon:
 ## Q1: Who is the employee of the month, hint is to use image reverse search.
-Answer Bill Harper. This was quite evident from simply saving file with the default file name:
-BillHarper.png sort of gave it away. But if this was not the case use TinEye reverse Image search engine.
+Answer: Bill Harper. 
+This was quite evident from simply saving file with the default file name:
+BillHarper.png sort of gave it away. But if this was not the case use TinEye reverse Image search engine provided more information.
 
-TinEye provides:
+## TinEye provides:
 31 results
 TinEye searched 82.6 billion images for: BillHarper.png
 First indexed by TinEye on December 5, 2015
