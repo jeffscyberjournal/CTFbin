@@ -55,7 +55,40 @@ It’s a tell‑tale sign of an old Java web application using Acegi Security, w
 acegi refers to Acegi Security, which was the original name of Spring Security, the Java security framework used in many older web applications.
 
 The application is using old Spring Security (pre‑2008)
-✔ The login form is posting to the default Acegi authentication endpoint
-✔ The app is likely running on Java / Tomcat / JSP
-✔ It may be vulnerable depending on how outdated the framework is
+✔ The login form is posting to the default Acegi authentication endpoint.
+✔ The app is likely running on Java / Tomcat / JSP.
+✔ It may be vulnerable depending on how outdated the framework is.
+
+## Q2 What is the username and password for the login panel? (in the format username:password):
+
+Considering the answer expected is *****:*****, with consideration of the names found on the site and common names you would expect  with wayne, bruce and admin, were likely expected to be one of options, password I considerd common list i decided not to try a common wordlist as these were enough to guess it. But should there have been more the process is simple with burpe suite community edition. 
+- Set up proxy in browser like foxy proxy. Turn intercept on in proxy configuration on burpse suite.
+- Fill user name and password box with easily identifiable locators, the select "sign in".
+- That is captured in burpe suite check the login details are listed and forward to intruder.
+- Use cluster bomb not sniper mode as more than one variable and assign wordlists to each variable then start attack.
+- The output will all be status code 302, but the headers are what vary, only admin:admin are successful.
+
+Unsuccessful (admin:wayne)
+```
+HTTP/1.1 302 Found
+Date: Sun, 05 Apr 2026 11:42:40 GMT
+X-Content-Type-Options: nosniff
+Set-Cookie: JSESSIONID.a7acbf59=node0culm1u2k46xraz96yxi7hhci19.node0;Path=/;HttpOnly
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Set-Cookie: ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE=;Path=/;Expires=Thu, 01-Jan-1970 00:00:00 GMT;Max-Age=0;HttpOnly
+Location: http://10.49.152.15:8080/loginError
+Content-Length: 0
+Server: Jetty(9.4.z-SNAPSHOT
+```
+Successful (admin:admin)
+```
+HTTP/1.1 302 Found
+Date: Sun, 05 Apr 2026 11:42:46 GMT
+X-Content-Type-Options: nosniff
+Set-Cookie: JSESSIONID.a7acbf59=node01m7pxm70badb17albaatsn8v23.node0;Path=/;HttpOnly
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Location: http://10.49.152.15:8080/
+Content-Length: 0
+Server: Jetty(9.4.z-SNAPSHOT)
+```
 
