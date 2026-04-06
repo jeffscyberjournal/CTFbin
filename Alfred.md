@@ -59,9 +59,9 @@ It’s a tell‑tale sign of an old Java web application using Acegi Security, w
 acegi refers to Acegi Security, which was the original name of Spring Security, the Java security framework used in many older web applications.
 
 The application is using old Spring Security (pre‑2008)
-✔ The login form is posting to the default Acegi authentication endpoint.
-✔ The app is likely running on Java / Tomcat / JSP.
-✔ It may be vulnerable depending on how outdated the framework is.
+- The login form is posting to the default Acegi authentication endpoint.
+- The app is likely running on Java / Tomcat / JSP.
+- It may be vulnerable depending on how outdated the framework is.
 
 ## Q2 What is the username and password for the login panel? (in the format username:password):
 
