@@ -3,7 +3,7 @@ Exploit Jenkins to gain an initial shell, then escalate your privileges by explo
 
 In this room, we'll learn how to exploit a common misconfiguration on a widely used automation server(Jenkins - This tool is used to create continuous integration/continuous development pipelines that allow developers to automatically deploy their code once they made changes to it). After which, we'll use an interesting privilege escalation method to get full system access. 
 
-Task 1 Initial Access:
+# Task 1 Initial Access:
 
 In this room, we'll learn how to exploit a common misconfiguration on a widely used automation server(Jenkins - This tool is used to create continuous integration/continuous development pipelines that allow developers to automatically deploy their code once they made changes to it). After which, we'll use an interesting privilege escalation method to get full system access. 
 
@@ -15,7 +15,7 @@ git clone https://github.com/samratashok/nishang
 
 Please note that this machine does not respond to ping (ICMP) and may take a few minutes to boot up.
 
-NMAP scan (no ping Pn): 
+### NMAP scan (no ping Pn): 
 ```root@ip-10-49-106-177:~# nmap -sT -sC 10.49.135.47
 Starting Nmap 7.80 ( https://nmap.org ) at 2026-04-03 17:40 BST
 mass_dns: warning: Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers
@@ -58,21 +58,23 @@ It’s a tell‑tale sign of an old Java web application using Acegi Security, w
 
 acegi refers to Acegi Security, which was the original name of Spring Security, the Java security framework used in many older web applications.
 
-The application is using old Spring Security (pre‑2008)
+### The application is using old Spring Security (pre‑2008)
 - The login form is posting to the default Acegi authentication endpoint.
 - The app is likely running on Java / Tomcat / JSP.
 - It may be vulnerable depending on how outdated the framework is.
 
 ## Q2 What is the username and password for the login panel? (in the format username:password):
 
-Considering the answer expected is *****:*****, with consideration of the names found on the site and common names you would expect  with wayne, bruce and admin, were likely expected to be one of options, password I considerd common list i decided not to try a common wordlist as these were enough to guess it. But should there have been more the process is simple with burpe suite community edition. 
+Considering the answer expected is *****:*****, with consideration of the names found on the site and common names you would expect with wayne, bruce and admin, were likely expected to be one of options, password I considerd common list i decided not to try a common wordlist as these were enough to guess it. No need for brute force.  
+
+Answer: Only admin:admin are successful.
+
+Just to keep fresh with burpe here is a basic example of cluster bomb approach for multiple unkowns or sniper if only one variable unknown:
 - Set up proxy in browser like foxy proxy. Turn intercept on in proxy configuration on burpse suite.
 - Fill user name and password box with easily identifiable locators, the select "sign in".
 - That is captured in burpe suite check the login details are listed and forward to intruder.
 - Use cluster bomb not sniper mode as more than one variable and assign wordlists to each variable then start attack.
 - The output will all be status code 302, but the headers are what vary. 
-
-Answer: Only admin:admin are successful.
 
 Unsuccessful (admin:wayne)
 ```
@@ -97,7 +99,21 @@ Location: http://10.49.152.15:8080/
 Content-Length: 0
 Server: Jetty(9.4.z-SNAPSHOT)
 ```
-It was also worth considering some applications with java used to have password hardcoded into the applications. so it was worth looking at gobuster to check what folders or files could be enumerated. No real luck  the two files with status code 200 the reset 
+It was also worth considering some applications with java used to have password hardcoded into the applications. so it was worth looking at gobuster to check what folders or files could be enumerated. No real luck  the two files with status code 200 the reset.
+
+You can filter further using:
+1. In Intruder → Options
+2. Scroll to Grep – Extract
+3. Click Add
+4. In the response preview, highlight the Location header
+(Burp will auto‑fill the regex)
+5. Save
+
+Now your Intruder results table will show a new column like:
+
+Payload	        Status	    Extracted
+admin:wayne	    302	        /loginError
+admin:admin	    302	        /
 
 ```
 gobuster dir -u http://TARGET-IP -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -t 50 -x php,txt,html -e -k
