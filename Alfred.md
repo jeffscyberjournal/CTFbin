@@ -325,31 +325,30 @@ SeCreateSymbolicLinkPrivilege   Create symbolic links                     Disabl
 ```
 SeImpersonatePrivilege and SeDebugPrivilege are required to impersonate a process or user.
 
-## There are two types of access tokens: 
-(more info on tokens: https://learn.microsoft.com/en-us/windows/win32/secauthz/access-tokens)
-- Primary access tokens: those associated with a user account that are generated on log on.
-- Impersonation tokens: these allow a particular process(or thread in a process) to gain access to resources using the token of another (user/client) process. These are the ones of interest here.
+### Windows uses two main types of access tokens:
+- Primary tokens – created when a user logs in; they define the user’s identity and privileges for processes they start.
+- Impersonation tokens – let a process or thread temporarily act using another user’s security context. These are the ones relevant for privilege escalation.
 
-These are the levels of impersonation tokens:
-- SecurityAnonymous: current user/client cannot impersonate another user/client
-- SecurityIdentification: current user/client can get the identity and privileges of a client but cannot impersonate the client
-- SecurityImpersonation: current user/client can impersonate the client's security context on the local system
-- SecurityDelegation: current user/client can impersonate the client's security context on a remote system
+### Impersonation Levels:
+- SecurityAnonymous – the process cannot impersonate anyone.
+- SecurityIdentification – the process can read a client’s identity and privileges but cannot act as them.
+- SecurityImpersonation – the process can fully impersonate the client on the local machine.
+- SecurityDelegation – the process can impersonate the client on remote systems as well, enabling actions across the network.
 
-Where the security context is a data structure that contains users' relevant security information.
+Where the security context:
+A security context is simply the data structure Windows uses to store a user’s identity, groups, and privileges, everything the system needs to decide what that user or process is allowed to do.
 
-The privileges of an account(which are either given to the account when created or inherited from a group) allow a user to carry out particular actions. Here are the most commonly abused privileges:
-
-SeImpersonatePrivilege
-SeAssignPrimaryPrivilege
-SeTcbPrivilege
-SeBackupPrivilege
-SeRestorePrivilege
-SeCreateTokenPrivilege
-SeLoadDriverPrivilege
-SeTakeOwnershipPrivilege
-SeDebugPrivilege
-There's more reading here (https://www.exploit-db.com/papers/42556).
+Privileges are the specific high‑level actions an account is permitted to perform, either assigned directly or inherited from its groups. In privilege‑escalation scenarios, attackers focus on a small set of powerful privileges that can be misused to gain higher access.
+- SeImpersonatePrivilege
+- SeAssignPrimaryPrivilege
+- SeTcbPrivilege
+- SeBackupPrivilege
+- SeRestorePrivilege
+- SeCreateTokenPrivilege
+- SeLoadDriverPrivilege
+- SeTakeOwnershipPrivilege
+- SeDebugPrivilege
+- There's more reading here (https://www.exploit-db.com/papers/42556).
 
 ```
 meterpreter > load incognito
