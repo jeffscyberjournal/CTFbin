@@ -1,4 +1,5 @@
 # HackPark
+
 Bruteforce a websites login with Hydra, identify and use a public exploit then escalate your privileges on this Windows machine!
 
 New target start of with a NMAP scan, this one drops ICMP so use no ping (Pn) and standard scripts with service information.
@@ -70,6 +71,7 @@ Progress: 4997 / 4998 (99.98%)
 ```
 
 # Task 1: Deploy the vulnerable Windows machine
+
 ## Q1 Whats the name of the clown displayed on the homepage?
 - Simply copy image check in tineye for reference to image. It was from the Steven King movie it. 
 - No interesting information within file discovered using exiftool.
@@ -77,6 +79,7 @@ Progress: 4997 / 4998 (99.98%)
 Answer: Pennywise
 
 # Task 2: Using hydra to brute force a login
+
 We need to find a login page to attack and identify what type of request the form is making to the webserver. 
 Typically, web servers make two types of requests, a GET request which is used to request data from a webserver 
 and a POST request which is used to send data to a server.
@@ -84,7 +87,13 @@ and a POST request which is used to send data to a server.
 You can check what request a form is making by right clicking on the login form, inspecting the element and then reading the value in the method field. You can also identify this if you are intercepting the traffic through BurpSuite (other HTTP methods can be found here (opens in new tab)).
 
 ## Q1 What request type is the Windows website login form using?
+
 Answer: POST, from quick source code check on login page.
+```
+...
+ <form method="post" action="login.aspx?ReturnURL=%2fadmin%2f" id="Form1">
+...
+```
 
 ## Q2 Guess a username, choose a password wordlist and gain credentials to a user account!
 - We know its POST request, THM hints username is admin that leaves password to determine.
@@ -105,21 +114,29 @@ Command	Description
 	It will loop through every combination in your lists. (-vV = verbose mode, showing login attempts)
 - hydra -t 1 -V -f -l <username> -P <wordlist> rdp://<ip>
   	Attack a Windows Remote Desktop with a password list.
-- hydra -l <username> -P .<password list> $ip -V http-form-post '/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log In&testcookie=1:S=Location'		Craft a more specific request for Hydra to brute force.
+- hydra -l <username> -P .<password list> $ip -V http-form-post '/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log In&testcookie=1:S=Location'
+  	Craft a more specific request for Hydra to brute force.
 
-One of easiest ways to find the necessary information is from the use of browser content inspector, under network tabs there we can view the transaction of requests and response from the login of an incorrect password. The response from the false login provides us with:
-Note: 
-- I used AAAAAAAA for username and password BBBBBBBBB. 
+One of easiest ways to find the necessary information is from the use of browser content inspector, under network tabs there we can view the transaction of requests and response from the login of an incorrect password. The alternative was burpe suite which given we know the use name is admin, sending login page to intruder with sniper attack its possible to obtain the password, likely easier. 
+
+This particular example aspx login page is an situation where the server does not evaluate the two paramters __VIEWSTATE and __EVENTVALIDATION, but expects a value which I discovered works for fresh from today, yesterday or from undisclosed time from one I found online. If this were evaluated this would require a fresh pair for each time the login attempt occured.
+
+So if the ASPX login truly enforces VIEWSTATE and EVENTVALIDATION, then Hydra becomes effectively unusable, and Burp Suite becomes the correct tool.
+
+The reason is simple:
+- Hydra cannot fetch fresh tokens for every attempt.
+- Burp Intruder can reuse or regenerate them depending on how the page behaves.
+
+What are VIEWSTATE and EVENTVALIDATION: 
 - ASP.NET WebForms requires __VIEWSTATE and __EVENTVALIDATION because the framework was designed in the early 2000s to simulate a stateful desktop‑application model on top of the stateless HTTP protocol. These two hidden fields are how the server keeps track of what the page looked like, what controls existed, and what events are allowed when the user submits a form.
 When you brute‑force a WebForms login, the server expects:
 - the exact __VIEWSTATE for that page load
 - the exact __EVENTVALIDATION for that page load
-
-If either is missing or stale:
--  the server rejects the POST
--  the login code never runs
--  Hydra sees no “Login failed”
--  the attack fails silently
+- If either is missing or stale:
+	-  the server rejects the POST.
+	-  the login code never runs.
+	-  Hydra sees no “Login failed”.
+	-  the attack fails silently.
 
 Other field sent in the request for login:
 In this example :
@@ -127,8 +144,9 @@ In this example :
 - ctl00$MainContent$LoginUser$UserName=^USER^ → username placeholder
 - ctl00$MainContent$LoginUser$Password=^PASS^ → password placeholder
 - ctl00$MainContent$LoginUser$LoginButton=Log+in → submit button value
+
 Response includes text for success of failure, including the information sent in request.
-- Login Failed → string that appears on failed login (you must confirm this from the page)
+- Login Failed → string that appears on failed login html response.
 
 Inspector in firefox shows us:
 ```
@@ -258,9 +276,12 @@ Results from running hydra:
 1 of 1 target successfully completed, 1 valid password found
 Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2026-04-13 20:19:08
 root@<AttackBoxIp>:~# 
+```
+Answer: 1qaz2wsx
 
+# Task 3 Compromise the Machine
 
-
-
-
+Next using exploit-db and version of the BlogEngine we will exploit to gain initial windows access.
+## After logging in obtain the verion for BlogEngine used:
+Answer: 3.3.6.0 This is obtained from hamburger menu -> about -> here you obtain informatoin about BlogEngine.NET 
 
