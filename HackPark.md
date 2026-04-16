@@ -256,6 +256,8 @@ hydra -l admin -P passwords.txt <TARGET_IP> -V http-post-form \
 ```
 The browser converts from this to percentage encoded on transit, we need to change required sections for percentage encoding.
 
+- Note that burpe suite these two parameters EVENTVALIDATION and VIEWSTATE are in the correct format and can be save time on changingn them to percentage encoding.
+
 Percentage encoding required here so we need to change:
 $ → %24
 + → %2B
