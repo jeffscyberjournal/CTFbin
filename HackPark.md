@@ -282,6 +282,15 @@ Answer: 1qaz2wsx
 # Task 3 Compromise the Machine
 
 Next using exploit-db and version of the BlogEngine we will exploit to gain initial windows access.
-## After logging in obtain the verion for BlogEngine used:
+## Q1 After logging in obtain the verion for BlogEngine used:
 Answer: 3.3.6.0 This is obtained from hamburger menu -> about -> here you obtain informatoin about BlogEngine.NET 
+
+## Q2 Use the exploit database archive (http://www.exploit-db.com/) to find an exploit to gain a reverse shell on this system.
+What is the CVE?
+Visiting exploint-db.com: BlogEngine.NET 3.3.6 - Directory Traversal / Remote Code Execution is shown. 
+Answer: CVE: 2019-6714
+
+Exploit:    Available and listed on page but very long see the website above to see it.
+Platform: ASPX
+Date: 2019-02-12
 
