@@ -294,3 +294,11 @@ Exploit:    Available and listed on page but very long see the website above to 
 Platform: ASPX
 Date: 2019-02-12
 
+- Next make a copy of exploit on page save with name and extension exactly as PostView.ascx.
+- Open a netcat listener
+- Change IP and port call back changed to connect to out listener and VPN tun0 IP.
+- After login with admin account details,
+	- Select the hamburger on top left.
+ 	- Select 'Content'
+  	- Select 'Posts' (should only be one 'Welcome to HackPark')
+  	- This should allow editing of the Welcome page, select the folder which represents file manager on the right side. Here we upload the PostView.ascx exploit we just copied from the exploit-db.com website. This should appear next to Welcome page image.
