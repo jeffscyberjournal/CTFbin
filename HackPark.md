@@ -304,3 +304,8 @@ Date: 2019-02-12
  	- Select 'Content'
   	- Select 'Posts' (should only be one 'Welcome to HackPark')
   	- This should allow editing of the Welcome page, select the folder which represents file manager on the right side. Here we upload the PostView.ascx exploit we just copied from the exploit-db.com website. This should appear next to Welcome page image.
+- Next save, then selec "GO TO POST" this should activate the reverse shell back to the listener started earlier
+- Then have a look at current suer with whoami
+## Q3 Who is the webserver running as?
+Answer:iis apppool\blog
+
