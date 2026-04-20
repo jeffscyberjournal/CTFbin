@@ -348,7 +348,7 @@ Microsoft Windows [Version 6.3.9600]
 (c) 2013 Microsoft Corporation. All rights reserved.
 c:\whoami
 ```
-Answer:iis apppool\blog 
+Answer: iis apppool\blog 
 
 # Task 4 Windows Privilege Escalation
 
