@@ -291,8 +291,7 @@ Next using exploit-db and version of the BlogEngine we will exploit to gain init
 
 Answer: 3.3.6.0 This is obtained from hamburger menu -> about -> here you obtain informatoin about BlogEngine.NET 
 
-## Q2 Use the exploit database archive (http://www.exploit-db.com/) to find an exploit to gain a reverse shell on this system.
-What is the CVE?
+## Q2 Use the exploit database archive (http://www.exploit-db.com/) to find an exploit to gain a reverse shell on this system. What is the CVE?
 
 Visiting exploint-db.com: BlogEngine.NET 3.3.6 - Directory Traversal / Remote Code Execution is shown. 
 
