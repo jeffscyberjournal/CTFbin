@@ -42,7 +42,7 @@ oot@<attackBoxIp>:~# gobuster dir -u <targetIP>:80 -w /usr/share/wordlists/SecLi
 Gobuster v3.6
 by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
 ===============================================================
-[+] Url:                     http://10.145.134.239:80
+[+] Url:                     http://<targetIP>:80
 [+] Method:                  GET
 [+] Threads:                 10
 [+] Wordlist:                /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt
