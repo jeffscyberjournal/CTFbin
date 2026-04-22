@@ -576,4 +576,5 @@ type root.txt
 ```
 Answer: 7e13d97f05f7ceb9881a3eb3d78d3e72
 
-# Task 5 Privilege Escalation with Metasploit
+# Task 5 Privilege Escalation without Metasploit
+This time around pivot from netcat to obtain escalated privilege.
