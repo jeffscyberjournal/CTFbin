@@ -22,4 +22,4 @@ Nmap done: 1 IP address (1 host up) scanned in 7.68 seconds
 Looks like just port 22 and 80.
 
 ## Q1 What is the name of the large cartoon avatar holding a sniper on the forum?
-Answer: Agent 47 from the game "hitman: codename 47" is obtainable from tineye aswell
+Answer: Agent 47 from the game "hitman: codename 47" is obtainable from tineye aswell. From tineye seems like it might be linked from xbox game "hitman abolution".
