@@ -578,3 +578,10 @@ Answer: 7e13d97f05f7ceb9881a3eb3d78d3e72
 
 # Task 5 Privilege Escalation without Metasploit
 This time around pivot from netcat to obtain escalated privilege.
+## Q1 (no response required) Use use msfvenom and use windows/shell_reverse_tcp to gain a more solid reverse shell connection in a similar way.
+## Q2 (no response required) again take advantage of the c:\windows\temp folder.
+Pulling up winPEAS again to gain system information, likely already present from earlier section.
+
+## Q3 Using winPeas, what was the Original Install time? (This is date and time)
+Answer:8/3/2019, 10:43:23 AM 
+WinPEAS, not entirely required as same information obtainable using systeminfo command from windows.
