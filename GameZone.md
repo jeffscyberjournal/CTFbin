@@ -173,24 +173,17 @@ Answer: 649ac17b1480ac13ef1e4fa579dac95c
 
 # Task 5 Exposing services with reverse SSH tunnels
 
-[Reverse SSH port forwarding lets you expose a local service to a remote machine. In other words, a ](http://localhost:9000
-)port on the remote server is forwarded back into your local system.
+Local Port Forwarding (‑L)
+Local port forwarding lets you “pull” a remote service through an SSH server. Your machine listens on a local port, and traffic sent to that port is forwarded through the SSH connection to a destination the SSH server can reach.
 
-Local port forwarding (-L) works the opposite way. It creates a tunnel like this:
-
-YOU ←— SSH SERVER ←— TARGET
-This means you can “pull” a remote service through an SSH server you control. If a site is blocked on your network, you can forward the traffic through a remote server and access it anyway.
-
-For example:
+Example:
 ```
-ssh -L 9000:imgur.com:80 user@example.com
+ssh -L 9000:example.com:80 user@example.com
 ```
-When you open http://localhost:9000, your request goes through the SSH server, and that server fetches imgur.com:80 for you. Your local network never sees the direct connection, so the block is bypassed.
+Visiting: http://localhost:9000
+sends the request through the SSH server, which then connects to example.com:80 on your behalf. This technique is commonly used to access services blocked on the local network or to route traffic through a trusted remote host.
 
-What Imgur is
-Imgur is a free image‑hosting website used for uploading, viewing, and sharing pictures, memes, GIFs, and screenshots. It’s popular because it lets you share images quickly without needing an account. That’s why it’s often used in SSH examples — it’s simple, well‑known, and commonly blocked in workplaces.
-
-## Q1 We will use a tool called ss to investigate sockets running on a host. How many TCP sockets are running?
+## Q1 We will use a tool called 'ss' to investigate sockets running on a host. How many TCP sockets are running?
 
 If we run ss -tulpn it will tell us what socket connections are running
 
@@ -215,3 +208,11 @@ tcp   LISTEN     0      128     :::80                  :::*
 tcp   LISTEN     0      128     :::22                  :::*                  
 agent47@gamezone:~$ ss -tulp
 ```
+## Q2 What is the name of the exposed CMS?
+Answer:Webmin appears in the top of the login screen or in code in title section: <Title> Login to Webmin </Title>
+## Q3 What is the CMS version?
+Answer: 1.580, login to webmin is the same password as to connect with SSH. Then its displayed in main screen on login or in the "System Information link".
+
+# Privilege Escalation with Metasploit
+
+Next take advantage of webadmin to gain by searching for exploit through searchsploit, this lead us to finding a exploit is available through metasploit.
