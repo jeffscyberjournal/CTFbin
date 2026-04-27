@@ -173,7 +173,8 @@ Answer: 649ac17b1480ac13ef1e4fa579dac95c
 
 # Task 5 Exposing services with reverse SSH tunnels
 
-Reverse SSH port forwarding lets you expose a local service to a remote machine. In other words, a port on the remote server is forwarded back into your local system.
+[Reverse SSH port forwarding lets you expose a local service to a remote machine. In other words, a ](http://localhost:9000
+)port on the remote server is forwarded back into your local system.
 
 Local port forwarding (-L) works the opposite way. It creates a tunnel like this:
 
