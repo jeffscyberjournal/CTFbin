@@ -164,15 +164,13 @@ Answer: 5 TCP only.
 
 ```
 agent47@gamezone:~$ ss -tulpn
-Netid State      Recv-Q Send-Q Local Address:Port               Peer Address:Port              
-udp   UNCONN     0      0        *:68                   *:*                  
+Netid State      Recv-Q Send-Q Local Address:Port               Peer Address:Port            udp   UNCONN     0      0        *:68                   *:*                  
 udp   UNCONN     0      0        *:10000                *:*                  
 tcp   LISTEN     0      80     127.0.0.1:3306                 *:*                  
 tcp   LISTEN     0      128      *:10000                *:*                  
 tcp   LISTEN     0      128      *:22                   *:*                  
 tcp   LISTEN     0      128     :::80                  :::*                  
 tcp   LISTEN     0      128     :::22                  :::*                  
-agent47@gamezone:~$ ss -tulp
 ```
 Given point 10000 is the port of interest on target its possible to use 10000 locally but to avoid confusion on attacking vm i will use port 9000 to help clarify this:
 To connect to the service on port 10000 on target by port 9000 on localhost we can simply use:
@@ -202,7 +200,7 @@ Matching Modules
 ================
 
    #   Name                                           Disclosure Date  Rank       Check  Description
-   -   ----                                           ---------------  ----       -----  -----------
+   -   ----                                           ---------------  ----       -----  
    0   exploit/unix/webapp/webmin_show_cgi_exec       2012-09-06       excellent  Yes    Webmin /file/show.cgi Remote Command Execution                                               
    1   auxiliary/admin/webmin/file_disclosure         2006-06-30       normal     No     Webmin File Disclosure                                                                       
    2   exploit/linux/http/webmin_file_manager_rce     2022-02-26       excellent  Yes    Webmin File Manager RCE                                                                      
