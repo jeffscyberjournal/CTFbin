@@ -262,11 +262,7 @@ Compatible Payloads
 
    #   Name                                        Disclosure Date  Rank    Check  Description
    -   ----                                        ---------------  ----    -----  -----------
-   0   payload/cmd/unix/adduser                    .                normal  No     Add user with useradd
-   1   payload/cmd/unix/bind_perl                  .                normal  No     Unix Command Shell, Bind TCP (via Perl)
-   2   payload/cmd/unix/bind_perl_ipv6             .                normal  No     Unix Command Shell, Bind TCP (via perl) IPv6
-   3   payload/cmd/unix/bind_ruby                  .                normal  No     Unix Command Shell, Bind TCP (via Ruby)
-   4   payload/cmd/unix/bind_ruby_ipv6             .                normal  No     Unix Command Shell, Bind TCP (via Ruby) IPv6
+...
    5   payload/cmd/unix/generic                    .                normal  No     Unix Command, Generic Command Execution
    6   payload/cmd/unix/reverse                    .                normal  No     Unix Command Shell, Double Reverse TCP (telnet)
    7   payload/cmd/unix/reverse_bash_telnet_ssl    .                normal  No     Unix Command Shell, Reverse TCP SSL (telnet)
@@ -275,9 +271,7 @@ Compatible Payloads
    10  payload/cmd/unix/reverse_python             .                normal  No     Unix Command Shell, Reverse TCP (via Python)
    11  payload/cmd/unix/reverse_python_ssl         .                normal  No     Unix Command Shell, Reverse TCP SSL (via python)
    12  payload/cmd/unix/reverse_ruby               .                normal  No     Unix Command Shell, Reverse TCP (via Ruby)
-   13  payload/cmd/unix/reverse_ruby_ssl           .                normal  No     Unix Command Shell, Reverse TCP SSL (via Ruby)
-   14  payload/cmd/unix/reverse_ssl_double_telnet  .                normal  No     Unix Command Shell, Double Reverse TCP SSL (telnet)
-
+...
 msf exploit(unix/webapp/webmin_show_cgi_exec) > set payload 8
 
 First I tried rever_perl but this failed i then tried another reverse which seemed to work. Like the hint says its about getting the right payload.
