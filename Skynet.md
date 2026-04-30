@@ -1,34 +1,9 @@
 # Skynet
 
-## Q1 What is Miles password for his emails?
-
 ## Quick nmap scan:
 ```
-nmap -sC -sV -Pn <targetIP>
-
-
-```
-```
-root@ip-10-144-94-86:~# smbclient -L //10.144.136.168
-Password for [WORKGROUP\root]:
-
-	Sharename       Type      Comment
-	---------       ----      -------
-	print$          Disk      Printer Drivers
-	anonymous       Disk      Skynet Anonymous Share
-	milesdyson      Disk      Miles Dyson Personal Share
-	IPC$            IPC       IPC Service (skynet server (Samba, Ubuntu))
-root@ip-10-144-94-86:~#
-```
-
-```
-root@ip-10-144-94-86:~# nmap -Pn -sV -sC 10.144.136.168
-Starting Nmap 7.80 ( https://nmap.org ) at 2026-04-29 19:41 BST
-mass_dns: warning: Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers
-mass_dns: warning: Unable to determine any DNS servers. Reverse DNS is disabled. Try using --system-dns or specify valid servers with --dns-servers
-Nmap scan report for 10.144.136.168
-Host is up (0.00026s latency).
-Not shown: 994 closed ports
+# nmap -Pn -sV -sC <targetIP>
+...
 PORT    STATE SERVICE     VERSION
 22/tcp  open  ssh         OpenSSH 7.2p2 Ubuntu 4ubuntu2.8 (Ubuntu Linux; protocol 2.0)
 | ssh-hostkey: 
@@ -67,23 +42,33 @@ Host script results:
 | smb2-time: 
 |   date: 2026-04-29T18:41:24
 |_  start_date: N/A
-
-Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-Nmap done: 1 IP address (1 host up) scanned in 12.89 seconds
-root@ip-10-144-94-86:~# 
 ```
-
+Shortlist of SMB shares available
 
 ```
-root@ip-10-144-94-86:~# nmap -p 139,445 --script smb-enum-shares,smb-enum-users,smb-os-discovery 10.144.136.168
-Starting Nmap 7.80 ( https://nmap.org ) at 2026-04-29 19:42 BST
-Stats: 0:00:00 elapsed; 0 hosts completed (0 up), 1 undergoing Ping Scan
-Ping Scan Timing: About 100.00% done; ETC: 19:42 (0:00:00 remaining)
-mass_dns: warning: Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers
-mass_dns: warning: Unable to determine any DNS servers. Reverse DNS is disabled. Try using --system-dns or specify valid servers with --dns-servers
-Nmap scan report for 10.144.136.168
-Host is up (0.00049s latency).
+root@ip-10-144-94-86:~# smbclient -L //10.144.136.168
+Password for [WORKGROUP\root]:
+        Sharename       Type      Comment
+        ---------       ----      -------
+        print$          Disk      Printer Drivers
+        anonymous       Disk      Skynet Anonymous Share
+        milesdyson      Disk      Miles Dyson Personal Share
+        IPC$            IPC       IPC Service (skynet server (Samba, Ubuntu))
 
+Reconnecting with SMB1 for workgroup listing.
+
+        Server               Comment
+        ---------            -------
+        Workgroup            Master
+        ---------            -------
+        WORKGROUP            SKYNET
+```
+
+Find out more about smb by running nmap scripts to enumerate users, shares, and OS discovery.
+
+```
+# nmap -p 139,445 --script smb-enum-shares,smb-enum-users,smb-os-discovery <targetIP>
+...
 PORT    STATE SERVICE
 139/tcp open  netbios-ssn
 445/tcp open  microsoft-ds
@@ -135,7 +120,7 @@ Host script results:
 Nmap done: 1 IP address (1 host up) scanned in 0.81 seconds
 root@ip-10-144-94-86:~# 
 ```
-
+They the anonymous user milesdyson required a password
 
 ```
 root@ip-10-144-94-86:~# smbclient \\\\10.144.136.168\\anonymous
@@ -236,4 +221,50 @@ root@ip-10-144-94-86:~# cat attention.txt
 A recent system malfunction has caused various passwords to be changed. All skynet employees are required to change their password after seeing this.
 -Miles Dyson
 root@ip-10-144-94-86:~# 
+```
+
+## Q1 What is Miles password for his emails?
+O
+n close inspection after nmap scan pop3 was present and smtp. SMTP appeared to unable to connect to but pop3 seemed to be accessible using a simple netcat ip and port check.
+The pop3 service is likely worth trying a hydra password crack using the log1.txt wordlist.
+```
+┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/Tool_Instructions]
+└─$ nc 10.48.140.141 25 
+(UNKNOWN) [10.48.140.141] 25 (smtp) : Connection refused
+┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/Tool_Instructions]
+└─$ nc 10.48.140.141 110                                 
++OK Dovecot ready.
+^C
+```
+
+Gobuster to search directories:
+
+```
+┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/Tool_Instructions]
+└─$ gobuster dir -u "THM_Target" -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 64     
+===============================================================
+Gobuster v3.8
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://THM_Target
+[+] Method:                  GET
+[+] Threads:                 64
+[+] Wordlist:                /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.8
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/admin                (Status: 301) [Size: 308] [--> http://thm_target/admin/]                                          
+/css                  (Status: 301) [Size: 306] [--> http://thm_target/css/]                                            
+/js                   (Status: 301) [Size: 305] [--> http://thm_target/js/]                                             
+/config               (Status: 301) [Size: 309] [--> http://thm_target/config/]                                         
+/ai                   (Status: 301) [Size: 305] [--> http://thm_target/ai/]                                             
+/squirrelmail         (Status: 301) [Size: 315] [--> http://thm_target/squirrelmail/]                                   
+/server-status        (Status: 403) [Size: 275]
+Progress: 220558 / 220558 (100.00%)
+===============================================================
+Finished
+===============================================================
 ```
