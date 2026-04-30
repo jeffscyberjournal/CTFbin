@@ -268,3 +268,15 @@ Progress: 220558 / 220558 (100.00%)
 Finished
 ===============================================================
 ```
+Squirrelmail seemed worth a look so tried in the browswer and there was a login screen for squirrel mail. The version on the page was 1.4.23. Through exploit-db there was one RCE exploit present that suited SquirrelMail <= 1.4.23 Remote Code Execution PoC Exploit (CVE-2017-7692). The catch was a password and username was required to access it which is why hydra seemed worth a shot. 
+
+- For some unknown reason no joy with hydra. 
+
+- Burpesuite seemed like next best option.
+	- I simply ip/squirrelmail to access login page
+ 	- Started burpesuite then initiated foxy proxy
+  	- used milesdyson as the username as its likely same name for email account
+  	- Then just one sniper attack on the one variable
+  	- The password was found in the list. Its listed twice.
+  Answer: cyborg007haloterminator
+
