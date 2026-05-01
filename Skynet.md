@@ -246,6 +246,32 @@ Squirrelmail seemed worth a look so tried in the browswer and there was a login 
   	- The password was found in the list. Its listed twice.
   Answer: cyborg007haloterminator
 
-This email password when used squirrelmail service found through the gobuster search leads to three emails one including the SMB password: )s{A&2Z=F^n_E.B`
+## What is the hidden directory?
+
+This password discovery leads us to SMB password via squirrelmail found through gobuster search.
+The first email gives us the SMB password: )s{A&2Z=F^n_E.B`
 The other emails hold nothing of interest.
 
+There is two methods to use the password first easiest is to use as oneliner:
+using the form: smbclient //host/share -U user%password
+Help menu using --password= fails with or without quotes
+```
+smbclient //10.48.165.171/milesdyson -U "milesdyson%)s{A&2Z=F^n_E.B`"
+```
+SMBclient can use an authfile but requires a specific format to work 
+```
+username = milesdyson
+password = )s{A&2Z=F^n_E.B`
+domain   =
+```
+Then save to simple name like Auth.txt
+Then use:
+```
+smbclient \\\\<targetIP>\\milesdyson -A Auth.txt
+```
+There is 1 folder and many files, in folder notes is one file among many called important.txt
+containing:
+
+1. Add features to beta CMS /45kra24zxs28v3yd
+2. Work on T-800 Model 101 blueprints
+3. Spend more time with my wife
