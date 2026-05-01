@@ -1,6 +1,32 @@
 # Skynet
 
 ## Quick nmap scan:
+
+Just to determine ports and check if pop3 or imap secure ports open
+```
+└─$ nmap -sS 10.48.165.171 
+Starting Nmap 7.95 ( https://nmap.org ) at 2026-05-02 04:59 AEST
+Nmap scan report for THM_Target (10.48.165.171)
+Host is up (0.18s latency).
+Not shown: 994 closed tcp ports (reset)
+PORT    STATE SERVICE
+22/tcp  open  ssh
+80/tcp  open  http
+110/tcp open  pop3
+139/tcp open  netbios-ssn
+143/tcp open  imap
+445/tcp open  microsoft-ds
+
+┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/Skynet]
+└─$ nmap -sS 10.48.165.171 -p 993,995,465
+PORT    STATE  SERVICE
+465/tcp closed smtps
+993/tcp closed imaps
+995/tcp closed pop3s
+```
+This is important later as hydra will fail if used to access port 110 as it diverts traffic to SSL port likely 993 as squirrelmail uses imap not pop3.
+
+More about the services:
 ```
 # nmap -Pn -sV -sC <targetIP>
 ...
@@ -43,7 +69,7 @@ Host script results:
 |   date: 2026-04-29T18:41:24
 |_  start_date: N/A
 ```
-Shortlist of SMB shares available
+Shortlist of SMB shares available. Does provide a useful name milesdyson and anonymous for shares.
 
 ```
 root@ip-10-144-94-86:~# smbclient -L //10.144.136.168
@@ -64,7 +90,7 @@ Reconnecting with SMB1 for workgroup listing.
         WORKGROUP            SKYNET
 ```
 
-Find out more about smb by running nmap scripts to enumerate users, shares, and OS discovery.
+Find out more about smb by running nmap scripts to enumerate users, shares, and OS discovery. Note this showed the same and more information than 'enum4linux -U <targetIP>' did.
 
 ```
 # nmap -p 139,445 --script smb-enum-shares,smb-enum-users,smb-os-discovery <targetIP>
@@ -145,7 +171,7 @@ smb: \logs\> ls
 
 		9204224 blocks of size 1024. 5831484 blocks available
 ```
-
+Log2 and log3 files clearly empty. Log1 text file appears to show 31 rows, 
 
 ```
 root@ip-10-144-94-86:~# cat log1.txt 
@@ -153,69 +179,9 @@ cyborg007haloterminator
 terminator22596
 terminator219
 terminator20
-terminator1989
-terminator1988
-terminator168
-terminator16
-terminator143
-terminator13
-terminator123!@#
-terminator1056
-terminator101
-terminator10
-terminator02
-terminator00
-roboterminator
-pongterminator
-manasturcaluterminator
-exterminator95
-exterminator200
-dterminator
-djxterminator
-dexterminator
-determinator
-cyborg007haloterminator
-avsterminator
-alonsoterminator
-Walterminator
-79terminator6
-1996terminator
-root@ip-10-144-94-86:~# cat log2.txt
-cyborg007haloterminator
-terminator22596
-terminator219
-terminator20
-terminator1989
-terminator1988
-terminator168
-terminator16
-terminator143
-terminator13
-terminator123!@#
-terminator1056
-terminator101
-terminator10
-terminator02
-terminator00
-roboterminator
-pongterminator
-manasturcaluterminator
-exterminator95
-exterminator200
-dterminator
-djxterminator
-dexterminator
-determinator
-cyborg007haloterminator
-avsterminator
-alonsoterminator
-Walterminator
-79terminator6
-1996terminator
-root@ip-10-144-94-86:~# cat log3.txt
-root@ip-10-144-94-86:~# ls -la
+...
 ```
-
+Attention file gives us the name of Miles Dyson.
 ```
 root@ip-10-144-94-86:~# cat attention.txt 
 A recent system malfunction has caused various passwords to be changed. All skynet employees are required to change their password after seeing this.
@@ -279,4 +245,7 @@ Squirrelmail seemed worth a look so tried in the browswer and there was a login 
   	- Then just one sniper attack on the one variable
   	- The password was found in the list. Its listed twice.
   Answer: cyborg007haloterminator
+
+This email password when used squirrelmail service found through the gobuster search leads to three emails one including the SMB password: )s{A&2Z=F^n_E.B`
+The other emails hold nothing of interest.
 
