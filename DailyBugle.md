@@ -7,7 +7,33 @@ Answer: spiderman
 
 # Task 2 Obtain user and root
 ## Q1 What is the Joomla version?
+Quick view of source code of first page shows presents of joomla, but no version identification:
+```
+<meta name="generator" content="Joomla! - Open Source Content Management" />
+```
+The most obvious thing was to try joomla scan install via apt install did not work but here is one liner for installation:
+```
+sudo apt update && sudo apt install git perl libwww-perl liblwp-protocol-https-perl -y && git clone https://github.com/OWASP/joomscan.git
+```
+to run:
+```
+cd joomscan
+perl joomscan.pl -u http://TARGET
+    ____  _____  _____  __  __  ___   ___    __    _  _ 
+   (_  _)(  _  )(  _  )(  \/  )/ __) / __)  /__\  ( \( )
+  .-_)(   )(_)(  )(_)(  )    ( \__ \( (__  /(__)\  )  ( 
+  \____) (_____)(_____)(_/\/\_)(___/ \___)(__)(__)(_)\_)
+			(1337.today)
+...
+Processing http://<targetIP> ...
 
+[+] FireWall Detector
+[++] Firewall not detected
+
+[+] Detecting Joomla Version
+[++] Joomla 3.7.0
+...
+```
 Quick gobuster search: 
 ```
 gobuster dir -u http://10.49.157.59/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 64  -x php,txt,html,js,css
