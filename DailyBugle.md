@@ -34,6 +34,8 @@ Processing http://<targetIP> ...
 [++] Joomla 3.7.0
 ...
 ```
+Feroxbuster might be best option to find the files and folder structure then scan if you know the name. But starting with Gobuster found the readme.txt without deep structure search, leading to version 3.4, but there were 5 sub-versions that year.
+
 Quick gobuster search: 
 ```
 gobuster dir -u http://10.49.157.59/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 64  -x php,txt,html,js,css
@@ -83,6 +85,8 @@ curl README.txt shows version 3.7
 ```
 Joomla! 3.7 version history - https://docs.joomla.org/Joomla_3.7_version_history
 ```
-More specific its found int the file:
+If joomla structure known a more direct path was:
 curl TargetIP/administrator/language/en-GB/en-GB.xml | grep "3.7"
 <version>3.7.0</version>
+
+Answer Q1: 3.7.0
