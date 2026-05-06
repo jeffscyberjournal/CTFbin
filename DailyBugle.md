@@ -118,17 +118,9 @@ Joomla! 3.7 version history - https://docs.joomla.org/Joomla_3.7_version_history
 ```
 If joomla structure known a more direct path was:
 curl TargetIP/administrator/language/en-GB/en-GB.xml | grep "3.7"
+```
 <version>3.7.0</version>
-
-
-
-
-
-nmap has a script for almost everything here I tried a joomla script:
-nmap --script http-joomla-brute -p80,443 TARGET
-
-
-
+```
 Answer Q1: 3.7.0
 
 ## Q2: What is Jonah's cracked password?
@@ -164,4 +156,5 @@ Session completed.
 ```
 Answer Q2: spiderman123 
 
+### Q3 What is the user flag?
 
