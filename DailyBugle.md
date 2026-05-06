@@ -112,7 +112,10 @@ Progress: 1309650 / 1309656 (100.00%)
 Finished
 
 ```
+Two interesting ones here are the README.txt offering information on joomla and the administrator directory that leads to loading the administrator portal. Not useful at this point without credentials that work, not jonah, likely something obvious admin or administrator user but we'll get to that later.
+
 curl README.txt shows version 3.7
+templateDetails.xml can help but it only points to joomla 2.5 with extensions 3.1.0.
 ```
 Joomla! 3.7 version history - https://docs.joomla.org/Joomla_3.7_version_history
 ```
@@ -155,6 +158,7 @@ Use the "--show" option to display all of the cracked passwords reliably
 Session completed. 
 ```
 Answer Q2: spiderman123 
+This password gets us into the <TargetIP>/administrator portal and the log into the website as Super User.
 
 ### Q3 What is the user flag?
 
