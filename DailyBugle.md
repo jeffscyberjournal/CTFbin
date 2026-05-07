@@ -309,3 +309,60 @@ user.txt
 [jjameson@dailybugle ~]$ cat user.txt
 27a260fe3cba712cfdedb1c86d80442e
 ```
+Next try to escallate to root:
+Starting froim ssh connection with jjameson:
+```
+# ssh jjameson@10.144.182.80
+...
+[jjameson@dailybugle ~]$ sudo -l
+Matching Defaults entries for jjameson on
+    dailybugle:
+    !visiblepw, always_set_home,
+    match_group_by_gid,
+    always_query_group_plugin, env_reset,
+    env_keep="COLORS DISPLAY HOSTNAME
+    HISTSIZE KDEDIR LS_COLORS",
+    env_keep+="MAIL PS1 PS2 QTDIR
+    USERNAME LANG LC_ADDRESS LC_CTYPE",
+    env_keep+="LC_COLLATE
+    LC_IDENTIFICATION LC_MEASUREMENT
+    LC_MESSAGES", env_keep+="LC_MONETARY
+    LC_NAME LC_NUMERIC LC_PAPER
+    LC_TELEPHONE", env_keep+="LC_TIME
+    LC_ALL LANGUAGE LINGUAS _XKB_CHARSET
+    XAUTHORITY",
+    secure_path=/sbin\:/bin\:/usr/sbin\:/usr/bin
+
+User jjameson may run the following
+        commands on dailybugle:
+    (ALL) NOPASSWD: /usr/bin/yum
+[jjameson@dailybugle ~]$
+...
+# yum indicates centos
+[jjameson@dailybugle ~]$ cat/etc/os-release
+[jjameson@dailybugle ~]$ cat /etc/os-release
+NAME="CentOS Linux"
+VERSION="7 (Core)"
+ID="centos"
+ID_LIKE="rhel fedora"
+VERSION_ID="7"
+PRETTY_NAME="CentOS Linux 7 (Core)"
+ANSI_COLOR="0;31"
+CPE_NAME="cpe:/o:centos:centos:7"
+HOME_URL="https://www.centos.org/"
+BUG_REPORT_URL="https://bugs.centos.org/"
+
+CENTOS_MANTISBT_PROJECT="CentOS-7"
+CENTOS_MANTISBT_PROJECT_VERSION="7"
+REDHAT_SUPPORT_PRODUCT="centos"
+REDHAT_SUPPORT_PRODUCT_VERSION="7"
+```
+# closer look in /etc/ redhat-release was found using 'file redhat-release' this was found to be a symbolic link.
+This requires cat to view contents:
+```
+[jjameson@dailybugle etc]$ cat  redhat-release
+CentOS Linux release 7.7.1908 (Core)
+```
+Sudo -l shows jjameson has access to /usr/bin/yum
+From here gtfobins should be looked at to determine options for yum.
+
