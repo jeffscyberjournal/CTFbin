@@ -219,7 +219,8 @@ Squirrelmail seemed worth a look so tried in the browswer and there was a login 
   	- used milesdyson as the username as its likely same name for email account
   	- Then just one sniper attack on the one variable
   	- The password was found in the list. Its listed twice.
-  Answer: cyborg007haloterminator
+
+Answer Q1: cyborg007haloterminator
 
 ## Q2 What is the hidden directory?
 
