@@ -413,6 +413,25 @@ Ctrl+Z
 stty raw -echo
 fg
 ```
+
+On vm with VPN seems to fail but attackbox through THM seems to work but spread all over place:
+```
+www-data@skynet:/var/www/html/45kra24zxs28v3yd/administrator/alerts$ python -c 'import pty; pty.spawn("/bin/sh")'
+$ ^Z
+root@AttackBoxIP:~# stty raw -echo
+root@AttackBoxIP:~# fg
+															sudo -l 
+                      Matching Defaults entries for root on ip-10-145-101-245:
+            env_reset, mail_badpass,
+                                        secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+                                                          User root may run the following commands on ip-AttackBoxIP:
+                                                      (ALL : ALL) ALL
+                                                                     root@ip-AttackBoxIP:~# 
+```
+
+### For this situation its better off not be waste time with it, not going to run the shell long.
+
 Looking at files accessible to Miles Dyson only contents of share, backups folders and user.txt are accessible due to permissions set from the current user www-data access.
 ```
 $ ls -la 
