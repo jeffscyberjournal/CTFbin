@@ -263,4 +263,18 @@ Answer Q3: https://github.com/NinjaJc01/ssh-backdoor
 
 Clearly from the previous follow on port 4242 it shows a ssh backdoor downloaded from github and at the very end after an ssh key is generated stored in normal location for ssh keys. The backdoor is loacted in folder ssh-backdoor.
 
+# Q4 Using the fasttrack wordlist, how many of the system passwords were crackable?
+
+After looking through seclists and trying to reinstall it and checking seclists on github.com/danielmeissler/seclists. Rather than waste time downloading a fastrack list I used rockyou.txt. The shadow file only had 6 hashes in total, the lines with * have no passwords allocated to the users. So just copies the lines to hash.txt file.
+The github repository was downloaded to have a closer look, main.go appears to be configuration file, it shows function for combining a salt with hash:
+```
+func hashPassword(password string, salt string) string {
+	hash := sha512.Sum512([]byte(password + salt))
+	return fmt.Sprintf("%x", hash)
+}
+```
+On closer look -m value of 1800 seemed to suit this hash type. Using hashcat with a GPU 3 password were found.
+muirland...:1qaz2wsx
+szymez...:abcd123
+bee...:secret12
 
