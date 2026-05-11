@@ -42,9 +42,12 @@ Search for port 4242 and follow the TCP or http traffic:
 ```
 tcp.port==4242
 ```
+
 Only a few packets down it shows the password and username james:
+
 Answer Q3: whenevernoteartinstant
-Note the sudo -l in the follow list from this search shows the user james seems to have sudo access to (ALL : ALL) ALL, which is significant
+
+Note the sudo -l in the follow list from this search shows the user james seems to have sudo access to (ALL : ALL) ALL, which is significant.
 
 ```
 /bin/sh: 0: can't access tty; job control turned off
@@ -254,8 +257,10 @@ james@overpass-production:~/ssh-backdoor$
 SSH - 2020/07/21 20:36:56 Started SSH backdoor on 0.0.0.0:2222
 ```
 
-# How did the attacker establish persistence?
+# Q3 How did the attacker establish persistence?
+
 Answer Q3: https://github.com/NinjaJc01/ssh-backdoor
+
 Clearly from the previous follow on port 4242 it shows a ssh backdoor downloaded from github and at the very end after an ssh key is generated stored in normal location for ssh keys. The backdoor is loacted in folder ssh-backdoor.
 
 
