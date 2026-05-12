@@ -185,12 +185,8 @@ In case you lose potfile:
 sudo find / -type f -name "hashcat.potfile" 2>/dev/null
 [sudo] password for hacktopuser: 
  
-/home/hacktopuser/.local/share/hashcat/hashcat.potfile
-
-or use --potfile-path mypotfile.txt 
-
-┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/Overpass_2_Hacked]
-└─$ hashcat -a 0 -m 1800 /mnt/VBoxShare/CTF/Overpass_2_Hacked/shadow_hashesonly.txt ~/Downloads/fasttrack2.txt --potfile-path mypot.txt
+/home/<username>/.local/share/hashcat/hashcat.potfile
+```
 
 
 
