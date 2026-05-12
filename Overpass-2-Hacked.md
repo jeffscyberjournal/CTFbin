@@ -2,11 +2,7 @@
 
 Overpass has been hacked! The SOC team (Paradox, congratulations on the promotion) noticed suspicious activity on a late night shift while looking at shibes, and managed to capture packets as the attack happened.
 
-Can you work out how the attacker got in, and hack your way back into Overpass' production server?
-
-Note: Although this room is a walkthrough, it expects familiarity with tools and Linux. I recommend learning basic Wireshark and completing Linux Fundamentals as a bare minimum.
-
-md5sum of PCAP file: 11c3b2e9221865580295bc662c35c6dc
+This is a basic Network traffic analysis based from a PCAP file for signs of intrusion.
 
 ## Q1 What was the URL of the page they used to upload a reverse shell?
 
