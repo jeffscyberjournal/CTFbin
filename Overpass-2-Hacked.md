@@ -162,16 +162,39 @@ Clearly from the previous follow on port 4242 it shows a ssh backdoor downloaded
 
 # Q4 Using the fasttrack wordlist, how many of the system passwords were crackable?
 
-After looking through seclists and trying to reinstall it and checking seclists on github.com/danielmeissler/seclists. Rather than waste time downloading a fastrack list I used rockyou.txt. The shadow file only had 6 hashes in total, the lines with * have no passwords allocated to the users. So just copies the lines to hash.txt file.
-The github repository was downloaded to have a closer look, main.go appears to be configuration file, it shows function for combining a salt with hash:
+Fasttrack is a hint for quick wordlist and its not in default or seclists. It was downloaded from 
+- https://github.com/drtychai/wordlists/blob/master/fasttrack.txt
+- The shadow file only had 6 hashes in total, the lines with * have no passwords allocated to the users. 
+- The github repository was downloaded to have a closer look, main.go appears to be configuration file, it shows function for combining a salt with hash:
+- HashID app also confirmed it, and looking at m values 1710 looked like it made sense here but was not compatible the m value 1800 worked for hashcat use.
 ```
 func hashPassword(password string, salt string) string {
 	hash := sha512.Sum512([]byte(password + salt))
 	return fmt.Sprintf("%x", hash)
 }
 ```
-On closer look -m value of 1800 seemed to suit this hash type. Using hashcat with a GPU 3 password were found.
-muirland...:1qaz2wsx
-szymez...:abcd123
-bee...:secret12
+On closer look -m value of 1800 seemed to suit this hash type. Using hashcat with a GPU 4 password were found.
+
+- muirland...:1qaz2wsx
+- szymez...:abcd123
+- bee...:secret12
+
+Hashcat format used:
+```
+hashcat -a 0 -m 1800 hashesfile.txt fasttrack2.txt --potfile-path mypot.txt
+```
+
+In case you lose potfile:
+```
+sudo find / -type f -name "hashcat.potfile" 2>/dev/null
+[sudo] password for hacktopuser: 
+ 
+/home/hacktopuser/.local/share/hashcat/hashcat.potfile
+
+or use --potfile-path mypotfile.txt 
+
+┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/Overpass_2_Hacked]
+└─$ hashcat -a 0 -m 1800 /mnt/VBoxShare/CTF/Overpass_2_Hacked/shadow_hashesonly.txt ~/Downloads/fasttrack2.txt --potfile-path mypot.txt
+
+
 
