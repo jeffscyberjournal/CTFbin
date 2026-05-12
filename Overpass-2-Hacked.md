@@ -168,7 +168,16 @@ Fasttrack is a hint for quick wordlist and its not in default or seclists. It wa
 - https://github.com/drtychai/wordlists/blob/master/fasttrack.txt
 - The shadow file only had 6 hashes in total, the lines with * have no passwords allocated to the users. 
 - The github repository was downloaded to have a closer look, main.go appears to be configuration file, it shows function for combining a salt with hash:
-- HashID app also confirmed it, and looking at m values 1710 looked like it made sense here but was not compatible the m value 1800 worked for hashcat use.
+- HashID does confirm sha512 and a few other types but the main.go clearly states its a sha512 and shows format hash.salt. 
+- Hashcat website (one line per hash type) or using hashcat --example-hashes (half page per hash type).
+```
+From website (M value, type and an example, key is that salt is seperate with colon for format in hashcat)
+1700	SHA2-512	82a9dda829eb7f8ffe9fbe49e45d47d2dad9664fbb7adf72492e3c81ebd3e29134d9bc12212bf83c6840f10e8246b9db54a4859b7ccd0123d86e5872c1e5082f
+1710	sha512($pass.$salt)	e5c3ede3e49fb86592fb03f471c35ba13e8d89b8ab65142c9a8fdafb635fa2223c24e5558fd9313e8995019dcbec1fb584146b7bb12685c7765fc8c0d51379fd:6352283260
+1720	sha512($salt.$pass)	976b451818634a1e2acba682da3fd6efa72adf8a7a08d7939550c244b237c72c7d42367544e826c0c83fe5c02f97c0373b6b1386cc794bf0d21d2df01bb9c08a:2613516180127
+1800	sha512crypt $6$, SHA512 (Unix) 2	$6$qdMgClgO2dQWB37F$jhexCX1SdsCAi0OZmoRVAPnWSwuP/mHVhXIMJfKlaacxFkwWLDZ0ViF8Ur3WcHashcatVp2WShcEILi8QZCbt/
+```
+The 6 last shadow file entries align to m 1800 and from main.go file the 1710 option with salt appended is best suited.
 ```
 func hashPassword(password string, salt string) string {
 	hash := sha512.Sum512([]byte(password + salt))
@@ -197,4 +206,32 @@ John the ripper was the same results with fasttrack.txt wordlist.
 ```
 john hashesfile.txt --wordlist=fasttrack.txt 
 ```
+# Task 2 Research - Analyse the code.
 
+## Q1 What's the default hash for the backdoor? Answer found in main.go file.
+
+- The github respository for backdoor was downloaded and inspected, the main file of interest is the main.go. 
+- main.go is the core backdoor server. It starts a fake SSH service, accepts incoming connections, authenticates using a hard‑coded password, and then gives the attacker an interactive remote shell (a real PTY) over that SSH session. It is essentially a malicious SSH server that drops you straight into a shell.
+
+Answer Q1: 
+```
+bdd04d9bb7621687f5df9001f5098eb22bf19eac4c2c30b6f23efed4d24807277d0f8bfccb9e77659103d78c56e66d2d7d8391dfc885d0e9b68acd01fc2170e3
+```
+
+## Q2 What's the hardcoded salt for the backdoor? Answer found in same file.
+
+Answer Q2: 
+```
+1c362db832f3f864c8c2fe05f2002a05
+```
+
+## Q3 What was the hash that the attacker used? - go back to the PCAP for this!
+
+Answer: 
+```
+6d05358f090eea56a238af02e47d44ee5489d234810ef6240280857ec69712a3e5e370b8a41899d0196ade16c0d54327c5654019292cbfe0b5e98ad1fec71bed
+```
+
+## Q4 Crack the hash using rockyou and a cracking tool of your choice. What's the password?
+
+This is above hash with salt combined (hash:salt), then with hashcat, this format will require the m value 1710
