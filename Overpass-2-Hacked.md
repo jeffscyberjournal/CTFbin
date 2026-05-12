@@ -4,6 +4,9 @@ Overpass has been hacked! The SOC team (Paradox, congratulations on the promotio
 
 This is a basic Network traffic analysis based from a PCAP file for signs of intrusion.
 
+
+# Task 1 Forensic PCAP analysis
+
 ## Q1 What was the URL of the page they used to upload a reverse shell?
 
 Since there should be a interaction string its worth checking TCP streams. 
@@ -30,7 +33,7 @@ Answer Q2:
 ```
 or can be found in the hypertext section but its broken into a series of very short lines.
 
-## What password did the attacker use to privesc?
+## Q3 What password did the attacker use to privesc?
 
 From the payload we can see the connection back to c2 is via port 4242.
 
@@ -150,13 +153,16 @@ james@overpass-production:~/ssh-backdoor$ ./backdoor -a
 SSH - 2020/07/21 20:36:56 Started SSH backdoor on 0.0.0.0:2222
 ```
 
-# Q3 How did the attacker establish persistence?
 
-Answer Q3: https://github.com/NinjaJc01/ssh-backdoor
+## Q4 How did the attacker establish persistence?
+
+Answer Q4: https://github.com/NinjaJc01/ssh-backdoor
 
 Clearly from the previous follow on port 4242 it shows a ssh backdoor downloaded from github and at the very end after an ssh key is generated stored in normal location for ssh keys. The backdoor is loacted in folder ssh-backdoor.
 
-# Q4 Using the fasttrack wordlist, how many of the system passwords were crackable?
+## Q5 Using the fasttrack wordlist, how many of the system passwords were crackable?
+
+Answer Q5: 4
 
 Fasttrack is a hint for quick wordlist and its not in default or seclists. It was downloaded from 
 - https://github.com/drtychai/wordlists/blob/master/fasttrack.txt
@@ -171,9 +177,10 @@ func hashPassword(password string, salt string) string {
 ```
 On closer look -m value of 1800 seemed to suit this hash type. Using hashcat with a GPU 4 password were found.
 
-- muirland...:1qaz2wsx
-- szymez...:abcd123
-- bee...:secret12
+Paradox - $6$oRXQu43X$WaAj3Z/4sEPV1mJdHsyJkIZm1rjjnNxrY5c8GElJIjG7u36xSgMGwKA2woDIFudtyqY37YCyukiHJPhi4IU7H0:secuirty3
+bee - $6$.SqHrp6z$B4rWPi0Hkj0gbQMFujz1KHVs9VrSFu7AU9CxWrZV7GzH05tYPL1xRzUJlFHbyp0K9TAeY1M6niFseB9VLBWSo0:secret12
+szymex - $6$B.EnuXiO$f/u00HosZIO3UQCEJplazoQtH8WJjSX/ooBjwmYfEOTcqCAlMjeFIgYWqR5Aj2vsfRyf6x1wXxKitcPUjcXlX/:abcd123
+muirland - $6$SWybS8o2$9diveQinxy8PJQnGQQWbTNKeb2AiSp.i8KznuAjYbqI3q04Rf5hjHPer3weiC.2MrOj2o1Sw/fd2cu0kC6dUP.:1qaz2wsx
 
 Hashcat format used:
 ```
@@ -183,10 +190,11 @@ hashcat -a 0 -m 1800 hashesfile.txt fasttrack2.txt --potfile-path mypot.txt
 In case you lose potfile:
 ```
 sudo find / -type f -name "hashcat.potfile" 2>/dev/null
-[sudo] password for hacktopuser: 
  
 /home/<username>/.local/share/hashcat/hashcat.potfile
 ```
-
-
+John the ripper was the same results with fasttrack.txt wordlist.
+```
+john hashesfile.txt --wordlist=fasttrack.txt 
+```
 
