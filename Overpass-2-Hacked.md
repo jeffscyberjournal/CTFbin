@@ -234,4 +234,8 @@ Answer:
 
 ## Q4 Crack the hash using rockyou and a cracking tool of your choice. What's the password?
 
-This is above hash with salt combined (hash:salt), then with hashcat, this format will require the m value 1710
+This is above hash with salt combined (hash:salt), then with hashcat, this format will require the m value 1710, or reverse order and use 1720.
+
+Answer Q4: november16
+
+# Task 3 
