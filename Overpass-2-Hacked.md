@@ -238,4 +238,14 @@ This is above hash with salt combined (hash:salt), then with hashcat, this forma
 
 Answer Q4: november16
 
-# Task 3 
+# Task 3 Attack - Get back in
+
+- Now that the incident is investigated, Paradox needs someone to take control of the Overpass production server again.
+- There's flags on the box that Overpass can't afford to lose by formatting the server!
+
+## Q1 The attacker defaced the website. What message did they leave as a heading?
+
+Answer Q1: H4ck3d by CooctusClan
+
+## Q2 Using the information you've found previously, hack your way back in! 
+- Hint given:This is the hint you’re looking for: Note: If you get an error saying "Unable to negotiate with <IP> port 22: no matching how to key type", this is because OpenSSH have deprecated ssh-rsa. Add "-oHostKeyAlgorithms=+ssh-rsa" to your command to connect.
