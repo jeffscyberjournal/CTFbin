@@ -249,3 +249,31 @@ Answer Q1: H4ck3d by CooctusClan
 
 ## Q2 Using the information you've found previously, hack your way back in! 
 - Hint given:This is the hint you’re looking for: Note: If you get an error saying "Unable to negotiate with <IP> port 22: no matching how to key type", this is because OpenSSH have deprecated ssh-rsa. Add "-oHostKeyAlgorithms=+ssh-rsa" to your command to connect.
+
+Answer Q2: none required.
+
+- Tried port 22 but no success with james not surprising, the new password was for port 2222 used by backdoor.
+```
+# ssh james@<TargetIP> -p 2222 -oHostKeyAlgorithms=+ssh-rsa 
+The authenticity of host '[<TargetIP>]:2222 ([<TargetIP>]:2222)' can't be established.
+RSA key fingerprint is SHA256:z0OyQNW5sa3rr6mR7yDMo1avzRRPcapaYwOxjttuZ58.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '[<TargetIP>]:2222' (RSA) to the list of known hosts.
+james@<TargetIP>'s password: 
+To run a command as administrator (user "root"), use "sudo <command>".
+See "man sudo_root" for details.
+
+james@overpass-production:/home/james/ssh-backdoor$ 
+
+```
+
+## Q3 What's the user flag?
+
+```
+james@overpass-production:/home/james$ ls
+ssh-backdoor  user.txt  www
+james@overpass-production:/home/james$ cat user.txt
+thm{d119b4fa8c497ddb0525f7ad200e6567}
+```
+
+Answer Q3: thm{d119b4fa8c497ddb0525f7ad200e6567}
