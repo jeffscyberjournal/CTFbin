@@ -248,7 +248,7 @@ Answer Q4: november16
 Answer Q1: H4ck3d by CooctusClan
 
 ## Q2 Using the information you've found previously, hack your way back in! 
-- Hint given:This is the hint you’re looking for: Note: If you get an error saying "Unable to negotiate with <IP> port 22: no matching how to key type", this is because OpenSSH have deprecated ssh-rsa. Add "-oHostKeyAlgorithms=+ssh-rsa" to your command to connect.
+- Hint given: This is the hint you’re looking for: Note: If you get an error saying "Unable to negotiate with <IP> port 22: no matching how to key type", this is because OpenSSH have deprecated ssh-rsa. Add "-oHostKeyAlgorithms=+ssh-rsa" to your command to connect.
 
 Answer Q2: none required.
 
