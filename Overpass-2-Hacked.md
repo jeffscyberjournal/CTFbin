@@ -85,8 +85,10 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 7.45 seconds
 ```
-The SSH algorithm hint was added later in the room to suggest using
--oHostKeyAlgorithms=+ssh-rsa if the connection fails.
+The SSH algorithm hint was added later in the room to suggest using (if the connection fails.)
+```
+-oHostKeyAlgorithms=+ssh-rsa 
+```
 In my case, this was not required. Running ssh -Q key showed that both my client and the server supported ssh-rsa, and the connection succeeded without the override. This is likely because the TryHackMe attackbox uses an SSH client that still accepts RSA keys signed with SHA‑256. Most modern OpenSSH versions only disable RSA when the server signs with SHA‑1. If the server signs with SHA‑256, the client accepts it without issue. Therefore, the override is only needed on systems where RSA‑SHA1 is blocked by default.
 ```
 root@ip-10-49-126-107:~# ssh -Q key
