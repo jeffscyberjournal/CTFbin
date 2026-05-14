@@ -4,6 +4,109 @@ Overpass has been hacked! The SOC team (Paradox, congratulations on the promotio
 
 This is a basic Network traffic analysis based from a PCAP file for signs of intrusion.
 
+First of take look at NMAP to see what services are running at start:
+
+```
+root@<attackBoxIP>:~# nmap -sV -Pn --script ssh2-enum-algos <targetIP>
+Starting Nmap 7.80 ( https://nmap.org ) at 2026-05-14 18:56 BST
+mass_dns: warning: Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers
+mass_dns: warning: Unable to determine any DNS servers. Reverse DNS is disabled. Try using --system-dns or specify valid servers with --dns-servers
+Nmap scan report for <targetIP>
+Host is up (0.00011s latency).
+Not shown: 997 closed ports
+PORT     STATE SERVICE VERSION
+22/tcp   open  ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+| ssh2-enum-algos: 
+|   kex_algorithms: (10)
+|       curve25519-sha256
+|       curve25519-sha256@libssh.org
+|       ecdh-sha2-nistp256
+|       ecdh-sha2-nistp384
+|       ecdh-sha2-nistp521
+|       diffie-hellman-group-exchange-sha256
+|       diffie-hellman-group16-sha512
+|       diffie-hellman-group18-sha512
+|       diffie-hellman-group14-sha256
+|       diffie-hellman-group14-sha1
+|   server_host_key_algorithms: (5)
+|       ssh-rsa
+|       rsa-sha2-512
+|       rsa-sha2-256
+|       ecdsa-sha2-nistp256
+|       ssh-ed25519
+|   encryption_algorithms: (6)
+|       chacha20-poly1305@openssh.com
+|       aes128-ctr
+|       aes192-ctr
+|       aes256-ctr
+|       aes128-gcm@openssh.com
+|       aes256-gcm@openssh.com
+|   mac_algorithms: (10)
+|       umac-64-etm@openssh.com
+|       umac-128-etm@openssh.com
+|       hmac-sha2-256-etm@openssh.com
+|       hmac-sha2-512-etm@openssh.com
+|       hmac-sha1-etm@openssh.com
+|       umac-64@openssh.com
+|       umac-128@openssh.com
+|       hmac-sha2-256
+|       hmac-sha2-512
+|       hmac-sha1
+|   compression_algorithms: (2)
+|       none
+|_      zlib@openssh.com
+80/tcp   open  http    Apache httpd 2.4.29 ((Ubuntu))
+|_http-server-header: Apache/2.4.29 (Ubuntu)
+2222/tcp open  ssh     OpenSSH 8.2p1 Debian 4 (protocol 2.0)
+| ssh2-enum-algos: 
+|   kex_algorithms: (5)
+|       curve25519-sha256@libssh.org
+|       ecdh-sha2-nistp256
+|       ecdh-sha2-nistp384
+|       ecdh-sha2-nistp521
+|       diffie-hellman-group14-sha1
+|   server_host_key_algorithms: (1)
+|       ssh-rsa
+|   encryption_algorithms: (5)
+|       aes128-gcm@openssh.com
+|       chacha20-poly1305@openssh.com
+|       aes128-ctr
+|       aes192-ctr
+|       aes256-ctr
+|   mac_algorithms: (4)
+|       hmac-sha2-256-etm@openssh.com
+|       hmac-sha2-256
+|       hmac-sha1
+|       hmac-sha1-96
+|   compression_algorithms: (1)
+|_      none
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 7.45 seconds
+```
+The SSH algorithm hint was added later in the room to suggest using
+-oHostKeyAlgorithms=+ssh-rsa if the connection fails.
+In my case, this was not required. Running ssh -Q key showed that both my client and the server supported ssh-rsa, and the connection succeeded without the override. This is likely because the TryHackMe attackbox uses an SSH client that still accepts RSA keys signed with SHA‑256. Most modern OpenSSH versions only disable RSA when the server signs with SHA‑1. If the server signs with SHA‑256, the client accepts it without issue. Therefore, the override is only needed on systems where RSA‑SHA1 is blocked by default.
+```
+root@ip-10-49-126-107:~# ssh -Q key
+ssh-ed25519
+ssh-ed25519-cert-v01@openssh.com
+sk-ssh-ed25519@openssh.com
+sk-ssh-ed25519-cert-v01@openssh.com
+ssh-rsa
+ssh-dss
+ecdsa-sha2-nistp256
+ecdsa-sha2-nistp384
+ecdsa-sha2-nistp521
+sk-ecdsa-sha2-nistp256@openssh.com
+ssh-rsa-cert-v01@openssh.com
+ssh-dss-cert-v01@openssh.com
+ecdsa-sha2-nistp256-cert-v01@openssh.com
+ecdsa-sha2-nistp384-cert-v01@openssh.com
+ecdsa-sha2-nistp521-cert-v01@openssh.com
+sk-ecdsa-sha2-nistp256-cert-v01@openssh.com
+```
 
 # Task 1 Forensic PCAP analysis
 
