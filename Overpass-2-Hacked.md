@@ -282,7 +282,7 @@ Answer Q3: thm{d119b4fa8c497ddb0525f7ad200e6567}
 
 First off just looking through files and folders immediately around the access used in Q3. Just looking at permissions to files and folders in the /home/james directory we find three files immediately of interest in this directory:
 - The suid bit set on the .suid_bash hidden file.
-- While .suid_as_admin_successful has no content is likely a flag to highlight your in right directory look deeper here.
+- While .suid_as_admin_successful has no content is likely a flag to highlight your in right directory and to look deeper here.
 - The attacker replaced .bash_history with a symlink to /dev/null. Anything Bash tries to write to history is discarded. This is a classic attacker anti-forensics technique.
 - .bash_history is a file that is normally found in linux.
 
