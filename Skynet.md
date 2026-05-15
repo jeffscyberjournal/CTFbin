@@ -153,7 +153,7 @@ Host script results:
 |_  System time: 2026-04-29T13:42:56-05:00
 ```
 
-They the anonymous user milesdyson required a password
+The anonymous user milesdyson required a password
 ```
 # smbclient \\\\THM_Target\\anonymous
 Password for [WORKGROUP\root]:
