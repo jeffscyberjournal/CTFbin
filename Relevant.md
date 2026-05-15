@@ -131,5 +131,45 @@ Bob - !P@$$W0rD!123
 └─$ echo "QmlsbCAtIEp1dzRubmFNNG40MjA2OTY5NjkhJCQk" | base64 -d    
 Bill - Juw4nnaM4n420696969!$$$                        
 ```
+Closer look with nmap using script on port 135,139,445:
+```
+Starting Nmap 7.95 ( https://nmap.org ) at 2026-05-16 03:15 AEST
+Nmap scan report for THM_Target (10.49.151.205)
+Host is up (0.41s latency).
 
+PORT    STATE SERVICE
+135/tcp open  msrpc
+139/tcp open  netbios-ssn
+445/tcp open  microsoft-ds
+
+Host script results:
+| smb-enum-shares: 
+|   account_used: guest
+|   \\10.49.151.205\ADMIN$: 
+|     Type: STYPE_DISKTREE_HIDDEN
+|     Comment: Remote Admin
+|     Anonymous access: <none>
+|     Current user access: <none>
+|   \\10.49.151.205\C$: 
+|     Type: STYPE_DISKTREE_HIDDEN
+|     Comment: Default share
+|     Anonymous access: <none>
+|     Current user access: <none>
+|   \\10.49.151.205\IPC$: 
+|     Type: STYPE_IPC_HIDDEN
+|     Comment: Remote IPC
+|     Anonymous access: <none>
+|     Current user access: READ/WRITE
+|   \\10.49.151.205\nt4wrksv: 
+|     Type: STYPE_DISKTREE
+|     Comment: 
+|     Anonymous access: <none>
+|_    Current user access: READ/WRITE
+| smb-os-discovery: 
+|   OS: Windows Server 2016 Standard Evaluation 14393 (Windows Server 2016 Standard Evaluation 6.3)
+|   Computer name: Relevant
+|   NetBIOS computer name: RELEVANT\x00
+|   Workgroup: WORKGROUP\x00
+|_  System time: 2026-05-15T10:15:09-07:00
+```
   
