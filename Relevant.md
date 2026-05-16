@@ -221,6 +221,24 @@ Host script results:
 |_  System time: 2026-05-15T10:15:09-07:00
 ```
 
+First looking for user.txt without metasploit, first off we know CVE-2017-0143 for ms17-010 eternal blue is highly vulnerable. Looking in searchsploit with CVE shows nothing but with ms17-010 we find:
+```
+└─$ searchsploit ms17-010     
+------------------------------------------- ---------------------------------
+ Exploit Title                             |  Path
+------------------------------------------- ---------------------------------
+Microsoft Windows - 'EternalRomance'/'Eter | windows/remote/43970.rb
+Microsoft Windows - SMB Remote Code Execut | windows/dos/41891.rb
+Microsoft Windows 7/2008 R2 - 'EternalBlue | windows/remote/42031.py
+Microsoft Windows 7/8.1/2008 R2/2012 R2/20 | windows/remote/42315.py
+Microsoft Windows 8/8.1/2012 R2 (x64) - 'E | windows_x86-64/remote/42030.py
+Microsoft Windows Server 2008 R2 (x64) - ' | windows_x86-64/remote/41987.py
+------------------------------------------- ---------------------------------
+Shellcodes: No Results
+
+```
+The last one is closest match 41987.py 
+
 
 Meterpreter results
 ```
