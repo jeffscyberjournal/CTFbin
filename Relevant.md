@@ -127,10 +127,7 @@ Host script results:
 Nmap -sC only includes a range of common ports so one more for full range of ports
 ```
 └─$ nmap -Pn -p- -sV THM_Target 
-Starting Nmap 7.95 ( https://nmap.org ) at 2026-05-16 04:36 AEST
-Nmap scan report for THM_Target (10.49.137.106)
-Host is up (0.41s latency).
-Not shown: 65527 filtered tcp ports (no-response)
+...
 PORT      STATE SERVICE       VERSION
 80/tcp    open  http          Microsoft IIS httpd 10.0
 135/tcp   open  msrpc         Microsoft Windows RPC
