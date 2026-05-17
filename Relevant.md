@@ -1,4 +1,4 @@
-<img width="640" height="360" alt="image" src="https://github.com/user-attachments/assets/bad1fbcc-69ff-4a38-a1bb-d811b484d2e5" /># Relevant
+# Relevant
 
 ### Scenario:
 
