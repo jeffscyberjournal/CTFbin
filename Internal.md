@@ -38,10 +38,10 @@ PORT   STATE SERVICE VERSION
 |_http-title: 400 Bad Request
 Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel 
 ```
-Just 2 services to look at on Linux OS
-Quick browse of ip shows apache web server default screen.
+- Just 2 services to look at on Linux OS
+- Quick browse of ip shows apache web server default screen.
 
-GoBuster and feroxbuster similar but gobuster summed it up better:
+- GoBuster and feroxbuster both done ferox buster far more detailed but gobuster summed it up better more concisely, more scans on wp, it was not necessary to go in more detail here:
 ```
 └─$ sudo gobuster dir -u "http://THM_Target:80" -w /usr/share/wordlists/dirb/common.txt -t 10 --timeout 10s
 ===============================================================
@@ -61,16 +61,12 @@ Starting gobuster in directory enumeration mode
 /.hta                 (Status: 403) [Size: 277]
 /.htaccess            (Status: 403) [Size: 277]
 /.htpasswd            (Status: 403) [Size: 277]
-/blog                 (Status: 301) [Size: 311] [--> http://10.49.134.48/blog/]                                                                           
+/blog                 (Status: 301) [Size: 311] [--> http://THM_Target/blog/]                                                                           
 /index.html           (Status: 200) [Size: 10918]
-/javascript           (Status: 301) [Size: 317] [--> http://10.49.134.48/javascript/]                                                                     
-/phpmyadmin           (Status: 301) [Size: 317] [--> http://10.49.134.48/phpmyadmin/]                                                                     
+/javascript           (Status: 301) [Size: 317] [--> http://THM_Target/javascript/]                                                                     
+/phpmyadmin           (Status: 301) [Size: 317] [--> http://THM_Target/phpmyadmin/]                                                                     
 /server-status        (Status: 403) [Size: 277]
-/wordpress            (Status: 301) [Size: 316] [--> http://10.49.134.48/wordpress/]
+/wordpress            (Status: 301) [Size: 316] [--> http://THM_Target/wordpress/]
 Progress: 4613 / 4613 (100.00%)
 ===============================================================              
-```
-
-```
-
 ```
