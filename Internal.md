@@ -244,4 +244,6 @@ Here the txt file jenkins is useful for escalation, this require using ssh to wi
 
 YOUR_IP:8080  →  THM_TargetP_IP (SSH server as aubreanna)  →  172.17.0.2:8080
 
-This creates a listener on YOUR_IP 127.0.0.1:8080 forwards traffic via encrypted SSH connection to the 172.17.0.2:8080 much the same way used to connect VNC connection via secure SSH connection.
+This creates a listener on YOUR_IP 127.0.0.1:8080 forwards traffic via encrypted SSH connection to the 172.17.0.2:8080 much the same way used to connect VNC connection via secure SSH connection. To view the website just access 127.0.0.1:8080 in browser not to connect to the target 172.17.0.2:8080. 
+
+This gives us the jenkins site similar to ALFRED CTF. A common user name was Admin I started with that with a brute force attack.
