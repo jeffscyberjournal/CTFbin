@@ -113,6 +113,16 @@ Interesting Finding(s):
 - Start the netcat listener set to port for reverse shell just placed in Theme Function section.
 - Select update file on the php code replaced and you should connect reverse shell to listener.
 
+## My mistake I should have considered about the reverse shell:
+- I often forget to use the additional steps that make a reverse shell much easier to work with. Without them, you end up dealing with problems like no arrow keys, no command history, no Ctrl+R search, broken backspace, or the shell skipping lines. Using something like rlwrap nc -lnvp 4444 fixes this by adding proper line editing and better copy‑and‑paste behaviour.
+
+- Another issue is that a raw reverse shell is not a TTY. That means no job control, no interactive programs like nano, top, or su, no proper signal handling, and no terminal features. Spawning a PTY — for example with
+python3 -c 'import pty; pty.spawn("/bin/bash")' — gives the remote side a pseudo‑terminal, which fixes most of these problems. It prevents Ctrl+C from accidentally closing the shell, allows Ctrl+Z to background the session, restores tab completion and arrow keys, provides a proper prompt instead of blank lines, and enables interactive tools.
+
+- The step that almost always fails for me is the terminal fix after suspending the shell:
+stty raw -echo  
+This tells the local terminal to stop interpreting characters, pass everything directly to the remote PTY, and avoid echoing characters twice.
+
 ```
 root@ip-10-48-100-246:~/Desktop# nc -lnvp 4444
 Listening on 0.0.0.0 4444
@@ -230,3 +240,8 @@ aubreanna@internal:~/snap/docker$ ls -la current
 lrwxrwxrwx 1 aubreanna aubreanna 3 Aug  3  2020 current -> 471
 aubreanna@internal:~/snap/docker$ 
 ```
+Here the txt file jenkins is useful for escalation, this require using ssh to with a local port forward by connection to aubreanna again on THM_Target IP. By opening port 8080 on my local machine and forward SSH tunnel to 172.17.0.2:8080 from aubreanna remote host.
+
+YOUR_IP:8080  →  THM_TargetP_IP (SSH server as aubreanna)  →  172.17.0.2:8080
+
+This creates a listener on YOUR_IP 127.0.0.1:8080 forwards traffic via encrypted SSH connection to the 172.17.0.2:8080 much the same way used to connect VNC connection via secure SSH connection.
