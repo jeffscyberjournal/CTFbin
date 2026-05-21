@@ -117,6 +117,7 @@ Trying the Themes replacement of error page option with PHP reverse shell:
 - Then going to vertical hamburger menu on top right.
 - Selecting appearances section.
 - Then Theme Editor and Theme Function.
+- For THM reason a simple php script is fine but a real life pentest might be better to use msfvenom to create the php payload which will be obfuscated and insert that, less likely to triggered by antivirus.
 - Look for 404 error related page. Should usually have script in PHP format if so you can append or replace it with a reverse shell then enter page that does exist to start this script.
 - Next replace the php code with a php reverse shell.
 - Start the netcat listener set to port for reverse shell just placed in Theme Function section.
