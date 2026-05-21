@@ -108,17 +108,21 @@ Interesting Finding(s):
  | Username: admin, Password: my2boys
 ...
 ```
+Jenkins CMS has two main options for running the reverse shell to connect with
+- From the script console usually found in manage themes section, usually java related like 'Groovy' script in this section for jenkins.
+- OR replace a page in the themes section, often PHP for jenkins
+
+Trying the Themes replacement of error page option with PHP reverse shell:
 - Using this user name and password logging into /THM_Target/blog/wp-login.php. 
 - Then going to vertical hamburger menu on top right.
 - Selecting appearances section.
 - Then Theme Editor and Theme Function.
+- Look for 404 error related page. Should usually have script in PHP format if so you can append or replace it with a reverse shell then enter page that does exist to start this script.
 - Next replace the php code with a php reverse shell.
 - Start the netcat listener set to port for reverse shell just placed in Theme Function section.
 - Select update file on the php code replaced and you should connect reverse shell to listener.
 
-Jenkins CMS has two main options for running the reverse shell to connect with
-- from the script console usually found in manage
-- 
+
 
 ## My mistake I should have considered about the reverse shell:
 - I often forget to use the additional steps that make a reverse shell much easier to work with. Without them, you end up dealing with problems like no arrow keys, no command history, no Ctrl+R search, broken backspace, or the shell skipping lines. Using something like rlwrap nc -lnvp 4444 fixes this by adding proper line editing and better copy‑and‑paste behaviour.
