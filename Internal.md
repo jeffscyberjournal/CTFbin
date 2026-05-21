@@ -267,6 +267,7 @@ End up with username: admin password:spongebob
 - Failed attempts following - Keep Set-Cookie New JSESSIONID... and adds expired ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE with redirect to /loginError
 - Expires 1970 is a legacy Jetty/Spring quirk: when a cookie is deleted, server sets expiry to the unix epoch (Thu, 01 Jan 1970 00:00:00 GMT).
 - Look for size of recieved packets is possibly easiest way but you can view responses and looks for set-cookie values with jsession... related to success or location: .... without loginError.
+- Testing with burpe suite might find password, but it was necessary to restart the target to be able to get a login after, not ideal for pentesting real life situation.
 ```
 # Before success password entered
 
