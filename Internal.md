@@ -75,7 +75,7 @@ Progress: 4613 / 4613 (100.00%)
 On closer inspection with browser there is the internal.thm/blog page with link to login taking us to wp-admin login, and a phpmyadmin login page. A closer look with WPSCAN using:
 ```
 # Assuming api key installed otherwise add with --api-token YOUR_API_KEY
-wpscan --url http://internal.thm:80/blog/ --enumerate u,at,tt,ap --random_user-agent --passwords /location/of/rockyou.txt --output wpscan_enumerated.txt 
+wpscan --url http://internal.thm:80/blog/ --enumerate u --random_user-agent --passwords /location/of/rockyou.txt --output wpscan_enumerated.txt 
 ```
 Main findings are the username and password for admin account.
 
@@ -115,6 +115,10 @@ Interesting Finding(s):
 - Next replace the php code with a php reverse shell.
 - Start the netcat listener set to port for reverse shell just placed in Theme Function section.
 - Select update file on the php code replaced and you should connect reverse shell to listener.
+
+Jenkins CMS has two main options for running the reverse shell to connect with
+- from the script console usually found in manage
+- 
 
 ## My mistake I should have considered about the reverse shell:
 - I often forget to use the additional steps that make a reverse shell much easier to work with. Without them, you end up dealing with problems like no arrow keys, no command history, no Ctrl+R search, broken backspace, or the shell skipping lines. Using something like rlwrap nc -lnvp 4444 fixes this by adding proper line editing and better copy‑and‑paste behaviour.
@@ -249,7 +253,7 @@ YOUR_IP:8080  →  THM_TargetP_IP (SSH server as aubreanna)  →  172.17.0.2:808
 
 This creates a listener on YOUR_IP 127.0.0.1:8080 forwards traffic via encrypted SSH connection to the 172.17.0.2:8080 much the same way used to connect VNC connection via secure SSH connection. To view the website just access 127.0.0.1:8080 in browser not to connect to the target 172.17.0.2:8080. 
 
-Note: default port for burpe suite is 8080 so cant use it on that port if connection to website configured for that port as well. Create another foxy proxy setting for port 8081 and configure listener on burpe suite to (add another) 8081 lookback address. 
+Note: default port for burpe suite is 8080 so cant use it on that port if connection to website configured for that port as well. Easiest option just make it another port to connect at start of ssh command like 9000:172.17.0.2:8080, then connect with browser to 9000. Or create another foxy proxy setting for port 8081 and configure listener on burpe suite to (add another) 8081 lookback address, slightly more complex and unecessary. 
 
 Then just send request to intruder and use a sniper attack if a password is known or cluster bomb to work through all possible combinations or username and password payloads.
 
@@ -262,6 +266,7 @@ End up with username: admin password:spongebob
 - Successful login - Set-Cookie header set to New JSESSIONID... issued and redirects to / (root)
 - Failed attempts following - Keep Set-Cookie New JSESSIONID... and adds expired ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE with redirect to /loginError
 - Expires 1970 is a legacy Jetty/Spring quirk: when a cookie is deleted, server sets expiry to the unix epoch (Thu, 01 Jan 1970 00:00:00 GMT).
+- Look for size of recieved packets is possibly easiest way but you can view responses and looks for set-cookie values with jsession... related to success or location: .... without loginError.
 ```
 # Before success password entered
 
