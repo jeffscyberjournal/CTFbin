@@ -257,42 +257,39 @@ This gives us the jenkins site similar to ALFRED CTF. A common user name was Adm
 So I used a Burpe Suite in similar way.
 End up with username: admin password:spongebob
 
-
-All requests received 302, but in the response Set-Cookie changes when a successful password is used, and keeps its after but gains the failed Set-Cookie as well.
+- All requests received 302
+- Before success - Set-Cookie header set to  ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE expires immediately (Max‑Age=0) and redirects to /loginError page.
+- Successful login - Set-Cookie header set to New JSESSIONID... issued and redirects to / (root)
+- Failed attempts following - Keep Set-Cookie New JSESSIONID... and adds expired ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE with redirect to /loginError
+- Expires 1970 is a legacy Jetty/Spring quirk: when a cookie is deleted, server sets expiry to the unix epoch (Thu, 01 Jan 1970 00:00:00 GMT).
 ```
 # Before success password entered
 
 HTTP/1.1 302 Found
-Date: Wed, 20 May 2026 18:19:50 GMT
-X-Content-Type-Options: nosniff
+...
 Set-Cookie: ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE=; Path=/; Expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0; HttpOnly
 Expires: Thu, 01 Jan 1970 00:00:00 GMT
 Location: http://127.0.0.1:9090/loginError
-Content-Length: 0
-Server: Jetty(9.4.30.v20200611)
+...
 
 # Success password entered
 
 HTTP/1.1 302 Found
-Date: Wed, 20 May 2026 18:19:51 GMT
-X-Content-Type-Options: nosniff
+...
 Set-Cookie: JSESSIONID.2520d107=node0gzn5vkhao3pcdnina2adfvbb11.node0; Path=/; HttpOnly
 Expires: Thu, 01 Jan 1970 00:00:00 GMT
 Location: http://127.0.0.1:9090/
-Content-Length: 0
-Server: Jetty(9.4.30.v20200611)
+...
 
 # Failed attempts after password keep the set-cookie and gain same one as earlier failed attempts
 
 HTTP/1.1 302 Found
-Date: Wed, 20 May 2026 18:19:51 GMT
-X-Content-Type-Options: nosniff
+...
 Set-Cookie: JSESSIONID.2520d107=node08cfshb5hiw4n1v0q1kuuu86oe12.node0; Path=/; HttpOnly
 Expires: Thu, 01 Jan 1970 00:00:00 GMT
 Set-Cookie: ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE=; Path=/; Expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0; HttpOnly
 Location: http://127.0.0.1:9090/loginError
-Content-Length: 0
-Server: Jetty(9.4.30.v20200611)
+...
 ```
 
 
