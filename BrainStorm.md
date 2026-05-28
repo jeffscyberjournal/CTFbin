@@ -165,13 +165,32 @@ PASS anonymous
 quit
 ```   
 
-
+Server Side (Windows 8 – chatserver.exe)
 ```
+C:\Users\Administrator\Desktop\binary\chatserver.exe
+
 Chat Server started!
 Called essential function dll version 1.00
-Waiting for connections.
-Received a client connection from 192.168.0.167:55334
-Client 192.168.0.167:55334 selected username: anonymous
-```
 
+Waiting for connections..
+Received a client connection from <netcat_terminal_IP>:52332
+Client <netcat_terminal_IP>:52332 selected username: THM_USER
+```
+Client Side (Netcat Terminal – Linux)
+```
+(hacktopuser@hacktop) ~/Desktop
+$ nc <chatserver-IP> 9999
+
+Welcome to Brainstorm chat (beta)
+Please enter your username (max 20 characters): THM_USER
+Write a message: TEST INPUT TEXT
+
+Fri May 29 02:46:35 2026
+THM_USER said: TEST INPUT TEXT
+
+Write a message: TEST2 TEXT
+
+Fri May 29 02:47:01 2026
+THM_USER said: TEST2 TEXT
+```
 
