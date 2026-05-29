@@ -305,7 +305,7 @@ Here the main one of interest is the chatserver.exe and essfunc.dll
 
 | 0x62500000 | 0x6250b000 | 0x0000b000 | False  | False   | False | False | False    | False  | -1.0- [essfunc.dll] (C:\Users\Administrator\Desktop\binary\essfunc.dll) 0x0             |
 ```
-Here unlike all other files listed these two all show false for Rebase, SafeSEH, ASLR, CFG, NXCompat, OS DLL. That is exactly what you want in Brainstorm.
+Here unlike all other files listed these two all show false for Rebase, SafeSEH, ASLR, CFG, NXCompat, OS DLL. That is exactly what you want in Brainstorm. The ASLR and NXCompat are the main reasons this is possible for this exploit, as will allow JMP ESP used later in exploit.
 
 ### What “all FALSE” actually means for your exploit
 1. ASLR = False
