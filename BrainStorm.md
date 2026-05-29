@@ -385,6 +385,7 @@ Using Mona again in the immunity debugger in the command bar at bottom send
 !mona find -s "\xff\xe4" -m essfunc.dll
 ```
 The output shows 9 possible locations for use we will just use the first one (0x625014df)
+- Check location with "Go to address in dissassembler" menu item (7 to right of play symbol) and enter the location before using it. Ib python it will need to be reversed in later before sending.
 
 ```
 ...
