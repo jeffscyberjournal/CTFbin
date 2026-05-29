@@ -267,6 +267,41 @@ This effectively showed EIP replaced wtih 42424242 (last 4 B's), with EAX replac
 
 ### Q3 Now you know that you can overflow a buffer and potentially control execution, you need to find a function where ASLR/DEP is not enabled. Why not check the DLL file.
 
+Still using Immunity debugger, with the chatserver.exe loaded, in the bottom command bar enter:
+```
+!mona modules
+```
+A windows should show results similar to what is listed here, this is also available in file stored in c:\program files(x86)/Immunity Inc/Immunity Debugger/modules.md.
+This can be set to location and then run with:
+```
+!mona config -set workingfolder c:\mona
+!mona modules
+```
+Here is main part of output from run:
+```
+...
+| Base       | Top        | Size       | Rebase | SafeSEH | ASLR  | CFG   | NXCompat | OS Dll | Details                                                                                 |
+| ---------- | ---------- | ---------- | ------ | ------- | ----- | ----- | -------- | ------ | --------------------------------------------------------------------------------------- |
+| 0x00400000 | 0x00409000 | 0x00009000 | False  | False   | False | False | False    | False  | -1.0- [chatserver.exe] (C:\Users\Administrator\Desktop\binary\chatserver.exe) 0x0       |
+| 0x76720000 | 0x76727000 | 0x00007000 | True   | False   | True  | True  | True     | True   | 6.3.9600.17415 [NSI.dll] (C:\Windows\SYSTEM32\NSI.dll) 0x4540                           |
+| 0x75bb0000 | 0x75cf0000 | 0x00140000 | True   | True    | True  | True  | True     | True   | 6.3.9600.17415 [KERNEL32.DLL] (C:\Windows\SYSTEM32\KERNEL32.DLL) 0x4140                 |
+| 0x76ed0000 | 0x7703e000 | 0x0016e000 | True   | True    | True  | True  | True     | True   | 6.3.9600.17415 [ntdll.dll] (C:\Windows\SYSTEM32\ntdll.dll) 0x4140                       |
+| 0x767d0000 | 0x768a7000 | 0x000d7000 | True   | True    | True  | True  | True     | True   | 6.3.9600.17415 [KERNELBASE.dll] (C:\Windows\SYSTEM32\KERNELBASE.dll) 0x4140             |
+| 0x746c0000 | 0x746ca000 | 0x0000a000 | True   | False   | True  | True  | True     | True   | 6.3.9600.17415 [CRYPTBASE.dll] (C:\Windows\SYSTEM32\CRYPTBASE.dll) 0x4540               |
+| 0x75b60000 | 0x75bb0000 | 0x00050000 | True   | True    | True  | True  | True     | True   | 6.3.9600.17415 [WS2_32.dll] (C:\Windows\SYSTEM32\WS2_32.dll) 0x4140                     |
+| 0x74660000 | 0x746b4000 | 0x00054000 | True   | True    | True  | True  | True     | True   | 6.3.9600.17415 [bcryptPrimitives.dll] (C:\Windows\SYSTEM32\bcryptPrimitives.dll) 0x41c0 |
+| 0x768b0000 | 0x768f1000 | 0x00041000 | True   | True    | True  | True  | True     | True   | 6.3.9600.17415 [sechost.dll] (C:\Windows\SYSTEM32\sechost.dll) 0x4140                   |
+| 0x76040000 | 0x760fa000 | 0x000ba000 | True   | True    | True  | True  | True     | True   | 6.3.9600.17415 [RPCRT4.dll] (C:\Windows\SYSTEM32\RPCRT4.dll) 0x4140                     |
+| 0x746d0000 | 0x746ee000 | 0x0001e000 | True   | True    | True  | True  | True     | True   | 6.3.9600.17415 [SspiCli.dll] (C:\Windows\SYSTEM32\SspiCli.dll) 0x4140                   |
+| 0x62500000 | 0x6250b000 | 0x0000b000 | False  | False   | False | False | False    | False  | -1.0- [essfunc.dll] (C:\Users\Administrator\Desktop\binary\essfunc.dll) 0x0             |
+| 0x76100000 | 0x761c3000 | 0x000c3000 | True   | True    | True  | True  | True     | True   | 7.0.9600.17415 [msvcrt.dll] (C:\Windows\SYSTEM32\msvcrt.dll) 0x4140                     |
+----------
+```
+Here the main one of interest is the chatserver.exe and essfunc.dll
+```
+| 0x00400000 | 0x00409000 | 0x00009000 | False  | False   | False | False | False    | False  | -1.0- [chatserver.exe] (C:\Users\Administrator\Desktop\binary\chatserver.exe) 0x0       |
 
+| 0x62500000 | 0x6250b000 | 0x0000b000 | False  | False   | False | False | False    | False  | -1.0- [essfunc.dll] (C:\Users\Administrator\Desktop\binary\essfunc.dll) 0x0             |
+```
 
 
