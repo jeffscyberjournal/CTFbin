@@ -384,8 +384,11 @@ Using Mona again in the immunity debugger in the command bar at bottom send
 ```
 !mona find -s "\xff\xe4" -m essfunc.dll
 ```
+\xff\xef represent JMP ESP
+
 The output shows 9 possible locations for use we will just use the first one (0x625014df)
-- Check location with "Go to address in dissassembler" menu item (7 to right of play symbol) and enter the location before using it. Ib python it will need to be reversed in later before sending.
+- Check location with "Go to address in dissassembler" menu item (7 to right of play symbol) and enter the location before using it. Select the line and press F2 in immunity debugger and this will become a new break point. We will run a script to see it that break point is reached. - If reached should identify it on bottom line of immunity debugger with "Breakpoint at essfunc.625014DF"
+- In python it will need to be reversed in later before sending.
 
 ```
 ...
