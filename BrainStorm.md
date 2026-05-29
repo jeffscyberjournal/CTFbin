@@ -299,9 +299,46 @@ Here is main part of output from run:
 ```
 Here the main one of interest is the chatserver.exe and essfunc.dll
 ```
+| Base       | Top        | Size       | Rebase | SafeSEH | ASLR  | CFG   | NXCompat | OS Dll | Details                                                                                 |
+| ---------- | ---------- | ---------- | ------ | ------- | ----- | ----- | -------- | ------ | --------------------------------------------------------------------------------------- |
 | 0x00400000 | 0x00409000 | 0x00009000 | False  | False   | False | False | False    | False  | -1.0- [chatserver.exe] (C:\Users\Administrator\Desktop\binary\chatserver.exe) 0x0       |
 
 | 0x62500000 | 0x6250b000 | 0x0000b000 | False  | False   | False | False | False    | False  | -1.0- [essfunc.dll] (C:\Users\Administrator\Desktop\binary\essfunc.dll) 0x0             |
 ```
+Here unlike all other files listed these two all show false for Rebase, SafeSEH, ASLR, CFG, NXCompat, OS DLL. That is exactly what you want in Brainstorm.
+
+### What “all FALSE” actually means for your exploit
+1. ASLR = False
+- The DLL loads at the same address every time.
+- You can use hard‑coded return addresses (e.g., JMP ESP).
+- Your exploit becomes reliable.
+- This is the big one. Without ASLR disabled, you can’t use static ROP gadgets.
+
+2. NXCompat = False
+- DEP is not enforced for this module.
+- You can execute shellcode directly on the stack.
+- No ROP chain needed to bypass DEP.
+- Usually always on on 64bit systems.
+- This is why Brainstorm lets you use a simple JMP ESP → shellcode payload.
+
+3. SafeSEH = False
+- The module does not have a Safe Structured Exception Handler table.
+- If the exploit used SEH overwrites, this DLL would be usable.
+- Not needed for Brainstorm, but it confirms the DLL is old and unprotected.
+
+4. Rebase = False
+- The DLL cannot be relocated.
+- It always loads at its preferred base address.
+- This pairs with ASLR=False to guarantee stable gadget addresses.
+
+5. CFG = False
+- Control Flow Guard is not enabled.
+- You can freely redirect execution to any address inside the DLL.
+- Modern Windows protections are simply not present.
+
+6. OS DLL = False
+- It’s not a Windows system DLL.
+- Third‑party DLLs often have no protections, which is why they’re used for exploits.
+- This is why Brainstorm tells you to “check the DLL file”.
 
 
