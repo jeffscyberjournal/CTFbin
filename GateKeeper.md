@@ -239,7 +239,7 @@ Sent \x01 through to \xFF to look for characters that did not show, Immunity did
 00601A90   42424242  BBBB
 ...
 ```
-
+Running mona modules it looks like the only candidate for attack is not a DLL its the gatekeeper.exe file itself being the only one with ASLR and NXcompat disabled.
 ```
 - Nr of modules displayed after filters: **21**
 - PEB order: **InLoadOrder**
@@ -268,6 +268,19 @@ Sent \x01 through to \xFF to look for characters that did not show, Immunity did
 | 0x73220000 | 0x73235000 | 0x00015000 | True   | True    | True  | True  | True     | True   | 14.44.35211.0 [VCRUNTIME140.dll] (C:\Windows\SYSTEM32\VCRUNTIME140.dll) 0x4140                                     |
 | 0x731f0000 | 0x731f5000 | 0x00005000 | True   | False   | True  | False | True     | True   | 10.0.10240.16390 [api-ms-win-crt-math-l1-1-0.dll] (C:\Windows\SYSTEM32\api-ms-win-crt-math-l1-1-0.dll) 0x540       |
 ----------
+```
+Next use mona command bar to search for JMP ESP in gatekeeper.exe using 
+```
+!mono -s "\xff\xe4" -m gatekeeper.exe
+```
+what two locations showed up
+```
+...
+## Results
+...
+0x080414c3 : "\xff\xe4" |  {PAGE_EXECUTE_READ} [gatekeeper] ASLR: False, Rebase: False, SafeSEH: True, CFG: False, OS: False, v-1.0- (C:\Users\Administrator\Desktop\TRYHACKME CTF\Gatekeeper\gatekeeper.exe), 0x8000
+0x080416bf : "\xff\xe4" |  {PAGE_EXECUTE_READ} [gatekeeper] ASLR: False, Rebase: False, SafeSEH: True, CFG: False, OS: False, v-1.0- (C:\Users\Administrator\Desktop\TRYHACKME CTF\Gatekeeper\gatekeeper.exe), 0x8000
+```
 
 
 ```
