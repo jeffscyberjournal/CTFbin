@@ -6,7 +6,7 @@ Reverse engineer a chat program and write a script to exploit a Windows machine.
 
 ### Q1 How many open ports?
 
-### Answer Q1: 3 from nmap scan
+Answer Q1: 3 from nmap scan
 
 Nmap scan with no ping to determine the ports and services open.
 ```
@@ -154,7 +154,7 @@ ftp>
 # Task 3: Access
 
 ### Q1: Read description of buffer overflow from the THM module 'Buffer Overflows x86-64). 
-Answer: Familiarise with THM buffer overflows module. 
+Answer Q1 Task 3: Familiarise with THM buffer overflows module. 
 
 ### Q2: After testing for overflow, by entering a large number of characters, determine the EIP offset.
 Answer Q2 Task 3: 2012, see below where EIP determined after basic testing on chatserver. 
@@ -269,7 +269,7 @@ AAAAAAAAAA......AAAABBBB
 This effectively showed EIP replaced wtih 42424242 (last 4 B's), with EAX replaced with AAA...
 
 ### Q3 Now you know that you can overflow a buffer and potentially control execution, you need to find a function where ASLR/DEP is not enabled. Why not check the DLL file.
-Answer: determined using build in mona.py script, which needs to added to Immunity Debugger  first. Google corelan/mona (official repository), to find github repository. 
+Answer Q3 Task 3: Determined using build in mona.py script, which needs to added to Immunity Debugger  first. Google corelan/mona (official repository), to find github repository. 
 
 Still using Immunity debugger, with the chatserver.exe loaded, in the bottom command bar enter:
 ```
