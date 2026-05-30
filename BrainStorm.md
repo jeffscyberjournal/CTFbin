@@ -2,9 +2,9 @@
 
 Reverse engineer a chat program and write a script to exploit a Windows machine.
 
-Task 1 Deploy Machine and Scan Network
+# Task 1 Deploy Machine and Scan Network
 
-## Q1 How many open ports?
+### Q1 How many open ports?
 
 ### Answer Q1: 3 from nmap scan
 
@@ -75,6 +75,9 @@ Please enter your username (max 20 characters):
 Nmap doesn’t recognise it, so it dumps the fingerprint.
 
 # Task 2 Accessing files
+
+### Q1 What is the name of the exe file you found?
+Answer Q1 Task 2: obtained from FTP port: chatserver.exe.
 
 FTP was available on port 21 so first off try anonymous and a few test names
 
