@@ -418,8 +418,10 @@ Copyright (C) 2009 Microsoft Corporation. All rights reserved.
 Checked Scheduled tasks, sc and start up files, too many or just no obvious wins here:
 ```
  C:\Users\natbat\Desktop>schtasks /query /fo /LIST /v
- # OR
+ # OR tasks running as system
  schtasks /query /fo LIST /v | findstr /i "SYSTEM"
+ # OR search for exe run in user folders  
+ schtasks /query /fo LIST /v | findstr /i "C:\Users"
  # OR
  C:\Users\natbat\Desktop>schtasks
  # OR
@@ -427,6 +429,8 @@ Checked Scheduled tasks, sc and start up files, too many or just no obvious wins
  # OR
  dir "c:\programData\microsoft\windows\start menu\programs\startup
 ```
-
-
+What i dismissed was icacl search the two files in the folder gatekeeper exe and bat.
+```
+icacls "C:\Users\natbat\desktop\gatekeeper.exe" # or .bat
+```
 
