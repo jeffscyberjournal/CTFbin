@@ -484,8 +484,8 @@ decrypting login/password pairs
 Using 3DES (32-byte key, truncated to 24)
    https://creds.com:b'mayor',b'8CL7O1N78MdrCIsV'
 ```
-## Now obtain the root.txt
-
+## Q2 Task 2 Now obtain the root.txt
+Answer Q2 Task 2: found with impacket tools or xfreerdp 
 Use mayor creds to obtain root.txt from desktop
 xfreerdpway:
 ```
