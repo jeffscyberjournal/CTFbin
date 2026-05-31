@@ -355,6 +355,22 @@ C:\Users\natbat\Desktop>
 ```
 Answer Q1 Task 2: {H4lf_W4y_Th3r3} user.text file flag
 
+Other two files gatekeeper.* were likely a deadend
+```
+C:\Users\natbat\Desktop>type Firefox.lnk
+L�F�  �j7�▒��j7�▒����   ����DG▒Yr?�D��U��k0�~tCFSF1�P▒� AppDatat▒Y^���H�g3��(����ߟgVA�G��k��ﾕP��P▒�*�AppDataBL1�P� LocalﾕP��P�*TULocald1�P� MOZILL~1ﾕP��P�*�sMozilla Firefox▒^2���P5�  firefox.exeﾕP��P�*�sfirefox.exe▒�-8_KԾ:C:\Users\'\\GATEKEEPER\Usersnatbat\AppData\Local\Mozilla Firefox\firefox.exe,..\AppData\Local\Mozilla Firefox\firefox.exe-C:\Users\natbat\AppData\Local\Mozilla Firefox
+                                                                 �|��I�J�H��K��`����'t�1��8rj�8  ��1SPS��XF�L8C���&�m�m.S-1-5-21-663372427-3699997616-3390412905-1003b1SPSU(L�y�9K����-���
+
+                        ��54B4832DCE3D0EB51
+C:\Users\natbat\Desktop>type gatekeeperstart.bat
+@echo off
+:start 
+start /w C:\Users\natbat\Desktop\gatekeeper.exe
+::Wait 90 seconds before restarting.
+TIMEOUT /T 5
+GOTO:Start
+```
+
 Note the firefox.lnk file is a clue for the root.txt file later, the gatekeeper.exe file is same as one obtained from SMB share and the .bat file is a used for running gatekeeper also a likely option for depending on permissions of process calling it. 
 
 ## Escallation 
