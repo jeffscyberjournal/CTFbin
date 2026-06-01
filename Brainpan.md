@@ -185,3 +185,56 @@ fi
 
 Z:\home\puck>
 ```
+
+
+
+```
+Summary of the Mona Commands some interesting too look into
+1. !mona bytearray -b "\x00"
+Purpose:  
+Generate a full test bytearray (\x01 → \xff) excluding known bad chars.
+
+Why:  
+You send this into the vulnerable program to detect bad characters — bytes that get altered, removed, or terminate the buffer.
+
+In Brainpan:  
+Only \x00 is bad.
+Everything else survives unchanged.
+
+2. !mona compare -f c:\mona\bytearray.bin -a ESP
+Purpose:  
+Compare the bytearray you sent with what appears in memory at the address you specify (usually ESP).
+
+Why:  
+This identifies which bytes are corrupted by the program.
+
+In Brainpan:  
+No corruption occurs.
+The bytearray matches perfectly → only \x00 is bad.
+
+3. !mona jmp -r esp -cpb "\x00"
+Purpose:  
+Find a JMP ESP instruction in a module whose address does not contain bad characters.
+
+-cpb = “characters to avoid in the pointer”.
+
+Why:  
+Your EIP overwrite must point to a safe address that doesn’t break the exploit.
+
+In Brainpan:  
+A clean JMP ESP exists (0x311712F3), no null bytes.
+
+🧠 Why walkthroughs sometimes show corrupted bytes
+Some CTF binaries filter or modify the first few bytes of input, causing:
+
+\x01 → corrupted
+
+\x02 → corrupted
+
+etc.
+
+This forces repeated bytearray regeneration.
+
+Brainpan does NOT do this.  
+It is a clean, classic overflow with only one bad char: \x00.
+```
