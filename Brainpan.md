@@ -144,3 +144,44 @@ except:
 	print("Cannot connect to the server")
 	sys.exit()
 ```
+### Reverse shell success
+
+First thing I notice and learnt was whoami failed. Turns out whoami did not exist in early Windows NT (NT 3.x / NT 4.0 era). It was introduced much later (Windows XP / Server 2003).
+The closest it had was echo %USERNAME% and hostname which work in all later versions of windows.
+
+Next check set to see environment variables, ver to see the OS version, tasklist to list running processes.
+
+On first inspection a script Checksrv.sh appears to keep brainpan.exe and SimpleHTTPServer running:
+```
+Z:\home\puck>type checsrv.sh
+File not found.
+
+Failed to open 'checsrv.sh'
+
+Z:\home\puck>type checksrv.sh
+#!/bin/bash
+# run brainpan.exe if it stops
+lsof -i:9999
+if [[ $? -eq 1 ]]; then 
+        pid=`ps aux | grep brainpan.exe | grep -v grep`
+        if [[ ! -z $pid ]]; then
+                kill -9 $pid
+                killall wineserver
+                killall winedevice.exe
+        fi
+        /usr/bin/wine /home/puck/web/bin/brainpan.exe &
+fi 
+
+# run SimpleHTTPServer if it stops
+lsof -i:10000
+if [[ $? -eq 1 ]]; then 
+        pid=`ps aux | grep SimpleHTTPServer | grep -v grep`
+        if [[ ! -z $pid ]]; then
+                kill -9 $pid
+        fi
+        cd /home/puck/web
+        /usr/bin/python -m SimpleHTTPServer 10000
+fi 
+
+Z:\home\puck>
+```
