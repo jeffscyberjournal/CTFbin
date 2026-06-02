@@ -109,7 +109,10 @@ In the debugger, all bytes appeared intact except \x00, so the only bad characte
 - With bad chars confirmed, I used Mona to enumerate modules and locate a suitable JMP ESP gadget in a module without ASLR, SafeSEH, or rebase.
 
 The best candidate was found at:
-- 0x311712F3 in brainpan.exe
+- 0x311712F3 in brainpan.exe (found with
+```
+!mona find -s "\xff\xe4" -m brainpan.exe
+```
 - This address contains the bytes FF E4 (JMP ESP) and is safe to use.
 - This value will replace 42424242 in EIP (written in little‑endian as \xF3\x12\x17\x31) so execution flow jumps directly into the buffer at ESP, where the NOP sled and shellcode will be placed.
 
