@@ -7,7 +7,7 @@ Brainpan is perfect for OSCP practice and has been highly recommended to complet
 ### NMAP
 
 ```
-# nmap -Pn -sV -sC THM_TARGET
+# nmap -Pn -sV -sC -O THM_TARGET
 ...
 PORT      STATE SERVICE VERSION
 9999/tcp  open  abyss?
@@ -28,9 +28,12 @@ PORT      STATE SERVICE VERSION
 1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
 SF-Port9999-TCP:V=7.80%I=7%D=5/31%Time=6A1C692E%P=x86_64-pc-linux-gnu%r(NU
 ...
+No exact OS matches for host (If you know what OS is running on it, see https://nmap.org/submit/ ).
+...
 ```
-Two ports: 9999 abyss? likely a running process similar to earlier CTF running on 9999. Tested with netcat IP 9999 and sure enought the same screen appeared to ascii art from nmap requesting password.
-Port 10000 was a simpleHTTPServer accessible via web browser. Displaying web page "Are you practicing safe coding?" referencing 2011 as proved to be year of the hack suggesting old content.
+- OS scan no exact match but port 9999 seems to suggest x86_64 Linux
+- Port 9999 abyss? likely a running process similar to earlier CTF running on 9999. Tested with netcat IP 9999 and sure enought the same screen appeared to ascii art from nmap requesting password.
+- Port 10000 was a simpleHTTPServer accessible via web browser. Displaying web page "Are you practicing safe coding?", referencing 2011 as proved to be year of the hack suggesting old content.
 
 ### Gobuster 
 A quick search of port 10000 showed one folder of interest and its contents accessible via browser.
