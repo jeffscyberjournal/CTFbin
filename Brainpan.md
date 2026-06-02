@@ -99,13 +99,18 @@ _|_|_|    _|          _|_|_|  _|  _|    _|  _|_|_|      _|_|_|  _|    _|
 └─$ msf-pattern_offset -q 35724134
 [*] Exact match at offset 524                                         
 ```
-Now offset determined, next quick look at badchar that might affect it.
-- Ran similar python script added 4 * b'B' and added bad char list from \x01 to \xff
-- No clear sign of bad char not displayed, they all appeared visible so assume only \x00 is bad.
-- This also verified EIP offset 524 with EIP filled with 42424242 as expected.
-
-Use Mona to find a JMP ESP gadget to jump to ESP and use its location in the EIP to kick start into the nop sled leading to shellcode. 
-- JMP ESP location best suited was 0x311712f3 
+With the offset confirmed, the next step is validating bad characters that could corrupt the payload.
+I sent a test payload consisting of:
+- padding up to the EIP offset,
+- BBBB (0x42424242) to confirm EIP control,
+- followed by a full bad‑char sequence from \x01 through \xff placed immediately after ESP.
+  
+In the debugger, all bytes appeared intact except \x00, so the only bad character is \x00.
+- With bad chars confirmed, I used Mona to enumerate modules and locate a suitable JMP ESP gadget in a module without ASLR, SafeSEH, or rebase.
+- The best candidate was found at:
+  0x311712F3 in brainpan.exe
+  This address contains the bytes FF E4 (JMP ESP) and is safe to use.
+- This value will replace 42424242 in EIP (written in little‑endian as \xF3\x12\x17\x31) so execution flow jumps directly into the buffer at ESP, where the NOP sled and shellcode will be placed.
 
 ```
 # mona.py output
