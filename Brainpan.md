@@ -56,22 +56,22 @@ Starting gobuster in directory enumeration mode
 ===============================================================
 bin                  (Status: 301) [Size: 0] [--> /bin/]
 ```
-In IP:10000/bin/ was a single exe file brainpan.exe. 
+In Target_IP:10000/bin/ was visited in browser showing only a single exe file, brainpan.exe. 
 ```
 ┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/BrainPan]
 └─$ file brainpan.exe                     
 brainpan.exe: PE32 executable for MS Windows 4.00 (console), Intel i386 (stripped to external PDB), 5 sections
 ```
-PE32 executable
-It’s a Windows binary, 32‑bit, compiled for x86.
-
-Windows 4.00
-This corresponds to Windows NT 4.0 era toolchains — extremely old.
+- PE32 executable
+- It’s a Windows binary, 32‑bit, compiled for x86.
+- Corresponds to Windows NT 4.0 era toolchains — extremely old.
 
 ### Test brainpan.exe
 
-- Loaded on a Windows 8 VM in immunity I used a python script to send 100,200, and 1000 Ascii character \x41 or A. Only when 2000 used did it crash the application. 
-- To determine the EIP next I used msf-pattern_create -l 1000 then determined its position of EIP offset with msf-pattern_offset -q <4 characters in EIP>
+- Loaded on a Windows 8 VM in immunity I used a python script to send 100,200, and 1000 Ascii character \x41 or A. Only when 1000 used did it crash the application. 
+- To determine the EIP next I used:
+		- 'msf-pattern_create -l 1000' for unique pattern for password field.
+		- Then determined its position of EIP offset with msf-pattern_offset -q <EIP_Characters>
 
 ```
 └─$ msf-pattern_create -l 2000
