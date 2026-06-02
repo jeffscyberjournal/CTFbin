@@ -109,7 +109,7 @@ In the debugger, all bytes appeared intact except \x00, so the only bad characte
 - With bad chars confirmed, I used Mona to enumerate modules and locate a suitable JMP ESP gadget in a module without ASLR, SafeSEH, or rebase.
 
 The best candidate was found at:
-- 0x311712F3 in brainpan.exe (found with
+- 0x311712F3 in brainpan.exe (found with mona command below, two alternatives mona options at end of this write up)
 ```
 !mona find -s "\xff\xe4" -m brainpan.exe
 ```
