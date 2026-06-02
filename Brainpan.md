@@ -68,10 +68,11 @@ brainpan.exe: PE32 executable for MS Windows 4.00 (console), Intel i386 (strippe
 
 ### Test brainpan.exe
 
-- Loaded on a Windows 8 VM in immunity I used a python script to send 100,200, and 1000 Ascii character \x41 or A. Only when 1000 used did it crash the application. 
-- To determine the EIP next I used:
-		- 'msf-pattern_create -l 1000' for unique pattern for password field.
-		- Then determined its position of EIP offset with msf-pattern_offset -q <EIP_Characters>
+Loaded on a Windows 8 VM in immunity I used a python script to send 100,200, and 1000 Ascii character \x41 or A. Only when 1000 used did it crash the application. 
+
+To determine the EIP next I used: 
+- 'msf-pattern_create -l 1000' for unique pattern for password field.
+- Then determined its position of EIP offset with msf-pattern_offset -q <EIP_Characters>
 
 ```
 └─$ msf-pattern_create -l 2000
