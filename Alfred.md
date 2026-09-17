@@ -1,7 +1,7 @@
 # Alfred
 Exploit Jenkins to gain an initial shell, then escalate your privileges by exploiting Windows authentication tokens.
 
-In this room, we'll learn how to exploit a common misconfiguration on a widely used automation server(Jenkins - This tool is used to create continuous integration/continuous development pipelines that allow developers to automatically deploy their code once they made changes to it). After which, we'll use an interesting privilege escalation method to get full system access. 
+Exploit a common misconfiguration on a widely used automation server(Jenkins - This tool is used to create continuous integration/continuous development pipelines that allow developers to automatically deploy their code once they made changes to it). After which, apply methods escalate privilege to get full system access. 
 
 # Task 1 Initial Access:
 
