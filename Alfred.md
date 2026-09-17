@@ -13,20 +13,12 @@ Since this is a Windows application, we'll be using Nishang(opens in new tab) to
 git clone https://github.com/samratashok/nishang
 ```
 
-Please note that this machine does not respond to ping (ICMP) and may take a few minutes to boot up.
-
-### NMAP scan (no ping Pn): 
+### NMAP scan (no ping Pn, ICMP blocked): 
 ```
-# nmap -sT -sC <targetIP>
-Starting Nmap 7.80 ( https://nmap.org ) at 2026-04-03 17:40 BST
-mass_dns: warning: Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers
-mass_dns: warning: Unable to determine any DNS servers. Reverse DNS is disabled. Try using --system-dns or specify valid servers with --dns-servers
-Note: Host seems down. If it is really up, but blocking our ping probes, try -Pn
-Nmap done: 1 IP address (0 hosts up) scanned in 4.36 seconds
-root@ip-<attackerIP> :~# nmap -sT -Pn -sC <targetIP>
+
+**nmap -sT -Pn -sC <targetIP>**
 Starting Nmap 7.80 ( https://nmap.org ) at 2026-04-03 17:41 BST
-mass_dns: warning: Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers
-mass_dns: warning: Unable to determine any DNS servers. Reverse DNS is disabled. Try using --system-dns or specify valid servers with --dns-servers
+...
 Nmap scan report for  <targetIP>
 Host is up (0.00047s latency).
 Not shown: 997 filtered ports
@@ -43,11 +35,9 @@ PORT     STATE SERVICE
 |_http-title: Site doesn't have a title (text/html;charset=utf-8).
 
 Nmap done: 1 IP address (1 host up) scanned in 65.28 seconds
-# curl http:// <targetIP>:8080/robots.txt
-# we don't want robots to click "build" links
-User-agent: *
-
 ```
+
+---
 ## Q1: number of TCP ports:
 Answer: 3
 
