@@ -109,16 +109,15 @@ admin:admin	    302	        /
 ```
 gobuster dir -u http://TARGET-IP -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -t 50 -x php,txt,html -e -k
 
-wordlist 800,000 long, target slows down never completing even with t 10, t 1 might work but target would time out. This was as good as it got. 
+wordlist 800,000 long, target slows down never completing even with t 10, t 1 might work but target would time out. This was as good as it got. So blacklist ports added for further filtering. 
 
-gobuster dir -u http://<targetIP>:8080 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50 -x php,txt,html -e -k --status-codes-blacklist 404,403,302,301>out5.txt
+gobuster dir -u http://<targetIP>:8080 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50 -x php,txt,html -e -k --status-codes-blacklist 404,403,302,301>GobusterOutput.txt
 
 
-# cat out3.txt 
+# cat GobusterOutput.txt 
 ===============================================================
 Gobuster v3.6
-by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
-===============================================================
+...
 [+] Url:                     http://<targetIP>:8080
 [+] Method:                  GET
 [+] Threads:                 50
