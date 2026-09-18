@@ -19,9 +19,6 @@ git clone https://github.com/samratashok/nishang
 **nmap -sT -Pn -sC <targetIP>**
 Starting Nmap 7.80 ( https://nmap.org ) at 2026-04-03 17:41 BST
 ...
-Nmap scan report for  <targetIP>
-Host is up (0.00047s latency).
-Not shown: 997 filtered ports
 PORT     STATE SERVICE
 80/tcp   open  http
 | http-methods: 
@@ -33,8 +30,6 @@ PORT     STATE SERVICE
 | http-robots.txt: 1 disallowed entry 
 |_/
 |_http-title: Site doesn't have a title (text/html;charset=utf-8).
-
-Nmap done: 1 IP address (1 host up) scanned in 65.28 seconds
 ```
 
 ---
