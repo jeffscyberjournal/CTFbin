@@ -85,7 +85,7 @@ Location: http://<targetIP>:8080/
 Content-Length: 0
 Server: Jetty(9.4.z-SNAPSHOT)
 ```
-It was also worth considering some applications with java used to have password hardcoded into the applications. so it was worth looking at gobuster to check what folders or files could be enumerated. No real luck  the two files with status code 200 the reset.
+It was also worth considering some applications with java used to have password hardcoded into the applications. so it was worth looking at gobuster to check what folders or files could be enumerated. No real luck only two files with status code 200.
 
 You can filter further using:
 1. In Intruder → Options
