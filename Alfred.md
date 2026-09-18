@@ -218,6 +218,8 @@ Exactly same except String cmd="sh" is String cmd="cmd.exe" and of course change
 ```
 Windows PowerShell 
 Copyright (C) 2009 Microsoft Corporation. All rights reserved.
+
+? Becomes unresponsive here
 ```
 
 ## Trying upload payload methods here:
