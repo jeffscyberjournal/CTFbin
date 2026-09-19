@@ -109,7 +109,7 @@ wordlist 800,000 long, target slows down never completing even with t 10, t 100 
 gobuster dir -u http://<targetIP>:8080 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50 -x php,txt,html -e -k --status-codes-blacklist 404,403,302,301>GobusterOutput.txt
 
 ```
-~# cat GobusterOutput.txt 
+cat GobusterOutput.txt 
 ===============================================================
 Gobuster v3.6
 ...
