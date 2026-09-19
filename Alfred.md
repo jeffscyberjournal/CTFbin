@@ -3,7 +3,7 @@ Exploit Jenkins to gain an initial shell, then escalate your privileges by explo
 
 Exploit a common misconfiguration on a widely used automation server(Jenkins - This tool is used to create continuous integration/continuous development pipelines that allow developers to automatically deploy their code once they made changes to it). After which, apply methods escalate privilege to get full system access. 
 
-## Task 1 Initial Access:
+## Task 1 Initial Access
 
 In this room, we'll learn how to exploit a common misconfiguration on a widely used automation server(Jenkins - This tool is used to create continuous integration/continuous development pipelines that allow developers to automatically deploy their code once they made changes to it). After which, we'll use an interesting privilege escalation method to get full system access. 
 
@@ -36,7 +36,7 @@ PORT     STATE SERVICE
 Answer: 3
 
 Trying several things, looking at code in url pages, basic gobuster scan of directories, and exiftools not a lot showed up. Only
-alfred@wayneenterprises.com visible on the main page, the <target-ip>:8080 showed image of jenkins but could not be saved. In the code there was a reference to j_acegi_security_check.
+alfred@wayneenterprises.com visible on the main page, the <targetIP>:8080 showed image of jenkins but could not be saved. In the code there was a reference to j_acegi_security_check.
 
 
 It’s a tell‑tale sign of an old Java web application using Acegi Security, which is the predecessor of Spring Security. When you see this string in a login form or request, it indicates:
