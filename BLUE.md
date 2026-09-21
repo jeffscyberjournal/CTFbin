@@ -59,9 +59,9 @@ Answer: MS17-010 clearly visible from nmap when --script vuln used.
 	
 Start msfconsole then search for ms17_010, option 0 contains:
 Answer: exploit/windows/smb/ms17_010_eternalblue the question is vague but it's pretty obvious this is the first one that matches. The all start exploit/windows/smb/. The answer is rated average, one below is rated great and should have been a better bet:
-
+```
 27  exploit/windows/smb/smb_doublepulsar_rce       2017-04-14       great    Yes    SMB DOUBLEPULSAR Remote Code Execution
-	
+```	
 Next to select exploit enter :
 	use 0
 
