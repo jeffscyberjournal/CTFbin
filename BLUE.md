@@ -82,7 +82,7 @@ Then enter the RHOST IP with:
 	
 	
 ## Task3: 
-## Q1: Research online how to convert a shell to meterpreter shell in metasploit
+### Q1: Research online how to convert a shell to meterpreter shell in metasploit
 	
 Quick google search for meterpreter shell in metasploit and a rapid7 link appears (module_name below).
 	
@@ -92,12 +92,12 @@ To use just type:
 	
 	use module_name
 	
-## Q2: The next question is the see what options need to be filled. That is just show options.
+### Q2: The next question is the see what options need to be filled. That is just show options.
 4 options appear one for answer is 7 characters so:
 
 Answer: session
 	
-## Q3: find relevant session to use the POST module to upgrade it, no response required.
+### Q3: find relevant session to use the POST module to upgrade it, no response required.
 	
 To list session options enter sessions -l
 Shows same as just typing 'sessions'
@@ -105,9 +105,9 @@ Shows same as just typing 'sessions'
   msf post(multi/manage/shell_to_meterpreter) > sessions
 ```	
 	
-## Q4 Run meterpreter shell, no response required
+### Q4 Run meterpreter shell, no response required
 
-## Q5 just tells you to restart the target if it fails and it will likely fail several times.
+### Q5 just tells you to restart the target if it fails and it will likely fail several times.
 	
 Showed the following output: 
 ```
@@ -152,7 +152,7 @@ msf6 post(multi/manage/shell_to_meterpreter) > sessions -i 2
 [*] Starting interaction with 2...
 ```
 	
-## Q6: Next verify access to NT AUTHORITY\SYSTEM
+### Q6: Next verify access to NT AUTHORITY\SYSTEM
 	- Use meterpreters getuid
 	- To determine current ownership permissions open a dos shell via the command 'shell' and run 'whoami' 
 	Here it's already NT AUTHORITY\SYSTEM
@@ -177,7 +177,7 @@ Background channel 1? [y/N]  y
 Ctrl z Here just backgrounds the command shell to get back to meterpreter.
 ```
 
-## Force upgrade if not done using getsystem
+### Force upgrade if not done using getsystem
 
 getsystem is a Meterpreter privilege‑escalation helper.
 It tries several built‑in techniques to elevate the current Meterpreter session to NT AUTHORITY\SYSTEM if possible.
@@ -188,7 +188,7 @@ meterpreter > getsystem
 [-] Already running as SYSTEM
 ```
  
-# Next step is to migrate to a more stable process:
+### Next step is to migrate to a more stable process:
 This is very unstable in its present state meterpreter seems to hold for up to 5 minutes before session closes itself. Not part of CTF but to make it easier.
 	
 Migrate to this process using the 'migrate PROCESS_ID' command where the process id is the one you just wrote down in the previous step. This may take several attempts, migrating processes is not very stable. If this fails, you may need to re-run the conversion process or reboot the machine and start once again. If this happens, try a different process next time. 
