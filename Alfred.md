@@ -237,13 +237,12 @@ openssl req -new -x509 -keyout key.pem -out cert.pem -days 365 -nodes
 
 Then tried to setup server using it, which failed.
 
-python3 -m http.server 443 --bind 0.0.0.0 --ssl-key key.pem --ssl-cert cert.pem
+root@ip-10-49-75-238:~/nishang/Shells# fpython3 -m http.server 443 --bind 0.0.0.0 --ssl-key key.pem --ssl-cert cert.pem
 usage: server.py [-h] [--cgi]
                  [--bind ADDRESS]
                  [--directory DIRECTORY]
                  [port]
 server.py: error: unrecognized arguments: --ssl-key key.pem --ssl-cert cert.pem
-root@ip-10-49-75-238:~/nishang/Shells#
 ```
 Process to create a simple server to make TLS work, I tried this and this does not not work as expected. tcpdump -i any port 443 did read packet, but is likely httpd.socket = ssl.wrap_socket drops the packets without error resulting in no sign receiving, likely I did something wrong with the certificate.
 
