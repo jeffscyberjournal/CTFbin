@@ -4,9 +4,6 @@ Start with simple nmap scan
 ```                                                                         
 	$ nmap -sV -sC --script vuln <target-IP>
 	...
-	Nmap scan report for <target-IP>
-	Host is up (0.17s latency).
-	Not shown: 992 closed tcp ports (reset)
 	PORT      STATE SERVICE      VERSION
 	135/tcp   open  msrpc        Microsoft Windows RPC
 	139/tcp   open  netbios-ssn  Microsoft Windows netbios-ssn
