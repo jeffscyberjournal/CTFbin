@@ -1,11 +1,9 @@
 # Task 1 Recon
-	- Simple nmap scan
+
+Start with simple nmap scan
 ```                                                                         
-	$ sudo nmap -sV -sC --script vuln <target-IP>
-	[sudo] password for kali: 
-	Starting Nmap 7.98 ( https://nmap.org ) at 2026-03-20 12:59 -0400
-	Stats: 0:02:07 elapsed; 0 hosts completed (1 up), 1 undergoing Script Scan
-	NSE Timing: About 99.90% done; ETC: 13:02 (0:00:00 remaining)
+	$ nmap -sV -sC --script vuln <target-IP>
+	...
 	Nmap scan report for <target-IP>
 	Host is up (0.17s latency).
 	Not shown: 992 closed tcp ports (reset)
