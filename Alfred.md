@@ -15,8 +15,7 @@ git clone https://github.com/samratashok/nishang
 
 ### NMAP scan (no ping Pn, ICMP blocked): 
 ```
-**nmap -sT -Pn -sC <targetIP>**
-Starting Nmap 7.80 ( https://nmap.org ) at 2026-04-03 17:41 BST
+nmap -sT -Pn -sC <targetIP>
 ...
 PORT     STATE SERVICE
 80/tcp   open  http
@@ -130,10 +129,9 @@ http://<targetIP>:8080/oops                 (Status: 500) [Size: 9389]
 http://<targetIP>:8080/j_security_check     (Status: 303) [Size: 0] [--> http://<targetIP>:8080/loginError]
 
 ===============================================================
-Finished
-
-nothing really usable. 
 ```
+This was not helpful. 
+
 
 
 ---
