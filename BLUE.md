@@ -53,7 +53,10 @@ Answer: MS17-010 clearly visible from nmap when --script vuln used.
 ### Q2: Find the exploit code we will run against the machine:
 	
 - Start msfconsole then search for ms17_010, option 0 contains:
-Answer: exploit/windows/smb/ms17_010_eternalblue 
+Answer: 
+```
+0 exploit/windows/smb/ms17_010_eternalblue 
+```
 - The answer is rated average, one below is rated great and should have been a better bet:
 ```
 27  exploit/windows/smb/smb_doublepulsar_rce       2017-04-14       great    Yes    SMB DOUBLEPULSAR Remote Code Execution
