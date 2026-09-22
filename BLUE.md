@@ -195,7 +195,7 @@ Migrate to this process using the 'migrate PROCESS_ID' command where the process
 	
 Some meterpreter shells may be unstable you can migrate the process to another more stable existing process like the spoolsv.exe process which always runs with the NT AUTHORITY\SYSTEM  and matches the architecture of the system. This process if it crashes will respawn and won't break the system it's on. Next we will be dumping lsaas hashes from the system and this wont be possible unless the process matches the systems infrastructure making spoolsv.exe perfect for this task.
 	
-## To migrate we use 
+### To migrate we use 
 ```
   migrate process_ID
 ```
@@ -210,7 +210,7 @@ Examples (conceptually):
 		- Antivirus services (ironically stable, but dangerous to touch)
 Why defenders care: Long‑running processes hide persistence better and blend into normal system behavior.
 	
-## Match the user’s privilege level
+### Match the user’s privilege level
 If the attacker is SYSTEM, they need a SYSTEM process. If they are a user, they need a user‑level process. Why defenders care: Privilege mismatches are a detection signal.
 	
 ### Have consistent CPU/memory usage
