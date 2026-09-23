@@ -192,6 +192,7 @@ meterpreter > getsystem
 ```
  
 ### Next step is to migrate to a more stable process:
+
 This is very unstable in its present state meterpreter seems to hold for up to 5 minutes before session closes itself. Not part of CTF but to make it easier.
 	
 Migrate to this process using the 'migrate PROCESS_ID' command where the process id is the one you just wrote down in the previous step. This may take several attempts, migrating processes is not very stable. If this fails, you may need to re-run the conversion process or reboot the machine and start once again. If this happens, try a different process next time. 
@@ -217,22 +218,27 @@ Why defenders care: Long‑running processes hide persistence better and blend i
 If the attacker is SYSTEM, they need a SYSTEM process. If they are a user, they need a user‑level process. Why defenders care: Privilege mismatches are a detection signal.
 	
 ### Have consistent CPU/memory usage
+
 - Processes that spike or behave oddly stand out in EDR logs.
 - Why defenders care: Injected code often changes a process’s behavior profile.
 	
 ### Are not protected or hardened
 Some processes are dangerous to touch:
-	- AV/EDR processes
-	- LSASS
-	- Winlogon
-	- CSRSS
+
+- AV/EDR processes
+- LSASS
+- Winlogon
+- CSRSS
+
 Why defenders care: Tampering with these is a high‑confidence alert.
 
 Conceptually, attackers choose processes that:
-	- Have network access
-	- Use similar protocols (e.g., HTTP/S)
-	- Already talk to the internet
-	- Won’t look suspicious making outbound connections
+
+- Have network access
+- Use similar protocols (e.g., HTTP/S)
+- Already talk to the internet
+- Won’t look suspicious making outbound connections
+
 Why defenders care: Outbound traffic from unusual processes is a classic IOC.
 	
 Now to get to more stable process we need to check processes available first:
@@ -282,7 +288,6 @@ meterpreter > hashdump
 Administrator:500:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
 Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
 Jon:1000:aad3b435b51404eeaad3b435b51404ee:ffb43f0de35be4d9917ac0cc8ad57f8d:::
-meterpreter >
 ```	
 Note downloading the hashes from meterpreter did not work using. Failed with no form of error:
 	
