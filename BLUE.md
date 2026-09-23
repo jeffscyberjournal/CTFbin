@@ -446,15 +446,12 @@ Use meterpreter session 2 then use shell command to enter the command line of wi
 ### Q1: Flag1 in root directory:
 ```
 C:\>dir *.txt
-dir *.txt
 ...
 03/17/2019  02:27 PM                24 flag1.txt
 03/27/2026  11:43 PM               234 Tempnetusers.txt
 
 C:\>type flag1.txt
-type flag1.txt
 flag{access_the_machine}
-C:\>
 ```
 
 ### Q2: Flag2? 
