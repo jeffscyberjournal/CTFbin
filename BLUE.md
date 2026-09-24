@@ -42,7 +42,8 @@ Start with simple nmap scan
 ### Q2: Ports under 1000 
 Answer: 3 in total
 	
-### Q3: What is this machine vulnerable to? (Answer in the form of: ms??-???, ex: ms08-067)
+### Q3: What is this machine vulnerable to? (Answer in the form of: ms??-???)
+
 Answer: MS17-010 clearly visible from nmap when --script vuln used.
 	
 ---
