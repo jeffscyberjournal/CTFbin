@@ -32,7 +32,7 @@ Service Info: OSs: Windows, Windows Server 2008 R2 - 2012; CPE: cpe:/o:microsoft
 ```
 Answer: 8080 there is a HTTP file service HTTPFileServer httpd 2.3 running.
 
-## Q2: What file server is running: 
+## Q2: Take a look at the other web server. What file server is running?
 
 Using google search shows many referencing rejetto, google exploit db shows:
 
