@@ -14,11 +14,7 @@ Its half of the image from a scene from the TV series Mr Robot. Hence Steel Moun
 ## Q1: scan machine what other ports does web server run on:
 ```
 nmap --top-ports 1000 -sV <TargetIP>
-Starting Nmap 7.80 ( https://nmap.org ) at 2026-03-29 15:35 BST
-mass_dns: warning: 
 ...
-Host is up (0.00033s latency).
-Not shown: 989 closed ports
 PORT      STATE SERVICE            VERSION
 80/tcp    open  http               Microsoft IIS httpd 8.5
 135/tcp   open  msrpc              Microsoft Windows RPC
