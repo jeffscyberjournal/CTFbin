@@ -1,17 +1,18 @@
-# Task one - Recon:
-## Q1: Who is the employee of the month, hint is to use image reverse search.
+## Task 1: Recon
+
+### Q1: Who is the employee of the month, hint is to use image reverse search.
 Answer: Bill Harper. 
 File name: BillHarper.png sort of gave it away.
 
-## TinEye provides:
-31 results
-TinEye searched 82.6 billion images for: BillHarper.png
+### Not necessary, TinEye provides for BillHarper.png
+
 First indexed by TinEye on December 5, 2015
 Its half of the image from a scene from the TV series Mr Robot. Hence Steel Mountain, a name that replicates the very real Iron Mountain
 
 
-# Task 2 Initial Access
-## Q1: scan machine what other ports does web server run on:
+## Task 2: Initial Access
+
+### Q1: scan machine what other ports does web server run on:
 ```
 nmap --top-ports 1000 -sV <TargetIP>
 ...
@@ -32,7 +33,7 @@ Service Info: OSs: Windows, Windows Server 2008 R2 - 2012; CPE: cpe:/o:microsoft
 ```
 Answer: 8080 there is a HTTP file service HTTPFileServer httpd 2.3 running.
 
-## Q2: Take a look at the other web server. What file server is running?
+### Q2: Take a look at the other web server. What file server is running?
 
 Using google search shows many referencing rejetto, google exploit db shows:
 
