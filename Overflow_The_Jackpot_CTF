@@ -70,7 +70,7 @@ The key = CB CE CE 43
 83 XOR 4D = CE
 38 XOR 7B = 43
 
-To find flag with python (for now called it code.py):
+To find flag with python (for now called it code.py, also write in linux os to avoid dos2unix and sed mess):
 ```
 cipher = bytes.fromhex(
 "9f86833893febc1c80fdb71cb9fdad73"
@@ -88,22 +88,3 @@ for i, c in enumerate(cipher)
 print(plain.decode())
 ```
 
-Should this be python code be transferred from Windows to use either of these to convert to work in linux:
-```
-You can skip this whole section by typing the code in linux and not tranfering a file over.
-
-First observer with cat -A code.py to see hidden and non-printable characters, each line must end only with $.
-
-"f8fda01c9fa6ff10948b8e30b2b3"$   <- this is normal
-)$                                <- this is normal
- $                                <- this is normal
-
-"f8fda01c9fa6ff10948b8e30b2b3"^M$ <-this is not hidden characters from windows
-)^M$                              <-this is not hidden characters from windows
-M-BM- ^M$                         <-this is not hidden characters from windows                        
-
-dos2unix decipher.py
-or 
-sed -i 's/\r$//' decipher.py      <- this will fix ^M not M-BM- 
-sed -i 's/\xc2\xa0/ /g' decipher.py     <- this will fix M-BM- and was required additionally.
-```
