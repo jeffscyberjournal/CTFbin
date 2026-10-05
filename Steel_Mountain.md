@@ -46,7 +46,7 @@ Going to IP:8080 under service information there is a link to http://www.rejetto
 
 Answer: rejetto http file server
 
-## Q3: What CVE number to exploit this file server?
+### Q3: What CVE number to exploit this file server?
 
 Answer: 2014-6287
 
@@ -58,7 +58,7 @@ Rejetto HTTP File Server (HFS) version 2.3 is a popular, lightweight web-based f
 	- CVE-2014-6287 (Critical - RCE): A vulnerability in parserLib.pas in versions before 2.3c, allowing remote code execution via a null byte in a search action.
 	- CVE-2014-7226 (Critical - RCE): A file comment feature vulnerability in 2.3c and earlier that allows execution of malicious macros
 
-## Q4: Use metasploit to get initial shell, what was the user flag?
+### Q4: Use metasploit to get initial shell, what was the user flag?
 
 First start msfconsole, get meterpreter shell  then find the user flag.
 
