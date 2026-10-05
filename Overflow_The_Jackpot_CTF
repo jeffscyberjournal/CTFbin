@@ -87,4 +87,4 @@ for i, c in enumerate(cipher)
  
 print(plain.decode())
 ```
-
+Result: THM{X0r_K3y_r3c0verY_H4s_N3veR_B33n_Th1S_E@sy}
