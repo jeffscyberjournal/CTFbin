@@ -1,0 +1,109 @@
+# Overflow The Jackpot CTF
+
+## Task 2
+
+Files downloaded:
+781 attachment-1785955139202.zip
+=>               269 challenge.py
+=>                46 encrypted.bin
+
+The two files give us what we need to know. Challenge.py gives us: 
+
+- its a XOR used to scramble code
+- key use of 4 in os.urandom tells us its 4 bytes key
+- From flag = b"THM{FAKE_FLAG_FOR_TESTING}" we know format and fird=st 4 characters are THM{.
+
+```
+import os
+from pwn import *
+
+key = os.urandom(4)
+flag = b"THM{FAKE_FLAG_FOR_TESTING}" # fake flag, look at encrypted.bin and figure out the vulnerability in this encryption method.
+
+encrypted = xor(flag, key)
+
+with open("encrypted.bin", "wb") as f:
+	f.write(encrypted)
+```
+Hex code of encrypted.bin
+```
+$ xxd encrypted.bin 
+00000000: 9f86 8338 93fe bc1c 80fd b71c b9fd ad73  ...8...........s
+00000010: bdab bc1a 9486 fa30 9480 fd35 ae9c 9101  .......0...5....
+00000020: f8fd a01c 9fa6 ff10 948b 8e30 b2b3       ...........0..
+```
+The way to reverse the affect of XOR is to XOR with the same value twice cancels out:
+So you need to know the original key to get the previous state.
+
+A XOR B XOR B = A
+
+But it turns out 
+
+Ciphertext = Plaintext XOR Key
+or (encrypted output) xor (original text)
+
+THM in Hex
+That gives you the first 4 plaintext bytes:
+
+Character	Hex
+T	        54
+H	        48
+M	        4D
+{	        7B
+
+(Using Ciphertext = 9F) xor (Plaintext = 54 ('T'))
+
+10011111
+XOR
+01010100
+--------
+11001011 = CB
+
+Verify this:
+
+54 XOR CB = 9F
+
+The key = CB CE CE 43 
+
+9F XOR 54 = CB
+86 XOR 48 = CE
+83 XOR 4D = CE
+38 XOR 7B = 43
+
+To find flag with python (for now called it code.py):
+```
+cipher = bytes.fromhex(
+"9f86833893febc1c80fdb71cb9fdad73"
+"bdabbc1a9486fa309480fd35ae9c9101"
+"f8fda01c9fa6ff10948b8e30b2b3"
+)
+ 
+key = bytes.fromhex("cbcece43")
+ 
+plain = bytes(
+c ^ key[i % 4]
+for i, c in enumerate(cipher)
+)
+ 
+print(plain.decode())
+```
+
+Should this be python code be transferred from Windows to use either of these to convert to work in linux:
+```
+You can skip this whole section by typing the code in linux and not tranfering a file over.
+
+First observer with cat -A code.py to see hidden and non-printable characters, each line must end only with $.
+
+"f8fda01c9fa6ff10948b8e30b2b3"$   <- this is normal
+)$                                <- this is normal
+ $                                <- this is normal
+
+"f8fda01c9fa6ff10948b8e30b2b3"^M$ <-this is not hidden characters from windows
+)^M$                              <-this is not hidden characters from windows
+M-BM- ^M$                         <-this is not hidden characters from windows                        
+
+dos2unix decipher.py
+or 
+sed -i 's/\r$//' decipher.py      <- this will fix ^M not M-BM- 
+sed -i 's/\xc2\xa0/ /g' decipher.py     <- this will fix M-BM- and was required additionally.
+```
