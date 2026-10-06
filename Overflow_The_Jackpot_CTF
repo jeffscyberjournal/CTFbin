@@ -88,3 +88,57 @@ for i, c in enumerate(cipher)
 print(plain.decode())
 ```
 Result: THM{X0r_K3y_r3c0verY_H4s_N3veR_B33n_Th1S_E@sy}
+
+
+
+## Lost Fortune Included
+
+- Connect to VPN connection.
+- Initial view of the IP website is clearly some sort of script to connect to download files listed at bottom.
+```
+> Secret Village Archive Terminal
+
+village kiosk // read-only access
+
+Welcome, attendee. This kiosk serves talk decks and vendor flyers for the village.
+AVAILABLE DOCUMENTS:
+
+    village_schedule.pdf
+    important.png
+
+Request format: ?doc=<filename>
+Only .pdf and .png documents are served from this terminal. 
+```
+- ?doc= is likely being processed by a server-side script (PHP is plausible because /index.php exists, but not proven).
+- The application performs some extension validation:
+- ../../../etc/passwd → 403
+- ../../../etc/passwd.pdf → 202
+- The validation appears to care about the filename ending in .pdf or .png.
+- Command separators such as ;cat ... don't appear to be executed, which suggests this is probably a file-read operation rather than a shell command being built from user input.
+- That implies the application may be doing something similar to:
+```
+PHP
+if (preg_match('/\.(pdf|png)$/', $doc))
+{
+// process file
+}
+else
+{
+// 403
+}
+```
+A check with gobuster confirms there is php used in this example.
+```
+# gobuster dir -u http://10.64.130.163 -w /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt -x html,php,txt
+...
+Starting gobuster in directory enumeration mode
+===============================================================
+/.html                (Status: 403) [Size: 278]
+/index.php            (Status: 200) [Size: 2593]
+/.php                 (Status: 403) [Size: 278]
+/.php                 (Status: 403) [Size: 278]
+/.html                (Status: 403) [Size: 278]
+/server-status        (Status: 403) [Size: 278]
+Progress: 830572 / 830576 (100.00%)
+```
+
