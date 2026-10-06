@@ -111,8 +111,8 @@ Only .pdf and .png documents are served from this terminal.
 ```
 - ?doc= is likely being processed by a server-side script (PHP is plausible because /index.php exists, but not proven).
 - The application performs some extension validation:
-- ../../../etc/passwd → 403
-- ../../../etc/passwd.pdf → 202
+- ../../../etc/passwd → 403, displaying "Only .pdf and .png documents are served from this terminal. "
+- ../../../etc/passwd.pdf → 202, no output
 - The validation appears to care about the filename ending in .pdf or .png.
 - Command separators such as ;cat ... don't appear to be executed, which suggests this is probably a file-read operation rather than a shell command being built from user input.
 - That implies the application may be doing something similar to:
@@ -141,4 +141,57 @@ Starting gobuster in directory enumeration mode
 /server-status        (Status: 403) [Size: 278]
 Progress: 830572 / 830576 (100.00%)
 ```
+curl -I or nmap scan detects only the web server version, which does not help here.
+```
+# nmap -Pn -sV -p80 10.64.130.163
+...
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd 2.4.58 ((Ubuntu))
+```
 
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd 2.4.58 ((Ubuntu))
+
+
+```
+<?php
+$doc = isset($_GET['doc']) ? $_GET['doc'] : '';
+
+$decoys = ['village_schedule.pdf', 'important.png'];
+
+// If a doc param was sent, serve it (this is the vulnerable path)
+if ($doc !== '') {
+
+    // stage 1: naive single-pass traversal strip
+    $doc = str_replace('../', '', $doc);
+
+    $base = __DIR__ . '/village_docs/';
+    $is_wrapper = (strpos($doc, '://') !== false);
+
+    if (!$is_wrapper) {
+        // stage 2: extension whitelist, only ever applied to plain filenames
+        if (stripos($doc, '.pdf') === false && stripos($doc, '.png') === false) {
+            http_response_code(403);
+            die('Only .pdf and .png village documents may be viewed.');
+        }
+        $path = (isset($doc[0]) && $doc[0] === '/') ? $doc : $base . $doc;
+    } else {
+        // wrapper protocols were never covered by the whitelist check above
+        $path = $doc;
+    }
+
+    header('Content-Type: application/octet-stream');
+    header('Content-Disposition: inline; filename="' . basename($doc) . '"');
+    readfile($path);
+    exit;
+}
+?>
+
+//followed by the normal HTML code that is viewed in browser
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VILLAGE ARCHIVE TERMINAL v2.3</title>
+...
+```
