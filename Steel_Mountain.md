@@ -105,7 +105,6 @@ Path                            Size (bytes)  Modified (UTC)
 ----                            ------------  --------------
 c:\Users\bill\Desktop\user.txt  70            2019-09-27 13:42:38 +0100
 
-meterpreter > 
 ```
 
 
