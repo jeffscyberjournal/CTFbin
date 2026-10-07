@@ -138,24 +138,22 @@ Rejetto HTTP File Server (HFS) 2.3.x - | windows/remote/39161.py
 
 ```
 
-Using cat /opt/exploitdb/exploits/windows/remote/34668.txt we find 
-
-```
-issue exists due to a poor regex in the file ParserLib.pas
+Using cat /opt/exploitdb/exploits/windows/remote/34668.txt, we find the issue stems from the findMacroMarker function in ParserLib.pas. The vulnerability occurs because the regular expression engine fails to handle null bytes, allowing an attacker to bypass the macro filtering logic entirely.
 
 ```
 function findMacroMarker(s:string; ofs:integer=1):integer;
 begin result:=reMatch(s, '\{[.:]|[.:]\}|\|', 'm!', ofs) end;
 ```
 
-it will not handle null byte so a request to
+Because the regex engine treats the null byte (%00) as a string terminator, it stops parsing immediately and fails to detect any forbidden symbols. However, since the underlying HFS script engine processes the full string anyway, the injected macro is executed, leading to unauthenticated Remote Code Execution (RCE).
+Example Payload:
+```
+http://localhost:80/?search=%00{.exec|cmd.exe /c <command>.}
+```
 
-http://localhost:80/?search=%00{.exec|cmd.}
-
-will stop regex from parse macro , and macro will be executed and remote code injection happen.
 
 
-## EDB Note: This vulnerability will run the payload multiple times simultaneously.
+### EDB Note: This vulnerability will run the payload multiple times simultaneously.
 ## Make sure to take this into consideration when crafting your payload (and/or listener).
 ```
 
@@ -163,7 +161,7 @@ That file provides information to describe it but no exploit:
 https://www.exploit-db.com/exploits/39161 provides a usable exploit for this.
 
 
-# Task 3 Privilege Escalation 
+## Task 3 Privilege Escalation 
 
 To enumerate this machine, we will use a powershell script called PowerUp, that's purpose is to evaluate a Windows machine and determine any abnormalities - "PowerUp aims to be a clearinghouse of common Windows privilege escalation vectors that rely on misconfigurations."
 
