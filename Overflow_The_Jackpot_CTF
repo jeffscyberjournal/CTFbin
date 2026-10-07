@@ -37,12 +37,12 @@ So you need to know the original key to get the previous state.
 
 A XOR B XOR B = A
 
-But it turns out 
+**But it turns out**
 
 Ciphertext = Plaintext XOR Key
 or (encrypted output) xor (original text)
 
-THM in Hex
+**THM in Hex**
 That gives you the first 4 plaintext bytes:
 
 Character	Hex
@@ -59,7 +59,7 @@ XOR
 --------
 11001011 = CB
 
-Verify this:
+**Verify this:**
 
 54 XOR CB = 9F
 
@@ -70,7 +70,7 @@ The key = CB CE CE 43
 83 XOR 4D = CE
 38 XOR 7B = 43
 
-To find flag with python (for now called it code.py, also write in linux os to avoid dos2unix and sed mess):
+**To find flag with python (for now called it code.py, also write in linux os to avoid dos2unix and sed mess):**
 ```
 cipher = bytes.fromhex(
 "9f86833893febc1c80fdb71cb9fdad73"
@@ -91,7 +91,7 @@ Result: THM{X0r_K3y_r3c0verY_H4s_N3veR_B33n_Th1S_E@sy}
 
 
 
-## Lost Fortune Included
+## Task 3: Lost Fortune Included
 
 - Connect to VPN connection.
 - Initial view of the IP website is clearly some sort of script to connect to download files listed at bottom.
@@ -114,7 +114,7 @@ Only .pdf and .png documents are served from this terminal.
 - ../../../etc/passwd → 403, displaying "Only .pdf and .png documents are served from this terminal. "
 - ../../../etc/passwd.pdf → 202, no output
 - The validation appears to care about the filename ending in .pdf or .png.
-- Command separators such as ;cat ... don't appear to be executed, which suggests this is probably a file-read operation rather than a shell command being built from user input.
+- Command separators such as ;cat ... don't appear to be executed, which suggests this is probably a file-read operation rather than a shell command being built from user input. Using file name that should exist in place of cat command creates empty file download. 
 - That implies the application may be doing something similar to:
 ```
 PHP
