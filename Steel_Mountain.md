@@ -154,7 +154,7 @@ http://localhost:80/?search=%00{.exec|cmd.exe /c <command>.}
 
 
 **Exploit-DB Note: This vulnerability will run the payload multiple times simultaneously.Make sure to take this into consideration when crafting your payload (and/or listener).**
-```
+
 
 That file provides information to describe it but no exploit:  
 https://www.exploit-db.com/exploits/39161 provides a usable exploit for this.
@@ -195,7 +195,8 @@ PS > whoami
 steelmountain\bill
 PS > Invoke-Allchecks
 ```
-## Q2:Take close attention to the CanRestart option that is set to true. What is the name of the service which shows up as an unquoted service path vulnerability?
+### Q2: Take close attention to the CanRestart option that is set to true. What is the name of the service which shows up as an unquoted service path vulnerability?
+
 Answer: AdvancedSystemCareService9 is obtained from the powerup.ps1 use of invoke-allchecks
 
 This is import later for ther service we will restart to initiate reverse shell.
@@ -255,7 +256,7 @@ PS >
 ```
 
 There is a lot to look at here, a service is exploitable when:
-
+```
 Condition				Why it matters
 ----------				---------------
 Unquoted path			Windows misinterprets the executable location 
@@ -265,12 +266,12 @@ Spaces in folder names	Creates multiple possible executable paths
 Service runs as SYSTEM	Anything executed inherits SYSTEM privileges
 						Service restart allowed	User can trigger the 
 						vulnerable behaviour
-
+```
 There is also a lot of similarity with layered paths. Each layer has its own permissions, so the tool prints a block for each one.
 That’s why you see multiple “ServiceName: AdvancedSystemCareService9” entries — they’re all describing different writable points along the same path.
 
 
-## Why some entries are more likely than others
+### Why some entries are more likely than others
 Here’s the hierarchy of “how bad” each one is:
 IdentityReference				Why it matters
 BUILTIN\Users					Worst — any user can write there
