@@ -268,11 +268,10 @@ communication with a secondary service on 172.20.0.3.
 ```
 172.20.0.1
  ├─> 172.20.0.2:8080 (3 small requests titled cms, admin and flag with identical contents)
- ├─> 172.20.0.2:8080 (20.6 MB response titled stealer)
+ ├─> 172.20.0.2:8080 (20.6 MB response titled stealer application/octet-stream)
  ├─> 172.20.0.3:4444
  └─> 172.20.0.3:4444
 Most significant stream: ID 3
 20,600,522 bytes transferred
 400 packets received from 172.20.0.2
 ```
-- Under Export objects > HTTP, there were 3 text/html files: cms, admin, flag all that compared looked identical when compared with diff command. 
