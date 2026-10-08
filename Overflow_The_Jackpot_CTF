@@ -258,3 +258,14 @@ THM{wr4pp3rs_sk1p_th3_wh1t3l1st}
 ## Task 4: Casino Heist
 
 - Download 20mb pcap file in zip file format.
+
+A quick look at statisics shows:
+- Host 172.20.0.1 initiated all observed connections.
+- The majority of traffic was exchanged with 172.20.0.2:8080.
+- One session (172.20.0.1:60102 → 172.20.0.2:8080) transferred approximately 20.6 MB, accounting for nearly all observed bytes.
+- Traffic was predominantly from 172.20.0.2 → 172.20.0.1 in the large transfer:
+      - 20586583 bytes received
+      - 13939 bytes sent
+- Two additional connections were established to 172.20.0.3:4444.
+- Port 4444 is commonly encountered in reverse shells, command-and-control channels, and testing frameworks, although its presence alone does not indicate malicious activity.
+- Under Export objects > HTTP there were 3 text/html (cms, admin flag all that compared looked identical when downloaded)and 1 application/octet-stream called stealer 20Mb.
