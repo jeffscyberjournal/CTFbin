@@ -32,15 +32,16 @@ $ xxd encrypted.bin
 00000010: bdab bc1a 9486 fa30 9480 fd35 ae9c 9101  .......0...5....
 00000020: f8fd a01c 9fa6 ff10 948b 8e30 b2b3       ...........0..
 ```
-The way to reverse the affect of XOR is to XOR with the same value twice cancels out:
-So you need to know the original key to get the previous state.
+XORing something twice with the same value cancels it out.  
+  \[
+  A \oplus B \oplus B = A
+  \]
 
-A XOR B XOR B = A
+- XOR encryption and decryption are the same operation.  
+  - Ciphertext = Plaintext XOR Key  
+  - Plaintext = Ciphertext XOR Key  
 
-**But it turns out**
-
-Ciphertext = Plaintext XOR Key
-or (encrypted output) xor (original text)
+Because XOR undoes itself, using the same key again restores the original data.
 
 **THM in Hex**
 That gives you the first 4 plaintext bytes:
