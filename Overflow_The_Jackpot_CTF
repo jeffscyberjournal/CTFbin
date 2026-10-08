@@ -371,7 +371,6 @@ Headers Size = 2424
 We know its AES encryption being dealt with, code for AES code should exist in the payload, which is likely python, probably with AES key and configuration required, which we will need to find the flag later.
 
 **Seperate the payload from stealer:** 
-
 ```
 ┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/thm-ctf-jackpot-overflow]
 └─$ sudo objcopy --dump-section pydata=pydata.bin stealer
