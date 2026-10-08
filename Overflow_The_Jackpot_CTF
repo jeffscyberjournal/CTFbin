@@ -275,13 +275,37 @@ Most significant stream: ID 3
 20,600,522 bytes transferred
 400 packets received from 172.20.0.2
 ```
+Taking a closer look at port 4444 traffic with filter tcp.port==4444 one packet stands out with 127 bytes
+containing
+```
+0000   ca c1 f6 8f e9 a9 36 df 25 53 0c a2 08 00 45 00   ......6.%S....E.
+0010   00 71 55 4f 40 00 40 06 8d 0b ac 14 00 01 ac 14   .qUO@.@.........
+0020   00 03 c1 58 11 5c 6d 93 57 99 43 01 a9 31 80 18   ...X.\m.W.C..1..
+0030   01 f6 58 90 00 00 01 01 08 0a ae c2 02 7d 47 d1   ..X..........}G.
+0040   bc 1f 66 6c 61 67 2e 6a 61 63 6b 70 6f 74 0a 9b   ..flag.jackpot..
+0050   cc 34 1f 83 74 f7 d0 31 a5 a0 ee 46 63 50 13 13   .4..t..1...FcP..
+0060   b1 54 66 b1 84 e3 3a 3f 29 5e fd 0c d1 b4 f5 c6   .Tf...:?)^......
+0070   4b 48 dd 83 1b bc a7 ec 44 23 e3 78 2f 8f e5      KH......D#.x/..
+```
+Later it becomes important drop 13 bytes or just skip to section starting 9bcc341f... till end as the following:
+```
+flag.jackpot\n   =    66 6c 61 67 2e 6a 61 63 6b 70 6f 74 0a
 
+Decode that:
+
+66 6c 61 67 = flag
+2e = .
+6a 61 63 6b = jack
+70 6f 74 = pot
+0a = newline
+```
+First take a look at the large file exported from wireshark:
 ```
 ┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/thm-ctf-jackpot-overflow]
 └─$ file stealer                                                            
 stealer: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=34f6ce77833f8dc35eb938b6683c0edc0292f637, stripped
 ```
-ELF loader is not what we are interested in  its the payload, which we can view what the ELF is carrying:
+ELF loader is not what we are interested in. Its the payload, within we can view what the ELF is carrying several ways. Readelf -s stealer seems obvious but 7z is a lot cleaner to view the components:
 ```
 ┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/thm-ctf-jackpot-overflow]
 └─$ 7z l stealer 
@@ -344,9 +368,9 @@ Headers Size = 2424
 ------------------- ----- ------------ ------------  ------------------------
                               20553946     20553946  29 files
 ```
-We know its AES encryption being dealt with, AES code should exist in the payload, which is likely python, probably with AES key and configuration required to find the flag.
+We know its AES encryption being dealt with, code for AES code should exist in the payload, which is likely python, probably with AES key and configuration required, which we will need to find the flag later.
 
-Seperate the payload from stealer: 
+**Seperate the payload from stealer:** 
 
 ```
 ┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/thm-ctf-jackpot-overflow]
