@@ -11,7 +11,7 @@ The two files give us what we need to know. Challenge.py gives us:
 
 - Its a XOR used to scramble code
 - Key use of 4 in os.urandom tells us its 4 bytes key
-- From flag = b"THM{FAKE_FLAG_FOR_TESTING}" we know format and fird=st 4 characters are THM{.
+- From flag = b"THM{FAKE_FLAG_FOR_TESTING}" we know format and first 4 characters are 'THM{'
 
 ```
 import os
