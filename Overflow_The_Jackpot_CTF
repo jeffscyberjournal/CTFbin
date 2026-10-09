@@ -186,9 +186,9 @@ if ($doc !== '') {
 <head>
 <meta charset="UTF-8">
 <title>VILLAGE ARCHIVE TERMINAL v2.3</title>
-...
+... The html component easily obtained with source viewer any browser
 ```
-Explains a lot, filters directory traversal, reads superficially for 3 letters in file name, sets directory path, begins download before it realises it can read the file that does not exist and fails.
+Php code explains a lot, filters directory traversal, reads superficially for 3 letters in file name, sets directory path, begins download before it realises it can read the file that does not exist and fails.
 
 **php://filter is a PHP stream wrapper.** Think of it as a special PHP "virtual file path" that tells PHP:
 
@@ -259,7 +259,7 @@ Most significant stream: ID 3
 400 packets received from 172.20.0.2
 ```
 Taking a closer look at port 4444 traffic with filter tcp.port==4444 one packet stands out with 127 bytes
-containing
+containing:
 ```
 0000   ca c1 f6 8f e9 a9 36 df 25 53 0c a2 08 00 45 00   ......6.%S....E.
 0010   00 71 55 4f 40 00 40 06 8d 0b ac 14 00 01 ac 14   .qUO@.@.........
@@ -270,7 +270,7 @@ containing
 0060   b1 54 66 b1 84 e3 3a 3f 29 5e fd 0c d1 b4 f5 c6   .Tf...:?)^......
 0070   4b 48 dd 83 1b bc a7 ec 44 23 e3 78 2f 8f e5      KH......D#.x/..
 ```
-Later it becomes important drop 13 bytes or just skip to section starting 9bcc341f... till end as the following:
+Later it becomes important to drop 13 bytes or just skip to section starting 9bcc341f... till end as the following:
 ```
 flag.jackpot\n   =    66 6c 61 67 2e 6a 61 63 6b 70 6f 74 0a
 
@@ -284,14 +284,12 @@ Decode that:
 ```
 First take a look at the large file exported from wireshark:
 ```
-┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/thm-ctf-jackpot-overflow]
-└─$ file stealer                                                            
+$ file stealer                                                            
 stealer: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=34f6ce77833f8dc35eb938b6683c0edc0292f637, stripped
 ```
-ELF loader is not what we are interested in. Its the payload, within we can view what the ELF is carrying several ways. Readelf -s stealer seems obvious but 7z is a lot cleaner to view the components:
+ELF loader is not what we are interested in. Its the payload, within we can view what the ELF is carrying several ways. 'readelf -s stealer' seems obvious but '7z' is a lot cleaner to view the components:
 ```
-┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/thm-ctf-jackpot-overflow]
-└─$ 7z l stealer 
+$ 7z l stealer 
 
 7-Zip 26.02 (x64) : Copyright (c) 1999-2026 Igor Pavlov : 2026-06-25
  64-bit locale=en_AU.UTF-8 Threads:1 OPEN_MAX:4096, ASM
@@ -351,18 +349,15 @@ Headers Size = 2424
 ------------------- ----- ------------ ------------  ------------------------
                               20553946     20553946  29 files
 ```
-We know its AES encryption being dealt with, code for AES code should exist in the payload, which is likely python, probably with AES key and configuration required, which we will need to find the flag later.
+We know its AES encryption being dealt with, code for AES code should exist in the payload, which is likely python, probably with AES key and configuration required, we have flag from the port 4444 traffic already.
 
 **Seperate the payload from stealer:** 
 ```
-┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/thm-ctf-jackpot-overflow]
-└─$ sudo objcopy --dump-section pydata=pydata.bin stealer
-[sudo] password for hacktopuser: 
+$ sudo objcopy --dump-section pydata=pydata.bin stealer
 ```
-Try using detect it easy to find out how its compiled with:
+Try using 'detect it easy' to find out how its compiled with:
 ```
-┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/thm-ctf-jackpot-overflow]
-└─$ diec stealer
+$ diec stealer
 ELF64
     Compiler: Go(1.24.1)
     Compiler: GCC((Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0)
@@ -375,8 +370,7 @@ Python internal code likely if pyinstaller used but to check in more depth, stil
 - libpython3.10.so.1.0 means embedded Python runtime is present.
 
 ```
-┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/thm-ctf-jackpot-overflow]
-└─$ strings -a stealer | grep -iE "pyinstaller|PYZ|python|MEI"
+$ strings -a stealer | grep -iE "pyinstaller|PYZ|python|MEI"
 _MEIXXXXH
 Path of Python shared library (%s) and its name (%s) exceed buffer size (%d).
 Failed to load Python shared library '%s': %s
@@ -449,15 +443,13 @@ bpython3.10/lib-dynload/termios.cpython-310-x86_64-linux-gnu.so
 byaml/_yaml.cpython-310-x86_64-linux-gnu.so
 zPYZ.pyz
 6libpython3.10.so.1.0
-                                                                                                                    
-┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/thm-ctf-jackpot-overflow]
-└─$ 
 ```
 
-next decompile to take closer look with pyxtractor and pylingual.io
+Next decompile to take closer look with pyxtractor and pylingual.io
+
+First download the pyinstxtractor to seperate the file structure:
 ```
-┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/thm-ctf-jackpot-overflow]
-└─$ git clone https://github.com/extremecoders-re/pyinstxtractor
+$ git clone https://github.com/extremecoders-re/pyinstxtractor
 Cloning into 'pyinstxtractor'...
 remote: Enumerating objects: 227, done.
 remote: Counting objects: 100% (128/128), done.
@@ -465,17 +457,8 @@ remote: Compressing objects: 100% (57/57), done.
 remote: Total 227 (delta 89), reused 72 (delta 71), pack-reused 99 (from 1)
 Receiving objects: 100% (227/227), 64.26 KiB | 254.00 KiB/s, done.
 Resolving deltas: 100% (112/112), done.
-                                                                                                                    
-┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/thm-ctf-jackpot-overflow]
-└─$ ls    
-admin                         ctf-env        pydata.bin             stolen_jackpot.pcapng  Task4.txt
-attachment-1785955139202      decipher2.py   _pydata.bin.extracted  Task2b.txt
-attachment-1785955139202.zip  decipher.py    pydata.out             task2_Decipher.txt
-b1t_recovery_files            encrypted.bin  pyinstxtractor         Task2.txt
-cms                           flag           stealer                task4FLAGTCP4444
-                                                                                                                    
-┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/thm-ctf-jackpot-overflow]
-└─$ sudo python3 pyinstxtractor/pyinstxtractor.py stealer 
+
+$ sudo python3 pyinstxtractor/pyinstxtractor.py stealer 
 [sudo] password for hacktopuser: 
 [+] Processing stealer
 [+] Pyinstaller version: 2.1+
@@ -500,19 +483,10 @@ cms                           flag           stealer                task4FLAGTCP
 [+] Successfully extracted pyinstaller archive: stealer
 
 You can now use a python decompiler on the pyc files within the extracted directory
-                                                                                                                    
-┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/thm-ctf-jackpot-overflow]
 
-
-
-
-
-
-┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/thm-ctf-jackpot-overflow]
-└─$ cd stealer_extracted      
+$ cd stealer_extracted      
                                                                                 
-┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/thm-ctf-jackpot-overflow/stealer_extracted]
-└─$ ls
+.../stealer_extracted] $ ls
 apt_pkg.cpython-310-x86_64-linux-gnu.so
 base_library.zip
 bcrypt
@@ -523,60 +497,7 @@ cryptography
 cryptography-3.4.8.egg-info
 _dbus_bindings.cpython-310-x86_64-linux-gnu.so
 _dbus_glib_bindings.cpython-310-x86_64-linux-gnu.so
-gi
-gio_modules
-gi_typelibs
-importlib_metadata-4.6.4.egg-info
-keyring-23.5.0.egg-info
-launchpadlib-1.10.16.egg-info
-lazr.restfulclient-0.14.4.egg-info
-lazr.uri-1.0.6.egg-info
-libapt-pkg.so.6.0
-libblkid.so.1
-libbz2.so.1.0
-libcap.so.2
-libcrypto.so.3
-libdbus-1.so.3
-libexpat.so.1
-libffi.so.8
-libgcc_s.so.1
-libgcrypt.so.20
-libgio-2.0.so.0
-libgirepository-1.0.so.1
-libglib-2.0.so.0
-libgmodule-2.0.so.0
-libgmp.so.10
-libgnutls.so.30
-libgobject-2.0.so.0
-libgpg-error.so.0
-libgvfscommon.so
-libhogweed.so.6
-libidn2.so.0
-liblz4.so.1
-liblzma.so.5
-libmount.so.1
-libmpdec.so.3
-libnettle.so.8
-libp11-kit.so.0
-libpcre2-8.so.0
-libpcre.so.3
-libproxy.so.1
-libpython3.10.so.1.0
-libreadline.so.8
-libselinux.so.1
-libssl.so.3
-libstdc++.so.6
-libsystemd.so.0
-libtasn1.so.6
-libtinfo.so.6
-libudev.so.1
-libunistring.so.2
-libuuid.so.1
-libxxhash.so.0
-libyaml-0.so.2
-libz.so.1
-libzstd.so.1
-ossl-modules
+... long list of files followed by compiled files (pyc)
 pyiboot01_bootstrap.pyc
 pyimod01_archive.pyc
 pyimod02_importers.pyc
@@ -590,21 +511,15 @@ pyi_rth_multiprocessing.pyc
 pyi_rth_pkgres.pyc
 pyi_rth_pkgutil.pyc
 pyi_rth_setuptools.pyc
-python3.10
-PYZ.pyz
-PYZ.pyz_extracted
-setuptools-59.6.0.egg-info
-share
+...
 stealer.pyc
 struct.pyc
-wadllib-1.3.6.egg-info
-wheel-0.37.1.egg-info
-yaml
-                                                                                
-┌──(hacktopuser㉿hacktop)-[/mnt/VBoxShare/CTF/thm-ctf-jackpot-overflow/stealer_extracted]
-└─$ cat stealer.pyc 
+...
+
+.../stealer_extracted] $ cat stealer.pyc 
 o
 �@sJddlZddlZddlmZddlmZdZdZddZ   d       �Z
+...
 ```
 File is compiled, we need to obtain the source code to find out more easiest way is through https://pylingual.io
 ```
@@ -636,4 +551,6 @@ def run():
                     s.close()
 run()
 ```
-Taking the key and IV here and then using the flag file in the port 4444 traffic
+Taking the key and IV here and then using the flag file in the port 4444 traffic.
+
+
