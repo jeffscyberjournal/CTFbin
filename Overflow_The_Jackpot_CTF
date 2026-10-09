@@ -589,3 +589,8 @@ detection:
 
   condition: selection and not (filter_internal_hop or filter_vpn_authorized_staff or filter_summitdesk_msp)
 ```
+```
+morgan-reyes
+commented
+Thanks for enhancing the rule. This one actually catches the technique now. Here's your token for this stage: THM{Untru5ted_R4nge_Bu5ted}
+```
