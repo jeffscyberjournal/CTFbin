@@ -553,4 +553,39 @@ run()
 ```
 Taking the key and IV here and then using the flag file in the port 4444 traffic.
 
+## Task 4
+PR#1
 
+```
+title: External RDP Logon From an Untrusted Source Grants Administrative Access
+id: fc14f8ac-c4d3-4071-b717-c2b85dc463d2
+status: experimental
+description: Detects an interactive RDP logon carrying local administrator rights, arriving from a source outside Cascadia's known internal, VPN, and vendor network ranges, on any host in the estate, consistent with POWDER WOLF's initial access tradecraft.
+author: morgan-reyes
+logsource:
+  product: windows
+  service: security
+
+detection:
+  selection:
+    EventID: 4624
+    LogonType:
+      - '10'
+      - '7'
+
+  filter_internal_hop:
+    IpAddress|startswith: '10.40.'
+
+  filter_vpn_authorized_staff:
+    IpAddress|startswith: '10.90.'
+    TargetUserName:
+      - 'r.doyle'
+      - 'k.nakamura'
+      - 'p.okonkwo'
+
+  filter_summitdesk_msp:
+    IpAddress|startswith: '198.51.100.'
+    TargetUserName: 'svc_summitdesk_support'
+
+  condition: selection and not (filter_internal_hop or filter_vpn_authorized_staff or filter_summitdesk_msp)
+```
