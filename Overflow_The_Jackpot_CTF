@@ -25,6 +25,7 @@ encrypted = xor(flag, key)
 with open("encrypted.bin", "wb") as f:
 	f.write(encrypted)
 ```
+
 **Hex code of encrypted.bin:**
 ```
 $ xxd encrypted.bin 
@@ -33,13 +34,12 @@ $ xxd encrypted.bin
 00000020: f8fd a01c 9fa6 ff10 948b 8e30 b2b3       ...........0..
 ```
 XORing something twice with the same value cancels it out.  
-  \[
-  A \oplus B \oplus B = A
-  \]
-
+  
+  A xor B xor B = A
+  
 - XOR encryption and decryption are the same operation.  
-  - Ciphertext = Plaintext XOR Key  
-  - Plaintext = Ciphertext XOR Key  
+      - Ciphertext = Plaintext XOR Key  
+      - Plaintext = Ciphertext XOR Key  
 
 Because XOR undoes itself, using the same key again restores the original data.
 
@@ -118,7 +118,6 @@ Only .pdf and .png documents are served from this terminal.
 - Command separators such as ;cat ... don't appear to be executed, which suggests this is probably a file-read operation rather than a shell command being built from user input. Using file name that should exist in place of cat command creates empty file download. 
 - That implies the application may be doing something similar to:
 ```
-PHP
 if (preg_match('/\.(pdf|png)$/', $doc))
 {
 // superficial look for .pdf or .png 
