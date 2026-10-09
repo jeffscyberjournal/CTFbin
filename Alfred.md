@@ -1,7 +1,6 @@
 # Alfred
-Exploit Jenkins to gain an initial shell, then escalate your privileges by exploiting Windows authentication tokens.
 
-Exploit a common misconfiguration on a widely used automation server(Jenkins - This tool is used to create continuous integration/continuous development pipelines that allow developers to automatically deploy their code once they made changes to it). After which, apply methods escalate privilege to get full system access. 
+Alfred teaches you to exploit a misconfigured Jenkins instance to gain remote code execution, obtain a Windows shell through the Jenkins Script Console, and escalate privileges by abusing Windows authentication tokens to become SYSTEM.
 
 ## Task 1 Initial Access
 
