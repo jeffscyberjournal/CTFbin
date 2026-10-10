@@ -4,15 +4,15 @@ Alfred teaches you to exploit a misconfigured Jenkins instance to gain remote co
 
 ## Task 1 Initial Access
 
-In this room, we'll learn how to exploit a common misconfiguration on a widely used automation server(Jenkins - This tool is used to create continuous integration/continuous development pipelines that allow developers to automatically deploy their code once they made changes to it). After which, we'll use an interesting privilege escalation method to get full system access. 
+Exploit a common misconfiguration on a widely used automation server(Jenkins - This tool is used to create continuous integration/continuous development pipelines that allow developers to automatically deploy their code once they made changes to it). Then use this to gain privilege escalation to get full system access. 
 
-Since this is a Windows application, we'll be using Nishang(opens in new tab) to gain initial access. The repository contains a useful set of scripts for initial access, enumeration and privilege escalation. In this case, we'll be using the reverse shell scripts(opens in new tab).
+Since this is a Windows application, make use of  Nishang to gain initial access. Nishang repository contains a useful set of scripts for initial access, enumeration and privilege escalation. 
 
 ```
 git clone https://github.com/samratashok/nishang
 ```
 
-### NMAP scan (no ping Pn, ICMP blocked): 
+### NMAP scan (no ping Pn, as ICMP blocked): 
 ```
 nmap -sT -Pn -sC <targetIP>
 ...
