@@ -30,7 +30,8 @@ PORT     STATE SERVICE
 ```
 
 ---
-### Q1: number of TCP ports:
+### Q1: Number of TCP ports:
+
 Answer: 3
 
 Trying several things, looking at code in url pages, basic gobuster scan of directories, and exiftools not a lot showed up. Only
