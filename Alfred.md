@@ -32,7 +32,7 @@ PORT     STATE SERVICE
 ---
 ### Q1: Number of TCP ports:
 
-Answer: 3
+Answer: 3 Fix this did not sound right
 
 Trying several things, checking code in url pages, 
 basic gobuster scan of directories, and exiftools not a lot showed up. Only
