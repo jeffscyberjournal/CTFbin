@@ -4,7 +4,7 @@ Alfred teaches you to exploit a misconfigured Jenkins instance to gain remote co
 
 ## Task 1 Initial Access
 
-Exploit a common misconfiguration on a widely used automation server(Jenkins - This tool is used to create continuous integration/continuous development pipelines that allow developers to automatically deploy their code once they made changes to it). Then use this to gain privilege escalation to get full system access. 
+Exploit a common misconfiguration on a widely used automation server (Jenkins a web management tool similar to webmin used to create continuous integration/continuous development pipelines that allow developers to automatically deploy their code once they made changes to it). Then use this to gain privilege escalation to get full system access. 
 
 Since this is a Windows application, make use of  Nishang to gain initial access. Nishang repository contains a useful set of scripts for initial access, enumeration and privilege escalation. 
 
