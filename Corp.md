@@ -132,16 +132,16 @@ ServicePrincipalName : HTTP/fela
 ```
 Save to File ToCrack.txt, and strip out dead space and returns:
 ```
-# cat ToCrack.txt | tr -d '\n\r ' > hash.txt
+# cat ToCrack.txt | tr -d '\n\r ' > Hash.txt
 ```
 should be one line for hashcat use cat or wc to check:
 ```
-# wc -l hash.txt
-1 hash.txt
+# wc -l Hash.txt
+1 Hash.txt
 ```
 
 
-Incase upload server not installed first two options impacket smb server easier if installed but not if not installed. So since was not went with easier option uploadserver:
+In case upload server not installed first two options impacket smb server easier if installed but not if not installed. So since was not went with easier option uploadserver:
 
 ```
 root@ip-10-66-116-47:~# python3 -m uploadserver 80
@@ -156,7 +156,9 @@ WARNING: Running pip as the 'root' user can result in broken permissions and con
 
 [notice] A new release of pip is available: 23.0.1 -> 25.0.1
 [notice] To update, run: pip install --upgrade pip
-
+```
+Then run:
+```
 root@ip-10-66-116-47:~# python3 -m uploadserver 80
 File upload available at /upload
 Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...
