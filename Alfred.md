@@ -22,11 +22,9 @@ PORT     STATE SERVICE
 |_  Potentially risky methods: TRACE
 |_http-title: Site doesn't have a title (text/html).
 3389/tcp open  ms-wbt-server
-|_ssl-date: 2026-04-03T16:41:18+00:00; 0s from scanner time.
+| ...
 8080/tcp open  http-proxy
-| http-robots.txt: 1 disallowed entry 
-|_/
-|_http-title: Site doesn't have a title (text/html;charset=utf-8).
+| ...
 ```
 
 ---
