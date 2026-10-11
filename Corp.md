@@ -263,4 +263,9 @@ Then login with xfreerdp and on desktop is the file flag.txt:
 Do you trust the above certificate? (Y/T/N) y
 ...
 ```
+Before this tried psexec the access the file but does not work unless it admin account:
+```
+psexec -u corp\fela -p password cmd
+```
+
 flag is flag{bde1642535aa396d2439d86fe54a36e4}
