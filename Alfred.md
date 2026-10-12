@@ -26,17 +26,18 @@ PORT     STATE SERVICE
 8080/tcp open  http-proxy
 | ...
 ```
-
 ---
 ### Q1: Number of TCP ports:
+Answer: 3 
 
-Answer: 3 Fix this did not sound right
 
-Trying several things, checking code in url pages, 
-basic gobuster scan of directories, and exiftools not a lot showed up. Only
-alfred@wayneenterprises.com visible on the main page, the targetIP:8080 showed image of jenkins but could not be saved. In the code there was a reference to j_acegi_security_check.
 
-It’s a tell‑tale sign of an old Java web application using Acegi Security, which is the predecessor of Spring Security. When you see this string in a login form or request, it indicates:
+
+Fix this did not sound right
+
+On closer inspection email  alfred@wayneenterprises.com visible on the main page, the targetIP:8080 showed image of jenkins. In the code there was a reference to j_acegi_security_check.
+
+j_acegi_security_check is a tell‑tale sign of an old Java web application using Acegi Security, which is the predecessor of Spring Security. When you see this string in a login form or request, it indicates:
 
 acegi refers to Acegi Security, which was the original name of Spring Security, the Java security framework used in many older web applications.
 
