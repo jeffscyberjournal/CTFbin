@@ -35,7 +35,7 @@ Answer: 3
 
 Fix this did not sound right
 
-On closer inspection email  alfred@wayneenterprises.com visible on the main page, the targetIP:8080 showed image of jenkins. In the code there was a reference to j_acegi_security_check.
+On closer inspection email  alfred@wayneenterprises.com visible on the main page, the targetIP:8080 showed image of jenkins. In html code there was a reference to j_acegi_security_check.
 
 j_acegi_security_check is a tell‑tale sign of an old Java web application using Acegi Security, which is the predecessor of Spring Security. When you see this string in a login form or request, it indicates:
 
