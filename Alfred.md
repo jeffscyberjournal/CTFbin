@@ -49,7 +49,7 @@ acegi refers to Acegi Security, which was the original name of Spring Security, 
 ---
 ### Q2 What is the username and password for the login panel? (in the format username:password):
 
-Considering the answer expected is '*****:*****', with consideration of the names found on the site and common names you would expect with wayne, bruce and admin, were likely expected to be one of options, password I considerd common list i decided not to try a common wordlist as these were enough to guess it. No need for brute force.  
+Considering the answer expected is 2 five char words, with consideration of the names found on the site and common names you would expect with wayne, bruce and admin, were likely expected to be one of options, password I considerd common list i decided not to try a common wordlist as these were enough to guess it. No need for brute force.  
 
 Answer: Only admin:admin are successful.
 
