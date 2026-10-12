@@ -190,11 +190,6 @@ Then login with xfreerdp and on desktop is the file flag.txt:
 ```
 # xfreerdp /p:'rubenF124' /u:'corp\fela' /v:<targetIP>
 ```
-Before this tried psexec the access the file but does not work unless it admin account:
-```
-psexec -u corp\fela -p password cmd
-```
-
 Answer: flag is on desktop, flag{bde1642535aa396d2439d86fe54a36e4}
 
 ---
