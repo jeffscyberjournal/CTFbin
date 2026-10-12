@@ -100,6 +100,12 @@ CommandType     Name
 Function        Invoke-Kerberoast
 ```
 At that point the function existed in memory, so running the following produced the Kerberoast hash:
+
+The mistake was not using 'Invoke-Kerberoast -OutputFormat hashcat', which formats the Kerberoast hash in a Hashcat-compatible format. Despite this, the attack still worked. The resulting hash still needed to be copied and cleaned into a single line because PowerShell wrapped the displayed output across multiple lines.
+
+The '| fl' (Format-List) only changes how PowerShell displays the returned object. In this case, the output appeared nearly identical with or without | fl because PowerShell had already chosen a list format for the returned object.
+
+$krb5tgs$23$*fela$corp.local$HTTP/fela*$91413...
 ```
 PS C:\Users\dark> invoke-Kerberoast
 
