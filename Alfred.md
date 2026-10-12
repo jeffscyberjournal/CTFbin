@@ -54,7 +54,7 @@ Considering the answer expected is 2 five char words, with consideration of the 
 Answer: Only admin:admin are successful.
 
 Just to keep fresh with burpe here is a basic example of cluster bomb approach for multiple unkowns or sniper if only one variable unknown:
-- Set up proxy in browser like foxy proxy. Turn intercept on in proxy configuration on burpse suite.
+- Set up proxy in browser like foxy proxy. Turn intercept on in proxy configuration on burpe suite.
 - Fill user name and password box with easily identifiable locators, the select "sign in".
 - That is captured in burpe suite check the login details are listed and forward to intruder.
 - Use cluster bomb not sniper mode as more than one variable and assign wordlists to each variable then start attack.
