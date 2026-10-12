@@ -31,20 +31,13 @@ PORT     STATE SERVICE
 Answer: 3 
 
 
+**On closer inspection**
 
+- Email  alfred@wayneenterprises.com visible on the main page. 
+- The targetIP:8080 showed image of jenkins. 
+- In html code there was a reference to j_acegi_security_check.
 
-**Fix this did not sound right**
-
-On closer inspection email  alfred@wayneenterprises.com visible on the main page, the targetIP:8080 showed image of jenkins. In html code there was a reference to j_acegi_security_check.
-
-j_acegi_security_check is a tell‑tale sign of an old Java web application using Acegi Security, which is the predecessor of Spring Security. When you see this string in a login form or request, it indicates:
-
-acegi refers to Acegi Security, which was the original name of Spring Security, the Java security framework used in many older web applications.
-
-### The application is using old Spring Security (pre‑2008)
-- The login form is posting to the default Acegi authentication endpoint.
-- The app is likely running on Java / Tomcat / JSP.
-- It may be vulnerable depending on how outdated the framework is.
+jacegisecurity_check is the legacy Acegi Security login endpoint, meaning the app is using pre‑2008 Spring Security. This usually indicates an old Java/Tomcat/JSP stack and potentially outdated or weak security, depending on how old the framework is.
 
 ---
 ### Q2 What is the username and password for the login panel? (in the format username:password):
