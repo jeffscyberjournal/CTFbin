@@ -42,7 +42,7 @@ jacegisecurity_check is the legacy Acegi Security login endpoint, meaning the ap
 ---
 ### Q2 What is the username and password for the login panel? (in the format username:password):
 
-Considering the answer expected is 2 five char words, with consideration of the names found on the site and common names you would expect with wayne, bruce and admin, were likely expected to be one of options, password I considerd common list i decided not to try a common wordlist as these were enough to guess it. No need for brute force.  
+Considering the expected answer was two five‑character words, and based on the names found on the site, common options like wayne, bruce, or admin were likely intended. These were enough to make an educated guess, so I didn’t need to run a full wordlist. No brute force required.
 
 Answer: Only admin:admin are successful.
 
