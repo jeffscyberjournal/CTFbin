@@ -104,7 +104,7 @@ Full explanation: https://sotharo-meas.medium.com/cve-2019-1388-windows-privileg
 
 This however is broken for this module the idea is right click run as administrator then view a link in default browser as or app and since neither can be selected even when you set default web browser to google chrome/or iexplorer. This should lead to browser launched with as "System with a 404 Verisign" website being displayed. Save the webpage by clicking on the gear, File, Save as… You will be prompted with and error “Location is not available.” Click OK. Then go to windows\system32 folder and select the cmd.exe and open with right click. From there CMD access with user level NT Authority\system.
 
-Alternatively there dozens of methods to reverse shell access, such as via the wordpress appearance>theme editor using a Ivan Sincek php shell from revshell.com, or meterpreter payloads with msfvenom but had trouble escalating, 
+Alternatively there dozens of methods to reverse shell access, such as via the wordpress appearance>theme editor using a Ivan Sincek php shell from revshells.com, or meterpreter payloads with msfvenom but had trouble escalating (getsystem failed). 
 
 So had a closer look
 
