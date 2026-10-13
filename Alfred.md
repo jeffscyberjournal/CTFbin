@@ -92,6 +92,10 @@ Payload	        Status	    Extracted
 admin:wayne	    302	        /loginError
 admin:admin	    302	        /
 
+**Gobuster search for files and folders** 
+
+- Routine check for files directory, not helpful here
+
 ```
 gobuster dir -u http://TARGET-IP -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -t 50 -x php,txt,html -e -k
 ```
