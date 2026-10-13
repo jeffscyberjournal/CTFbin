@@ -126,7 +126,6 @@ http://<targetIP>:8080/j_security_check     (Status: 303) [Size: 0] [--> http://
 
 ===============================================================
 ```
-This was not helpful. 
 
 
 
