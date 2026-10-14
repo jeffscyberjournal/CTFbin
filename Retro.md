@@ -150,3 +150,348 @@ CanRestart     : False
 Check          : Unquoted Service Paths
 ...
 ```
+Next Windows Exploit Suggester WES-NG, prior I looked for kernel eploits, but I did see the same one exploit used from one site on other write ups from https://github.com/secwiki/windows-kernel-exploits. So I planned to find something unique.
+```
+# git clone https://github.com/bitsadmin/wesng --depth 1
+
+~/wesng# python3 wes.py ../sysinfo.txt  -i "Elevation of Privilege" --exploits-only
+Windows Exploit Suggester 1.06 ( https://github.com/bitsadmin/wesng/ )
+[+] Parsing systeminfo output
+[+] Operating System
+    - Name: Windows Server 2016
+    - Generation: 2016
+    - Build: 14393
+    - Version: 1607
+    - Architecture: x64-based
+    - Installed hotfixes (1): KB3192137
+[+] Loading definitions
+    - Creation date of definitions: 20261009
+[+] Determining missing patches
+[+] Filtering duplicate vulnerabilities
+[+] Applying display filters
+[!] Found vulnerabilities!
+
+Date: 20250708
+CVE: CVE-2025-47987
+KB: KB
+Title: Credential Security Support Provider Protocol (CredSSP) Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Windows Cred SSProvider Protocol
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://exploit-db.com/exploits/52541
+
+Date: 20161108
+CVE: CVE-2016-7225
+KB: KB3200970
+Title: Security Update to Microsoft Virtual Hard Drive
+Affected product: Windows Server 2016
+Affected component: 
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://exploit-db.com/exploits/40764
+
+Date: 20161108
+CVE: CVE-2016-7225
+KB: KB3200970
+Title: VHD Driver Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Microsoft Virtual Hard Drive
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://exploit-db.com/exploits/40764
+
+Date: 20250513
+CVE: CVE-2025-32706
+KB: KB
+Title: Windows Common Log File System Driver Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Windows Common Log File System Driver
+Severity: Important
+Impact: Elevation of Privilege
+Exploits: https://www.vicarius.io/vsociety/posts/cve-2025-32706-detection-script-elevation-of-privilege-vulnerability-in-microsoft-windows-common-log-file-system-driver, https://www.vicarius.io/vsociety/posts/cve-2025-32706-mitigation-script-elevation-of-privilege-vulnerability-in-microsoft-windows-common-log-file-system-driver
+
+Date: 20240813
+CVE: CVE-2024-38193
+KB: KB
+Title: Windows Ancillary Function Driver for WinSock Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Windows Ancillary Function Driver for WinSock
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://www.exploit-db.com/exploits/52284
+
+Date: 20250812
+CVE: CVE-2025-53149
+KB: KB
+Title: Kernel Streaming WOW Thunk Service Driver Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Kernel Streaming WOW Thunk Service Driver
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://www.crowdfense.com/cve-2025-53149-windows-ksthunk-heap-overflow/
+
+Date: 20161108
+CVE: CVE-2016-7255
+KB: KB3200970
+Title: Security Update for Windows Kernel-Mode Drivers
+Affected product: Windows Server 2016
+Affected component: 
+Severity: Important
+Impact: Elevation of Privilege
+Exploits: http://packetstormsecurity.com/files/140468/Microsoft-Windows-Kernel-win32k.sys-NtSetWindowLongPtr-Privilege-Escalation.html, https://github.com/mwrlabs/CVE-2016-7255, https://www.exploit-db.com/exploits/40745/, https://www.exploit-db.com/exploits/40823/, https://www.exploit-db.com/exploits/41015/
+
+Date: 20161213
+CVE: CVE-2016-7255
+KB: KB3200970
+Title: Win32k Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Windows Kernel-Mode Drivers
+Severity: Important
+Impact: Elevation of Privilege
+Exploits: http://packetstormsecurity.com/files/140468/Microsoft-Windows-Kernel-win32k.sys-NtSetWindowLongPtr-Privilege-Escalation.html, https://github.com/mwrlabs/CVE-2016-7255, https://www.exploit-db.com/exploits/40745/, https://www.exploit-db.com/exploits/40823/, https://www.exploit-db.com/exploits/41015/
+
+Date: 20190611
+CVE: CVE-2019-1069
+KB: KB
+Title: Task Scheduler Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Microsoft Windows
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://blog.0patch.com/2019/06/another-task-scheduler-0day-another.html
+
+Date: 20250708
+CVE: CVE-2025-49744
+KB: KB
+Title: Windows Graphics Component Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Microsoft Graphics Component
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://exploit-db.com/exploits/52362
+
+Date: 20250708
+CVE: CVE-2025-49730
+KB: KB
+Title: Microsoft Windows QoS Scheduler Driver Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Microsoft Windows QoS scheduler
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://exploit-db.com/exploits/52399
+
+Date: 20250610
+CVE: CVE-2025-33073
+KB: KB
+Title: Windows SMB Client Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Windows SMB
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://exploit-db.com/exploits/52330
+
+Date: 20170314
+CVE: CVE-2017-0100
+KB: KB
+Title: Windows COM Session Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Microsoft Windows
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://exploit-db.com/exploits/41607
+
+Date: 20161108
+CVE: CVE-2016-7224
+KB: KB3200970
+Title: Security Update to Microsoft Virtual Hard Drive
+Affected product: Windows Server 2016
+Affected component: 
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://exploit-db.com/exploits/40765
+
+Date: 20161213
+CVE: CVE-2016-7224
+KB: KB3200970
+Title: VHD Driver Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Microsoft Virtual Hard Drive
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://exploit-db.com/exploits/40765
+
+Date: 20161108
+CVE: CVE-2016-7226
+KB: KB3200970
+Title: Security Update to Microsoft Virtual Hard Drive
+Affected product: Windows Server 2016
+Affected component: 
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://exploit-db.com/exploits/40763
+
+Date: 20161108
+CVE: CVE-2016-7226
+KB: KB3200970
+Title: VHD Driver Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Microsoft Virtual Hard Drive
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://exploit-db.com/exploits/40763
+
+Date: 20170314
+CVE: CVE-2017-0005
+KB: KB
+Title: Windows GDI Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Microsoft Graphics Component
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://blogs.technet.microsoft.com/mmpc/2017/03/27/detecting-and-mitigating-elevation-of-privilege-exploit-for-cve-2017-0005/
+
+Date: 20241210
+CVE: CVE-2024-49138
+KB: KB
+Title: Windows Common Log File System Driver Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Windows Common Log File System Driver
+Severity: Important
+Impact: Elevation of Privilege
+Exploits: https://packetstorm.news/files/id/190585/, https://www.exploit-db.com/exploits/52270
+
+Date: 20230509
+CVE: CVE-2023-29336
+KB: KB
+Title: Win32k Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Windows Win32K
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://www.exploit-db.com/exploits/52301
+
+Date: 20190911
+CVE: CVE-2019-1215
+KB: KB4516044
+Title: Windows Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Microsoft Windows
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://exploit-db.com/exploits/47935
+
+Date: 20190911
+CVE: CVE-2019-1215
+KB: KB4516044
+Title: Windows Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Microsoft Windows
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://exploit-db.com/exploits/47935
+
+Date: 20190911
+CVE: CVE-2019-1215
+KB: KB
+Title: Windows Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Microsoft Windows
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://exploit-db.com/exploits/47935
+
+Date: 20190911
+CVE: CVE-2019-1215
+KB: KB4516044
+Title: Windows Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Microsoft Windows
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://exploit-db.com/exploits/47935
+
+Date: 20190911
+CVE: CVE-2019-1215
+KB: KB4516044
+Title: Windows Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Microsoft Windows
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://exploit-db.com/exploits/47935
+
+Date: 20200512
+CVE: CVE-2020-1048
+KB: KB
+Title: Windows Print Spooler Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Microsoft Windows
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: http://packetstormsecurity.com/files/159217/Microsoft-Spooler-Local-Privilege-Elevation.html
+
+Date: 20200512
+CVE: CVE-2020-1054
+KB: KB
+Title: Win32k Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Microsoft Graphics Component
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: http://packetstormsecurity.com/files/160515/Microsoft-Windows-DrawIconEx-Local-Privilege-Escalation.html
+
+Date: 20250409
+CVE: CVE-2025-29824
+KB: KB
+Title: Windows Common Log File System Driver Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Windows Common Log File System Driver
+Severity: Important
+Impact: Elevation of Privilege
+Exploits: https://www.vicarius.io/vsociety/posts/cve-2025-29824-windows-common-log-file-system-driver-elevation-of-privilege-vulnerability-detection-script, https://www.vicarius.io/vsociety/posts/cve-2025-29824-windows-common-log-file-system-driver-elevation-of-privilege-vulnerability-mitigation-script
+
+Date: 20190611
+CVE: CVE-2019-0943
+KB: KB
+Title: Windows ALPC Elevation of Privilege Vulnerability
+Affected product: Windows Server 2016
+Affected component: Microsoft Windows
+Severity: Important
+Impact: Elevation of Privilege
+Exploit: https://exploit-db.com/exploits/47029
+
+[-] Missing patches: 3
+    - KB: patches 17 vulnerabilities
+    - KB3200970: patches 8 vulnerabilities
+    - KB4516044: patches 4 vulnerabilities
+[I] KB with the most recent release date
+    - ID: KB
+    - Release date: 20250812
+[+] Done. Displaying 29 of the 3761 vulnerabilities found.
+root@ip-10-67-101-103:~/wesng# 
+
+```
+Several stand out:
+- CVE-2016-7255
+- CVE-2017-0100
+- CVE-2017-0213
+- CVE-2019-0943
+
+But I think number one here is the way to go. Will try the exploit-db address last listed in exploits.
+```
+Date: 20161108
+CVE: CVE-2016-7255
+KB: KB3200970
+Title: Security Update for Windows Kernel-Mode Drivers
+Affected product: Windows Server 2016
+Affected component: 
+Severity: Important
+Impact: Elevation of Privilege
+Exploits: http://packetstormsecurity.com/files/140468/Microsoft-Windows-Kernel-win32k.sys-NtSetWindowLongPtr-Privilege-Escalation.html, https://github.com/mwrlabs/CVE-2016-7255, https://www.exploit-db.com/exploits/40745/, https://www.exploit-db.com/exploits/40823/, https://www.exploit-db.com/exploits/41015/
+```
+After several tries reverrted to one others online all seem to use on this THM target.
+- CVE-2017-0213
+- Guess I value time more than originality.
+
+Root flag 7958b569565d7bd88d10c6f22d1c4063
