@@ -1,4 +1,4 @@
-# Retro d
+# Retro
 
 ## Q1 A web server is running on the target. What is the hidden directory which the website lives on?
 
