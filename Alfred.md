@@ -92,14 +92,14 @@ Payload	        Status	    Extracted
 admin:wayne	    302	        /loginError
 admin:admin	    302	        /
 
-**Gobuster search for files and folders** 
+**Results from Gobuster search:**
 
-- Routine check for files directory, not helpful here
+- Routine check for files directory, not helpful here.
 
 ```
 gobuster dir -u http://TARGET-IP -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -t 50 -x php,txt,html -e -k
 ```
-wordlist 800,000 long, target slows down never completing even with t 10, t 100 might work but target would time out. This was as good as it got. So blacklist ports added for further filtering. 
+Scan took too long t 10, t 100, likely vpn connection related. So blacklist ports added for further filtering. 
 ```
 gobuster dir -u http://<targetIP>:8080 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50 -x php,txt,html -e -k --status-codes-blacklist 404,403,302,301>GobusterOutput.txt
 
