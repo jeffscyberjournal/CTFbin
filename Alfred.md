@@ -107,24 +107,12 @@ cat GobusterOutput.txt
 ===============================================================
 Gobuster v3.6
 ...
-[+] Url:                     http://<targetIP>:8080
-[+] Method:                  GET
-[+] Threads:                 50
-[+] Wordlist:                /usr/share/wordlists/SecLists/Discovery/Web-Content/raft-medium-directories.txt
-[+] Negative Status codes:   403,302,301,404
-[+] User Agent:              gobuster/3.6
-[+] Extensions:              txt,html,php
-[+] Expanded:                true
-[+] Timeout:                 10s
-===============================================================
 Starting gobuster in directory enumeration mode
 ===============================================================
 http://<targetIP>:8080/robots.txt           (Status: 200) [Size: 71]
 http://<targetIP>:8080/login                (Status: 200) [Size: 1942]
 http://<targetIP>:8080/oops                 (Status: 500) [Size: 9389]
 http://<targetIP>:8080/j_security_check     (Status: 303) [Size: 0] [--> http://<targetIP>:8080/loginError]
-
-===============================================================
 ```
 
 
