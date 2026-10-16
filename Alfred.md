@@ -140,7 +140,7 @@ Windows PowerShell running as user bruce on ALFRED
 ...
 PS C:\...>
 ```
-Find files user.txt
+Find file user.txt
 ```
 PS C:\Program Files (x86)\Jenkins\workspace\project>Get-ChildItem -Path C:\ -Recurse -Filter "user.txt" -ErrorAction SilentlyContinue
 
