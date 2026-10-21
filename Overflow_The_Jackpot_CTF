@@ -553,8 +553,20 @@ run()
 ```
 Taking the key and IV here and then using the flag file in the port 4444 traffic.
 
-## Task 4
-PR#1
+
+
+
+---
+## Task 5 Detection Engineering
+
+### Q1 PR1 Coverage gap: 
+- external RDP detection exempts the attacker's own subnet and ignores internal hop traffic detectionpriority:high
+opened by soc-manager
+·
+**Addressed in PR1**
+
+- Deploy a detection for the initial access technique used against the reservations portal, an untrusted RDP logon carrying administrative rights, wherever it lands in the estate.
+
 
 ```
 title: External RDP Logon From an Untrusted Source Grants Administrative Access
@@ -593,4 +605,37 @@ detection:
 morgan-reyes
 commented
 Thanks for enhancing the rule. This one actually catches the technique now. Here's your token for this stage: THM{Untru5ted_R4nge_Bu5ted}
+```
+
+### PR2 Coverage gap: 
+- NetScan write access probe detection checks the wrong field entirely detectionpriority:medium
+opened by soc-manager
+
+Addressed in PR #2 →
+Deploy a detection for the discovery technique used to map writable administrative shares after the reservations portal was compromised, a network scanning tool testing write access via a delete.me marker file.
+
+Second last line "    RelativeTargetName|endswith: 'delete.me'" only change required firstly.
+
+```
+title: NetScan Enumerates Writable Administrative Shares via a Delete.me Access Test
+id: 9ab1b326-e9e3-4b6b-b4c2-81857d774b0b
+status: experimental
+description: Detects file share object access checks referencing a delete.me marker file, consistent with a network scanning tool testing write access across every discovered administrative share, part of POWDER WOLF's discovery phase following initial access.
+author: morgan-reyes
+logsource:
+  product: windows
+  service: security
+
+detection:
+  selection:
+    EventID: 5145
+    RelativeTargetName|endswith: 'delete.me'
+  condition: selection
+
+```
+Merge:
+```
+morgan-reyes
+commented
+Thanks for enhancing the rule. This one actually catches the technique now. Here's your token for this stage: THM{D3l3t3_M3_G1v3s_1t_4w4y}
 ```
