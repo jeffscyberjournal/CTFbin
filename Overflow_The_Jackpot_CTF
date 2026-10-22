@@ -566,7 +566,33 @@ opened by soc-manager
 **Addressed in PR1**
 
 - Deploy a detection for the initial access technique used against the reservations portal, an untrusted RDP logon carrying administrative rights, wherever it lands in the estate.
+- From viewing Issues tab under under tss-dac/detection section 1. Initial Access via RDP to the Reservations Portal (PR1)
 
+
+Attack Chain Details
+1. Initial Access via RDP to the Reservations Portal (PR #1)
+The intrusion began when the operator authenticated over RDP to RES-PORTAL01, the internet facing reservations and lift ticketing portal, using valid credentials for CSRC\j.alvarez, a reservations system administrator account. There is no evidence of brute forcing, consistent with the credential coming from an infostealer log, a breach dump, or an initial access broker. The logon carried an elevated administrative token, since j.alvarez was one of a small number of accounts with standing local administrator rights on RES-PORTAL01 for portal maintenance, giving the operator a privileged foothold immediately, no escalation required.
+
+Indicators identified:
+
+> EventID 4624, RecordNumber 400003, Logon Type 10, Account Name j.alvarez, Account Domain CSRC, Authentication Package Name NTLM, Workstation Name KALI-OPBOX, Source Network Address 203.0.113.44, ComputerName RES-PORTAL01
+The operator returned twice more that week, November 17 and 19, from a second address in the same block, 203.0.113.187, each time as j.alvarez against RES-PORTAL01. The connecting workstation and source address belong to the operator's own infrastructure, not anything Cascadia's IT staff recognize, an interactive RDP logon carrying local administrator rights from outside the corporate network is itself the anomaly this detection is built to catch.
+
+Start filtering in splunk with EventCode=4624 and AuthenticationPackageName=NTLM. 
+- Reducing related events to 26.
+- From splunk, some searching connetions, Ip ranges should include the svc_summitdesk_support 198.51.100.* (to values)
+
+
+```
+detection:
+  selection:
+    EventID: 4624
+    LogonType: '10'
+  filter_known_range:
+    IpAddress|startswith: '203.0.113.'
+  condition: selection and not filter_known_range
+```
+Logon type for RDP should include logonType 10 and 7. 10 For new connection and 7 for connecting to existing connection. That implies its not a one off connection.
 
 ```
 title: External RDP Logon From an Untrusted Source Grants Administrative Access
