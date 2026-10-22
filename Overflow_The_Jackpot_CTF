@@ -633,7 +633,10 @@ detection:
   condition: selection
 
 ```
-Merge:
+After selecting:
+
+- **Re-run checks** and Environment Validation and Automation Red Team test succeed
+- Then selecting **Review** then **Merge pull request** the following is displayed:
 ```
 morgan-reyes
 commented
