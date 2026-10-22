@@ -614,8 +614,20 @@ opened by soc-manager
 Addressed in PR #2 →
 Deploy a detection for the discovery technique used to map writable administrative shares after the reservations portal was compromised, a network scanning tool testing write access via a delete.me marker file.
 
-Second last line "    RelativeTargetName|endswith: 'delete.me'" only change required firstly.
+From viewing Issues tab under under tss-dac/detection section 2. Discovery via SoftPerfect NetScan (PR2)
 
+- Looking at artifacts: EventID 5145, Share Name \\DC-CSRC01\C$, Relative Target Name delete.me. 
+- When SoftPerfect NetScan tests whether it can write to a share, it creates or attempts to create the marker file: delete.me
+- Windows records that filename in the RelativeTargetName field.
+- What was present should fail because delete.me was not a share name.
+
+So the detection should simply be:
+```
+Second last line: RelativeTargetName|endswith: 'delete.me' only change required firstly.
+```
+
+
+This should then look like:
 ```
 title: NetScan Enumerates Writable Administrative Shares via a Delete.me Access Test
 id: 9ab1b326-e9e3-4b6b-b4c2-81857d774b0b
