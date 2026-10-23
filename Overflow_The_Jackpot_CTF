@@ -696,3 +696,67 @@ morgan-reyes
 commented
 Thanks for enhancing the rule. This one actually catches the technique now. Here's your token for this stage: THM{D3l3t3_M3_G1v3s_1t_4w4y}
 ```
+
+
+## Q3 Lateral Movement to the Domain Controller and Lookalike Account Creation
+
+Using the domain admin credential for CSRC\t.brenner, the operator authenticated over RDP to DC-CSRC01, the domain controller identified during discovery. From there the operator opened Active Directory Users and Computers and created three accounts: 
+
+- administratr, a typo squatting name, 
+- and two lookalikes mimicking real staff, 
+          - one resembling t.brenner 
+          - and one targeting Cascadia's Resort Ops Admins group. 
+
+All three were set to **never expire** and **added to privileged groups**, **Domain Admins for the first two** and **Resort Ops Admins for the third**, giving the operator redundant privileged access independent of the original credential.
+
+From Environment Routines (normal operations) section:
+Helpdesk unattended remote support tooling: Cascadia's helpdesk installs AnyDesk as a Windows service on ordinary end user workstations, 
+- **hostnames starting with SNW-PC, ALD-PC, or TBL-PC**, to provide unattended remote support sessions. 
+- **This is only ever legitimate on workstation class hosts**, 
+- the same tool installed as a service on any server, a domain controller, the backup server, a hypervisor, or a file server, **has no legitimate business reason to exist**.
+
+From tss-dac / detection section:
+
+Helpdesk unattended remote support tooling: 
+
+- Cascadia's helpdesk installs **AnyDesk as a Windows service on ordinary end user workstations**, hostnames starting with SNW-PC, ALD-PC, or TBL-PC, to provide unattended remote support sessions. 
+- This is only ever legitimate on workstation class hosts, the same tool installed as a service on any server, a domain controller, the backup server, a hypervisor, or a file server, has no legitimate business reason to exist.
+
+
+4. Persistence via a Remote Access Tool Installed as a Windows Service (PR #3)
+On the same DC-CSRC01 foothold, the operator installed AnyDesk, a remote desktop tool Cascadia's helpdesk normally uses only on end user workstations for unattended support, as a Windows service directly on the domain controller. The tool was never actually used afterward, its installation alone was the persistence mechanism, a redundant access channel independent of RDP and every harvested credential.
+- Can include other veriations Tools likely to be used for remote administrative purpose like anydesk such as TeamViewer, ScreenConnect or marketed as ConnectWise, Splashtop, LogMeln or RemotePC (tried a few only any desk shows in quick search results like 'index="dac_lab" AnyDesk.exe'.
+
+Indicators identified:
+
+> RecordNumber 900011, Service Install: EventID 7045, ServiceName AnyDesk, ServiceFileName C:\Program Files (x86)\AnyDesk\AnyDesk.exe --service, ServiceType user mode service, ServiceAccount LocalSystem, ComputerName DC-CSRC01
+5. Extended Reconnaissance and SMB Enumeration via NetExec
+Six days after initial access, the operator returned to RES-PORTAL01 over RDP from the same source range and downloaded NetExec, the actively maintained rename of CrackMapExec, via Edge. From a command prompt the operator ran NetExec's SMB module against the full internal range using the t.brenner credential, validating it against every reachable host in under two minutes and confirming reach across DC-CSRC01, DC-CSRC02, DC-CSRC03, the hypervisor hosts, BKP-CSRC01, and FS-RESV01 before proceeding.
+
+
+```
+title: Remote Access Tool Installed as a Service on Server Infrastructure
+id: 6e4f2418-b99a-4df2-868f-fe4086055996
+status: experimental
+
+description: Detects a remote access application installed as a Windows service on server tier infrastructure, where Cascadia's own helpdesk only ever deploys these tools on end user workstations, consistent with POWDER WOLF's persistence tradecraft on the domain controller.
+
+author: morgan-reyes
+
+logsource:
+  product: windows
+  service: system
+detection:
+  service_install:
+    EventID: 7045
+    ServiceFileName|contains:
+      - 'AnyDesk.exe'
+      - 'TeamViewer'
+      - 'ScreenConnect'
+  filter_workstation_class:
+    ComputerName|startswith:
+      - 'SNW-PC'
+      - 'ALD-PC'
+      - 'TBL-PC'
+  condition: service_install and not filter_workstation_class
+```
