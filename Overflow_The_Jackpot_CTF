@@ -562,7 +562,23 @@ Taking the key and IV here and then using the flag file in the port 4444 traffic
 ### Q1 PR1 Coverage gap: 
 - external RDP detection exempts the attacker's own subnet and ignores internal hop traffic detectionpriority:high
 opened by soc-manager
-·
+
+From Environment Routines (normal operations) section of tss-dac / detection it gives us:
+
+- Internal administrative RDP hops: IT staff across all three properties routinely RDP directly between servers, 10.40.0.0/16, for patching and troubleshooting. This traffic legitimately carries LogonType 10 on hosts all across the estate, on its own the logon type proves nothing, only the source range identifies it as an ordinary internal hop rather than an external logon.
+
+Selection:
+
+- One thing it does not include to mention is 10 is for one off connections, to return to pre-existing session  logonType 7 is also needed.
+filter_vpn_authorized_staff:
+
+- Corporate VPN client pool: Cascadia's VPN concentrator assigns addresses from 10.90.0.0/16 to remote or traveling staff. 
+- Only three accounts are ever legitimately sourced from this pool, r.doyle, k.nakamura, and p.okonkwo, the collective's designated traveling infrastructure staff. Any other account authenticating from this range, even though the address itself looks like ordinary remote access, is not one of the people Cascadia has actually authorized to work this way.
+
+filter_summitdesk_msp:
+
+- SummitDesk MSP portal maintenance: Cascadia contracts SummitDesk MSP to remotely maintain the reservations portal, RES-PORTAL01. Their legitimate maintenance sessions always originate from 198.51.100.0/24 and always authenticate as their dedicated svc_summitdesk_support account. 
+
 **Addressed in PR1**
 
 - Deploy a detection for the initial access technique used against the reservations portal, an untrusted RDP logon carrying administrative rights, wherever it lands in the estate.
