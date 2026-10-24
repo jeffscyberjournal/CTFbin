@@ -775,3 +775,21 @@ detection:
 
 ---
 ### Q4
+
+7-Zip Archives Data Directly From a Live Network Share
+
+Detects a 7-Zip archiving operation whose command line references a UNC network share path directly rather than local user documents, consistent with POWDER WOLF's collection staging ahead of exfiltration.
+
+From: [DRAFT] Ransomware Precursor Incident Report: Cascadia Ski and Resort Collective
+- 6	Collection and Exfiltration	T1560.001 / T1567: Archive Staging and Exfiltration Over a Web Service	PR #4
+- 7	Defense Evasion	T1490: Backup Job Deletion via the Backup Product Console	*(no open PR)*
+
+6. Collection via 7-Zip and Staging for Exfiltration (PR #4)
+With reach confirmed, the operator turned to collection, reaching into FS-RESV01's shares and using 7-Zip's graphical interface, a right click Add to Archive action, to compress guest and reservation records directly from the share into an archive on the RES-PORTAL01 desktop. The archive was later uploaded to a public temporary file sharing site, though that upload left no trace in this environment's logs. Archiving directly out of a live share, rather than local documents, is the anomaly this detection is built to catch.
+
+Indicators identified:
+
+> RecordNumber 500020, Image C:\Program Files\7-Zip\7zG.exe, CommandLine 7zG.exe a -tzip "C:\Users\j.alvarez\Desktop\ResortGuestData.zip" "\\FS-RESV01\ReservationsShare\*", ParentImage C:\Windows\explorer.exe, User CSRC\j.alvarez, ComputerName RES-PORTAL01
+
+7. Defense Evasion via Backup Job Deletion
+On Day 9, back on BKP-CSRC01 using the t.brenner credential, the operator opened the Veeam Backup and Replication console and deleted its scheduled jobs directly from the configuration database. This only touches Veeam's own application log, not the security or Sysmon telemetry this environment indexes, so it is narrated for completeness but is not a detection in this repository.
