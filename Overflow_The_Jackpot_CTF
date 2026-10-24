@@ -649,7 +649,11 @@ commented
 Thanks for enhancing the rule. This one actually catches the technique now. Here's your token for this stage: THM{Untru5ted_R4nge_Bu5ted}
 ```
 
-### PR2 Coverage gap: 
+
+
+
+---
+###Q2 PR2 Coverage gap: 
 - NetScan write access probe detection checks the wrong field entirely detectionpriority:medium
 opened by soc-manager
 
@@ -698,7 +702,12 @@ Thanks for enhancing the rule. This one actually catches the technique now. Here
 ```
 
 
-## Q3 Lateral Movement to the Domain Controller and Lookalike Account Creation
+
+
+
+
+---
+### Q3 Lateral Movement to the Domain Controller and Lookalike Account Creation
 
 Using the domain admin credential for CSRC\t.brenner, the operator authenticated over RDP to DC-CSRC01, the domain controller identified during discovery. From there the operator opened Active Directory Users and Computers and created three accounts: 
 
@@ -760,3 +769,9 @@ detection:
       - 'TBL-PC'
   condition: service_install and not filter_workstation_class
 ```
+
+
+
+
+---
+### Q4
