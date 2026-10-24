@@ -796,6 +796,8 @@ On Day 9, back on BKP-CSRC01 using the t.brenner credential, the operator opened
 
 - Here original name is configured with several similar programs for zip that can handle same operations, obfuscation wont hide originalfilename productname or companyname embedded in file unless its reverse engineered and rewritten not just surface level obfuscation. This is why these "WinZip.exe, zip.exe, tar.exe, bsdtar.exe, 7z.exe, 7zFM.exe, 7zG.exe, WinRAR.exe, rar.exe were added.
 
+Powershell with its broad abilities also includes a cmdlet Compress-Archive which is different from 7-Zip or WinRAR because it is a PowerShell cmdlet, not a separate executable. Pw
+
 
 ```
 title: Archiving Tool Compresses Data Directly From a Live Network Share
