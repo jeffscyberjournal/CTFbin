@@ -872,7 +872,7 @@ description: >
   sensitive server shares directly for archive creation. Uses
   OriginalFileName metadata to detect renamed archiver binaries.
 
-author: morgan-reyes
+author: CertainlyNotFred
 
 logsource:
   product: windows
@@ -937,3 +937,57 @@ With backup recovery undermined, the operator staged Lynx, a real world ransomwa
 
 > RecordNumber 600015, Image C:\Windows\Temp\w.exe, CommandLine w.exe --dir E:\ --mode fast --verbose --noprint, ParentImage C:\Windows\System32\cmd.exe, User CSRC\t.brenner, ComputerName BKP-CSRC01
 The same payload and flags recurred against FS-RESV01, DC-CSRC01, and HV-CSRC01, consistent with a manual, repeated push rather than a single host compromise.
+
+--dir and --mode fast look likely something expected on payload, --verbose and --noprint might be common and cause high volume results
+```
+index=dac_lab w.exe |  table User, CommandLine, ComputerName
+
+CSRC\t.brenner	w.exe --dir E:\ --mode fast --verbose			HV-CSRC01
+CSRC\t.brenner	w.exe --verbose --dir E:\ --mode fast			DC-CSRC01
+CSRC\t.brenner	w.exe --mode fast --dir E:\ --noprint --verbose	FS-RESV01
+CSRC\t.brenner	w.exe --dir E:\ --mode fast --verbose --noprint	BKP-CSRC01
+
+NetExec search was not registed in events, likely heavy events list registered and omitted in logging.
+```
+
+- DiskOptimizer nightly maintenance: DiskOptimizer.exe, Cascadia IT's disk cleanup and optimization utility, runs nightly across the estate from its install path, C:\Program Files\ITOpsTools\DiskOptimizer.exe, as svc_patchmgmt, taking its own --dir and --mode fast flags for a fast cleanup pass. Both the install path and the tool's own embedded original file name are needed to confirm this is the real utility, a payload renamed and copied to that same path without also matching the embedded file name is not. 
+
+- Splunk shows this svc_patchmgmt AccountName runs CommandLine:
+```
+DiskOptimizer.exe --dir C:\ --mode fast --schedule nightly
+```
+On 14 events, but due to its nature assume its odd if found on any device from the same location. Assume the OriginalFileName and location must be right to run normally. This makes for a simple sigma rule.
+```
+title: Lynx Ransomware Payload Executed With Distinctive Encryption Flags
+id: 8d4d0fda-2bc3-4d34-b7bd-a7a77a8d5eac
+status: experimental
+
+description: >
+  Detects execution of a payload using the command-line
+  characteristics observed during POWDER WOLF's ransomware
+  deployment staging. The activity was repeatedly observed
+  with arguments controlling the target drive and encryption
+  mode while command ordering and optional flags varied
+  between executions.
+
+author: NotRickEither
+
+logsource:
+  product: windows
+  category: process_creation
+
+detection:
+
+  selection:
+    CommandLine|contains|all:
+      - '--dir'
+      - '--mode fast'
+
+  filter_diskoptimizer:
+    OriginalFileName: 'DiskOptimizer.exe'
+
+  condition: selection and not filter_diskoptimizer
+```
+```
+THM{C4ught_B3f0re_th3_Th4w}
+```
