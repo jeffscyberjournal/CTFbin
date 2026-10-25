@@ -802,6 +802,9 @@ Indicators identified:
 
 On Day 9, back on BKP-CSRC01 using the t.brenner credential, the operator opened the Veeam Backup and Replication console and deleted its scheduled jobs directly from the configuration database. This only touches Veeam's own application log, not the security or Sysmon telemetry this environment indexes, so it is narrated for completeness but is not a detection in this repository.
 
+- Monthly reservations export archiving: a scheduled job on FS-RESV01, wrapped in MonthlyArchive.vbs and always launched through wscript.exe, archives that month's reservation exports directly out of \\FS-RESV01\ReservationsShare into a dated ReservationsExport_YYYY_MM.zip file for offline retention. Both the scripted parent process and the fixed destination filename pattern are needed to confirm this is the legitimate job, either alone is something an attacker could otherwise reproduce. 
+- From this wscript and ReservationsExport_ 
+
 **Zip programs potentially used:**
 
 - Here original name is configured with several similar programs for zip that can handle same operations, obfuscation wont hide originalfilename productname or companyname embedded in file unless its reverse engineered and rewritten not just surface level obfuscation. This is why these "WinZip.exe, zip.exe, tar.exe, bsdtar.exe, 7z.exe, 7zFM.exe, 7zG.exe, WinRAR.exe, rar.exe were added.
@@ -857,7 +860,7 @@ ParentImage:		C:\Windows\System32\wscript.exe
 ```
 wscript.exe is a normal file found in windows\system32\ folder and stands for Windows Script Host (not overly surprising) and is used to run script files such as: .vbs (VBScript), .js (JScript), .wsf (Windows Script File). Likely potential for running
 
-The rule likely focuses on ReservationsExport_ because it provides a more specific indicator than monitoring access to \\FS-RESV01\ReservationsShare\*. The share itself may be accessed by numerous legitimate processes, resulting in excessive matches and reduced fidelity. The export naming convention is likely a known business artifact familiar to insiders and therefore provides a consistent identifier for the activity being investigated. In the context of the challenge, the filter may have been intentionally narrowed to isolate the relevant events needed for flag calculation rather than to represent an optimal production detection.
+he rule focuses on ReservationsExport_ because it is a known component of the legitimate monthly reservations export process. According to the environment description, the scheduled archival job on FS-RESV01 always runs through MonthlyArchive.vbs via wscript.exe and produces a dated ReservationsExport_YYYY_MM.zip archive from \\FS-RESV01\ReservationsShare. The filename pattern therefore acts as a stable business artifact that, when correlated with the scripted parent process, identifies the approved archival workflow. Monitoring the share path alone would likely generate excessive noise because many legitimate processes may access \\FS-RESV01\ReservationsShare, whereas the combination of the known script execution chain and the fixed export naming convention provides higher-fidelity identification of the authorized job.
 
 ```
 title: Archiving Tool Compresses Data Directly From a Live Network Share
@@ -916,3 +919,21 @@ Answer for flag
 ```
  THM{Z1pp3d_R1ght_0ut_th3_D00r}
 ```
+
+
+
+---
+## Q5 PR5
+
+From tss-dac
+
+- 8 Impact	T1486: Ransomware Payload Staged for Fleet Wide Deployment	PR #5
+
+**8. Ransomware Deployment Staging (PR5)**
+
+With backup recovery undermined, the operator staged Lynx, a real world ransomware family this cluster has been tracked to, across the estate's reachable hosts. The payload, w.exe, was copied over the same SMB access validated during the NetExec sweep and executed from a command shell with a consistent set of flags controlling target drive, encryption speed, and verbosity. Parameter order and presence varied slightly run to run, one execution was even missing a flag entirely, consistent with a human operator repeating the command across many hosts rather than a scripted push. The activity was caught here, at staging, before anything encrypted.
+
+**Indicators identified:**
+
+> RecordNumber 600015, Image C:\Windows\Temp\w.exe, CommandLine w.exe --dir E:\ --mode fast --verbose --noprint, ParentImage C:\Windows\System32\cmd.exe, User CSRC\t.brenner, ComputerName BKP-CSRC01
+The same payload and flags recurred against FS-RESV01, DC-CSRC01, and HV-CSRC01, consistent with a manual, repeated push rather than a single host compromise.
