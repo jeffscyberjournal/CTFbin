@@ -794,11 +794,43 @@ Indicators identified:
 7. Defense Evasion via Backup Job Deletion
 On Day 9, back on BKP-CSRC01 using the t.brenner credential, the operator opened the Veeam Backup and Replication console and deleted its scheduled jobs directly from the configuration database. This only touches Veeam's own application log, not the security or Sysmon telemetry this environment indexes, so it is narrated for completeness but is not a detection in this repository.
 
+**Zip programs potentially used:**
+
 - Here original name is configured with several similar programs for zip that can handle same operations, obfuscation wont hide originalfilename productname or companyname embedded in file unless its reverse engineered and rewritten not just surface level obfuscation. This is why these "WinZip.exe, zip.exe, tar.exe, bsdtar.exe, 7z.exe, 7zFM.exe, 7zG.exe, WinRAR.exe, rar.exe were added.
 
-Powershell with its broad abilities also includes a cmdlet Compress-Archive which is different from 7-Zip or WinRAR because it is a PowerShell cmdlet, not a separate executable. Pw
+**Powershell for script operations done and possibility for use as zip software:**
 
+- Powershell with its broad abilities also includes a cmdlet Compress-Archive which is different from 7-Zip or WinRAR because it is a PowerShell cmdlet, not a separate executable. On versions up to 5.1 powershell.exe works on later versions pwsh.exe in newer versions. Splunk only shows reference to powershell.exe being used in logs and Windows environment.
 
+**Share Connected Hosts
+
+- Its clearly stated files from FS-RESV01's shared into an archive on the RES-PORTAL01 desktop and backup affected on BKP-CSRC01 using the t.brenner credential. Trying to select computers in network to include in sigma rule.
+
+To start off you need to know what fields are useful:
+```
+index=dac_lab
+| fieldsummary
+```
+Has extensive list of ComputerName's but presentation can be improved with:
+```
+index=dac_lab ComputerName="*" | table ComputerName |  dedup ComputerName
+```
+Catch is its still 72 long. Windows networking, UNC (Universal Naming Convention) paths start with:
+\\ComputerName\ShareName 
+So when you search 'index=dac_lab \\\\' you will effectively belooking for network sharing devices.
+```
+ComputerName 
+
+BKP-CSRC01	24	15.484%	
+FS-RESV01	22	14.194%	
+DC-CSRC01	19	12.258%	
+DC-CSRC02	18	11.613%	
+HV-CSRC01	18	11.613%	
+HV-CSRC03	16	10.322%	
+DC-CSRC03	14	9.032%	
+HV-CSRC02	12	7.742%	
+RES-PORTAL01 12	7.742%
+```
 ```
 title: Archiving Tool Compresses Data Directly From a Live Network Share
 id: 2a3f3da0-0725-4ef1-a857-05fcf21b0f8c
