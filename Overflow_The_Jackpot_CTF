@@ -774,24 +774,32 @@ detection:
 
 
 ---
-### Q4
+### Q4 PR4
 
 7-Zip Archives Data Directly From a Live Network Share
 
 Detects a 7-Zip archiving operation whose command line references a UNC network share path directly rather than local user documents, consistent with POWDER WOLF's collection staging ahead of exfiltration.
 
 From: [DRAFT] Ransomware Precursor Incident Report: Cascadia Ski and Resort Collective
-- 6	Collection and Exfiltration	T1560.001 / T1567: Archive Staging and Exfiltration Over a Web Service	PR #4
-- 7	Defense Evasion	T1490: Backup Job Deletion via the Backup Product Console	*(no open PR)*
+- **6	Collection and Exfiltration	T1560.001 / T1567: Archive Staging and Exfiltration Over a Web Service	PR4**
+- **7	Defense Evasion	T1490: Backup Job Deletion via the Backup Product Console	*(no open PR)***
 
-6. Collection via 7-Zip and Staging for Exfiltration (PR #4)
+**6. Collection via 7-Zip and Staging for Exfiltration (PR4)**
+
 With reach confirmed, the operator turned to collection, reaching into FS-RESV01's shares and using 7-Zip's graphical interface, a right click Add to Archive action, to compress guest and reservation records directly from the share into an archive on the RES-PORTAL01 desktop. The archive was later uploaded to a public temporary file sharing site, though that upload left no trace in this environment's logs. Archiving directly out of a live share, rather than local documents, is the anomaly this detection is built to catch.
 
+Using simple search this same single file transfer to desktop is shown:
+```
+index=dac_lab 7zG desktop RES-PORTAL01
+```
+
 Indicators identified:
-
+```
 > RecordNumber 500020, Image C:\Program Files\7-Zip\7zG.exe, CommandLine 7zG.exe a -tzip "C:\Users\j.alvarez\Desktop\ResortGuestData.zip" "\\FS-RESV01\ReservationsShare\*", ParentImage C:\Windows\explorer.exe, User CSRC\j.alvarez, ComputerName RES-PORTAL01
+```
 
-7. Defense Evasion via Backup Job Deletion
+**7. Defense Evasion via Backup Job Deletion**
+
 On Day 9, back on BKP-CSRC01 using the t.brenner credential, the operator opened the Veeam Backup and Replication console and deleted its scheduled jobs directly from the configuration database. This only touches Veeam's own application log, not the security or Sysmon telemetry this environment indexes, so it is narrated for completeness but is not a detection in this repository.
 
 **Zip programs potentially used:**
@@ -802,7 +810,8 @@ On Day 9, back on BKP-CSRC01 using the t.brenner credential, the operator opened
 
 - Powershell with its broad abilities also includes a cmdlet Compress-Archive which is different from 7-Zip or WinRAR because it is a PowerShell cmdlet, not a separate executable. On versions up to 5.1 powershell.exe works on later versions pwsh.exe in newer versions. Splunk only shows reference to powershell.exe being used in logs and Windows environment.
 
-**Share Connected Hosts
+---
+**Share Connected Hosts:
 
 - Its clearly stated files from FS-RESV01's shared into an archive on the RES-PORTAL01 desktop and backup affected on BKP-CSRC01 using the t.brenner credential. Trying to select computers in network to include in sigma rule.
 
@@ -816,8 +825,12 @@ Has extensive list of ComputerName's but presentation can be improved with:
 index=dac_lab ComputerName="*" | table ComputerName |  dedup ComputerName
 ```
 Catch is its still 72 long. Windows networking, UNC (Universal Naming Convention) paths start with:
+```
 \\ComputerName\ShareName 
+```
 So when you search 'index=dac_lab \\\\' you will effectively belooking for network sharing devices.
+Since its was known FS-RESV01's shared, trying 'index=dac_lab FS-RESV01' only has link to the two computers mentioned in above. But could be more beneficial to include other ComputerName's on the same network. Here this resulted in 9 devices only.
+
 ```
 ComputerName 
 
@@ -831,6 +844,21 @@ DC-CSRC03	14	9.032%
 HV-CSRC02	12	7.742%	
 RES-PORTAL01 12	7.742%
 ```
+
+---
+**Filter_monthly_export:**
+
+Filters for backup on using a simple search for index=dac_lab 7zG.exe find 29  	7zG.exe a -tzip "D:\Reporting\ReservationsExport_2025_11b.zip" "\\FS-RESV01\ReservationsShare\*" 
+Later in the same event there is a reference for the following 3 which will help writing the sigma rule:
+```
+OriginalFileName:	7zG.exe	
+ParentCommandLine:	wscript.exe C:\Scripts\MonthlyArchive.vbs	
+ParentImage:		C:\Windows\System32\wscript.exe
+```
+wscript.exe is a normal file found in windows\system32\ folder and stands for Windows Script Host (not overly surprising) and is used to run script files such as: .vbs (VBScript), .js (JScript), .wsf (Windows Script File). Likely potential for running
+
+The rule likely focuses on ReservationsExport_ because it provides a more specific indicator than monitoring access to \\FS-RESV01\ReservationsShare\*. The share itself may be accessed by numerous legitimate processes, resulting in excessive matches and reduced fidelity. The export naming convention is likely a known business artifact familiar to insiders and therefore provides a consistent identifier for the activity being investigated. In the context of the challenge, the filter may have been intentionally narrowed to isolate the relevant events needed for flag calculation rather than to represent an optimal production detection.
+
 ```
 title: Archiving Tool Compresses Data Directly From a Live Network Share
 id: 2a3f3da0-0725-4ef1-a857-05fcf21b0f8c
@@ -883,15 +911,8 @@ detection:
       (selection_ps_tool and selection_share)
     )
     and not filter_monthly_export
-
-falsepositives:
-  - Approved backup operations
-  - Scheduled administrative exports
-
-level: high
-
 ```
-
+Answer for flag
 ```
  THM{Z1pp3d_R1ght_0ut_th3_D00r}
 ```
