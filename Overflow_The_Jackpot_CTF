@@ -17,7 +17,7 @@ import os
 from pwn import *
 
 key = os.urandom(4)
-flag = b"THM{FAKE_FLAG_FOR_TESTING}" # fake flag, look at encrypted.bin and figure out the vulnerability in this encryption method.
+flag = b"THM{FAKE_FLAG_FOR_TESTING}" 
 
 encrypted = xor(flag, key)
 
