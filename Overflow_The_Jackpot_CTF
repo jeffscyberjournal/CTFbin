@@ -35,8 +35,7 @@ $ xxd encrypted.bin
 XORing something twice with the same value cancels it out.  
   
   A xor B xor B = A
-  
-- XOR encryption and decryption are the same operation.  
+    
       - Ciphertext = Plaintext XOR Key  
       - Plaintext = Ciphertext XOR Key  
 
@@ -109,6 +108,7 @@ AVAILABLE DOCUMENTS:
 Request format: ?doc=<filename>
 Only .pdf and .png documents are served from this terminal. 
 ```
+
 - ?doc= is likely being processed by a server-side script (PHP is plausible because /index.php exists, but not proven).
 - The application performs some extension validation:
 - ../../../etc/passwd → 403, displaying "Only .pdf and .png documents are served from this terminal. "
