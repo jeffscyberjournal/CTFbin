@@ -988,3 +988,191 @@ detection:
 ```
 THM{C4ught_B3f0re_th3_Th4w}
 ```
+
+## Task 6  
+
+- Start with some basic scans to learn more of system, overwhelmingly obvious wpscan is the target we should look at here.
+- The core risk affecting WordPress versions 6.9.0–6.9.4 and 7.0.0–7.0.1 involves a vulnerability chain known as wp2shell, which stems from a logical flaw in how WordPress processes batch REST API requests. The issue is fixed in WordPress 6.9.5 and 7.0.2. A fix is also included in WordPress 7.1 Beta 2.
+```
+root@ip-10-64-79-160:~# nmap -Pn -sV -sC -p- 10.64.149.207
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2026-10-26 08:15 UTC
+Nmap scan report for ip-10-64-149-207.ec2.internal (10.64.149.207)
+Host is up (0.00025s latency).
+Not shown: 65533 closed tcp ports (reset)
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 9.6p1 Ubuntu 3ubuntu13.18 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   256 c6:96:b0:80:00:d3:cc:18:3d:a9:98:1d:1f:5b:eb:7f (ECDSA)
+|_  256 16:f1:91:59:7c:a5:90:d4:27:f0:05:5e:18:48:77:da (ED25519)
+80/tcp open  http    Apache httpd 2.4.58 ((Ubuntu))
+|_http-server-header: Apache/2.4.58 (Ubuntu)
+|_http-generator: WordPress 6.9
+|_http-title: An incorporation of sorts!
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 17.21 seconds
+root@ip-10-64-79-160:~# gobuster dir -u http://10.64.149.207 -w /usr/share/wordlists/dirb/common.txt
+===============================================================
+Gobuster v3.6
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://10.64.149.207
+[+] Method:                  GET
+[+] Threads:                 10
+[+] Wordlist:                /usr/share/wordlists/dirb/common.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.6
+[+] Timeout:                 10s
+===============================================================
+Starting gobuster in directory enumeration mode
+===============================================================
+/.hta                 (Status: 403) [Size: 278]
+/.htaccess            (Status: 403) [Size: 278]
+/.htpasswd            (Status: 403) [Size: 278]
+/index.php            (Status: 301) [Size: 0] [--> http://10.64.149.207/]
+/server-status        (Status: 403) [Size: 278]
+/wp-admin             (Status: 301) [Size: 317] [--> http://10.64.149.207/wp-admin/]
+/wp-content           (Status: 301) [Size: 319] [--> http://10.64.149.207/wp-content/]
+/wp-includes          (Status: 301) [Size: 320] [--> http://10.64.149.207/wp-includes/]
+/xmlrpc.php           (Status: 405) [Size: 42]
+
+===============================================================
+Finished
+===============================================================
+root@ip-10-64-79-160:~# wpscan --url http://10.64.149.207 --enumerate u
+_______________________________________________________________
+         __          _______   _____
+         \ \        / /  __ \ / ____|
+          \ \  /\  / /| |__) | (___   ___  __ _ _ __ ®
+           \ \/  \/ / |  ___/ \___ \ / __|/ _` | '_ \
+            \  /\  /  | |     ____) | (__| (_| | | | |
+             \/  \/   |_|    |_____/ \___|\__,_|_| |_|
+
+         WordPress Security Scanner by the WPScan Team
+                         Version 3.8.28
+                               
+       @_WPScan_, @ethicalhack3r, @erwan_lr, @firefart
+_______________________________________________________________
+
+[i] Updating the Database ...
+[i] Update completed.
+
+[+] URL: http://10.64.149.207/ [10.64.149.207]
+[+] Started: Mon Oct 26 08:24:51 2026
+
+Interesting Finding(s):
+
+[+] Headers
+ | Interesting Entry: Server: Apache/2.4.58 (Ubuntu)
+ | Found By: Headers (Passive Detection)
+ | Confidence: 100%
+
+[+] XML-RPC seems to be enabled: http://10.64.149.207/xmlrpc.php
+ | Found By: Direct Access (Aggressive Detection)
+ | Confidence: 100%
+ | References:
+ |  - http://codex.wordpress.org/XML-RPC_Pingback_API
+ |  - https://www.rapid7.com/db/modules/auxiliary/scanner/http/wordpress_ghost_scanner/
+ |  - https://www.rapid7.com/db/modules/auxiliary/dos/http/wordpress_xmlrpc_dos/
+ |  - https://www.rapid7.com/db/modules/auxiliary/scanner/http/wordpress_xmlrpc_login/
+ |  - https://www.rapid7.com/db/modules/auxiliary/scanner/http/wordpress_pingback_access/
+
+[+] WordPress readme found: http://10.64.149.207/readme.html
+ | Found By: Direct Access (Aggressive Detection)
+ | Confidence: 100%
+
+[+] Upload directory has listing enabled: http://10.64.149.207/wp-content/uploads/
+ | Found By: Direct Access (Aggressive Detection)
+ | Confidence: 100%
+
+[+] The external WP-Cron seems to be enabled: http://10.64.149.207/wp-cron.php
+ | Found By: Direct Access (Aggressive Detection)
+ | Confidence: 60%
+ | References:
+ |  - https://www.iplocation.net/defend-wordpress-from-ddos
+ |  - https://github.com/wpscanteam/wpscan/issues/1299
+
+[+] WordPress version 6.9 identified (Insecure, released on 2025-12-02).
+ | Found By: Rss Generator (Passive Detection)
+ |  - http://10.64.149.207/index.php/feed/, <generator>https://wordpress.org/?v=6.9</generator>
+ |  - http://10.64.149.207/index.php/comments/feed/, <generator>https://wordpress.org/?v=6.9</generator>
+
+[+] WordPress theme in use: twentytwentyfive
+ | Location: http://10.64.149.207/wp-content/themes/twentytwentyfive/
+ | Latest Version: 1.5 (up to date)
+ | Last Updated: 2026-05-20T00:00:00.000Z
+ | Readme: http://10.64.149.207/wp-content/themes/twentytwentyfive/readme.txt
+ | [!] Directory listing is enabled
+ | Style URL: http://10.64.149.207/wp-content/themes/twentytwentyfive/style.css
+ | Style Name: Twenty Twenty-Five
+ | Style URI: https://wordpress.org/themes/twentytwentyfive/
+ | Description: Twenty Twenty-Five emphasizes simplicity and adaptability. It offers flexible design options, suppor...
+ | Author: the WordPress team
+ | Author URI: https://wordpress.org
+ |
+ | Found By: Urls In Homepage (Passive Detection)
+ |
+ | Version: 1.5 (80% confidence)
+ | Found By: Style (Passive Detection)
+ |  - http://10.64.149.207/wp-content/themes/twentytwentyfive/style.css, Match: 'Version: 1.5'
+
+[+] Enumerating Users (via Passive and Aggressive Methods)
+ Brute Forcing Author IDs - Time: 00:00:00 <==> (10 / 10) 100.00% Time: 00:00:00
+
+[i] User(s) Identified:
+
+[+] heinz
+ | Found By: Rss Generator (Passive Detection)
+ | Confirmed By:
+ |  Wp Json Api (Aggressive Detection)
+ |   - http://10.64.149.207/index.php/wp-json/wp/v2/users/?per_page=100&page=1
+ |  Author Id Brute Forcing - Author Pattern (Aggressive Detection)
+ |  Login Error Messages (Aggressive Detection)
+
+[!] No WPScan API Token given, as a result vulnerability data has not been output.
+[!] You can get a free API token with 25 daily requests by registering at https://wpscan.com/register
+
+[+] Finished: Mon Oct 26 08:24:57 2026
+[+] Requests Done: 69
+[+] Cached Requests: 6
+[+] Data Sent: 16.082 KB
+[+] Data Received: 25.33 MB
+[+] Memory used: 187.508 MB
+[+] Elapsed time: 00:00:05
+
+root@ip-10-64-82-12:~# nmap -Pn --script=vuln 10.64.155.4
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2026-10-26 11:19 UTC
+Nmap scan report for ip-10-64-155-4.ec2.internal (10.64.155.4)
+Host is up (0.00042s latency).
+Not shown: 998 closed tcp ports (reset)
+PORT   STATE SERVICE
+22/tcp open  ssh
+80/tcp open  http
+|_http-stored-xss: Couldn't find any stored XSS vulnerabilities.
+| http-csrf: 
+| Spidering limited to: maxdepth=3; maxpagecount=20; withinhost=ip-10-64-155-4.ec2.internal
+|   Found the following possible CSRF vulnerabilities: 
+|     
+|     Path: http://ip-10-64-155-4.ec2.internal:80/index.php/comments/feed/1quot;https:/gravatar.com/&quot;&gt;Gravatar&lt;/a&gt;.]]
+|     Form id: wp-block-search__input-2
+|_    Form action: http://ip-10-64-155-4.ec2.internal/
+|_http-dombased-xss: Couldn't find any DOM based XSS.
+| http-enum: 
+|   /wp-login.php: Possible admin folder
+|   /readme.html: Wordpress version: 2 
+|   /: WordPress version: 6.9
+|   /wp-includes/images/rss.png: Wordpress version 2.2 found.
+|   /wp-includes/js/jquery/suggest.js: Wordpress version 2.5 found.
+|   /wp-includes/images/blank.gif: Wordpress version 2.6 found.
+|   /wp-includes/js/comment-reply.js: Wordpress version 2.7 found.
+|   /wp-login.php: Wordpress login page.
+|   /wp-admin/upgrade.php: Wordpress login page.
+|_  /readme.html: Interesting, a readme.
+| http-wordpress-users: 
+| Username found: heinz
+|_Search stopped at ID #25. Increase the upper limit if necessary with 'http-wordpress-users.limit'
+
+Nmap done: 1 IP address (1 host up) scanned in 34.23 seconds
+root@ip-10-64-82-12:~# 
+```
