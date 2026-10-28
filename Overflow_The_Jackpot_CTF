@@ -39,8 +39,6 @@ XORing something twice with the same value cancels it out.
       - Ciphertext = Plaintext XOR Key  
       - Plaintext = Ciphertext XOR Key  
 
-Because XOR undoes itself, using the same key again restores the original data.
-
 **THM in Hex**
 That gives you the first 4 plaintext bytes:
 
