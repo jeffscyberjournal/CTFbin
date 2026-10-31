@@ -10,7 +10,7 @@ Files downloaded:
 The two files give us what we need to know. Challenge.py gives us: 
 
 - Its a XOR used to scramble code
-- Key use of 4 in os.urandom tells us its 4 byte key
+- Key use of 4 in os.urandom tells us its 4 byte or 8 hex characters key
 
 ```
 import os
@@ -32,10 +32,14 @@ $ xxd encrypted.bin
 00000010: bdab bc1a 9486 fa30 9480 fd35 ae9c 9101  .......0...5....
 00000020: f8fd a01c 9fa6 ff10 948b 8e30 b2b3       ...........0..
 ```
+- The encrypted data is short so the HEX part is isolated and used within script below. 
+- Its also very short and likely just contains the flag. 
+- If it were longer a more complicated python scipt with additional iterations with comparison to detemine if THM{ is located within the data first to obtain rest of the flag, but looks like this wont be necessary.
 XORing something twice with the same value cancels it out.  
-  
+
+**How xoring works:**
   A xor B xor B = A
-    
+      - xoring twice will reverse with same key.
       - Ciphertext = Plaintext XOR Key  
       - Plaintext = Ciphertext XOR Key  
 
@@ -67,7 +71,10 @@ The key = CB CE CE 43
 83 XOR 4D = CE
 38 XOR 7B = 43
 
+
 **To find flag with python (for now called it code.py, also write in linux os to avoid dos2unix and sed mess):**
+
+Note: Python automatically concatenates adjacent string literals inside parentheses, it can just be a single line with/without parenthesis.
 ```
 cipher = bytes.fromhex(
 "9f86833893febc1c80fdb71cb9fdad73"
